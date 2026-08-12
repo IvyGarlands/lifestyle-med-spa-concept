@@ -1,0 +1,64 @@
+---
+/**
+ * 404 — kept short and useful.
+ *
+ * A lost visitor on a small-business site wants one of three things: the menu
+ * or services, the phone number, or the address. Give them all three and stop.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE } from "../config/site";
+import { useTranslations, localeFromUrl } from "../i18n/ui";
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+---
+
+<BaseLayout
+  title={t("404.title")}
+  description={t("404.body")}
+  path="/404"
+  noindex
+  stickyCall={false}
+>
+  <section class="section section--loose container container--s notfound">
+    <p class="eyebrow">404</p>
+    <h1 class="display notfound__heading">{t("404.title")}</h1>
+    <p class="lead">{t("404.body")}</p>
+
+    <div class="cluster notfound__actions">
+      <a class="btn btn--large" href="/">{t("404.home")}</a>
+      <a class="btn btn--large btn--secondary" href={`tel:${SITE.phoneHref}`}>
+        {t("cta.call")} {SITE.phone}
+      </a>
+    </div>
+
+    <address class="notfound__address">
+      {SITE.address.street}, {SITE.address.locality}, {SITE.address.region}
+      {SITE.address.postalCode}
+    </address>
+  </section>
+</BaseLayout>
+
+<style>
+  .notfound {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-s);
+    min-height: 50svh;
+    justify-content: center;
+  }
+
+  .notfound__heading {
+    font-size: var(--step-5);
+  }
+
+  .notfound__actions {
+    margin-block-start: var(--space-s);
+  }
+
+  .notfound__address {
+    color: var(--color-ink-muted);
+    font-size: var(--step--1);
+  }
+</style>

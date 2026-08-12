@@ -1,0 +1,185 @@
+---
+/**
+ * MenuLeaders (variant C) — single-column editorial menu, prices right-aligned
+ * on dot leaders.
+ *
+ * The dot leaders are drawn with a repeating-radial-gradient on a flex spacer,
+ * NOT with a row of literal "." characters: periods are announced by screen
+ * readers, break at odd points, and never align. This way the leader is
+ * decorative and the name/price pair stays a clean semantic unit.
+ */
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+import { groupMenu, type MenuGroup } from "../../lib/content";
+import type { CollectionEntry } from "astro:content";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  items: CollectionEntry<"menu">[];
+  /** Footnote under the menu — allergens, "prices subject to change". */
+  note?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  items,
+  note,
+  id = "menu",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+
+const groups: MenuGroup[] = groupMenu(items);
+---
+
+<Section id={id} tone={tone} spacing={spacing} width="m" labelledBy={`${id}-heading`} {...rest}>
+  <SectionHeader
+    eyebrow={eyebrow}
+    heading={heading}
+    body={body}
+    headingId={`${id}-heading`}
+    align="center"
+  />
+
+  <div class="menu-leaders">
+    {
+      groups.map((group) => (
+        <section class="menu-leaders__group" data-reveal-stagger>
+          <h3 class="menu-leaders__category" data-reveal>
+            {group.category}
+          </h3>
+
+          <ul class="menu-leaders__list" role="list">
+            {group.items.map((item) => (
+              <li class="menu-leaders__item" data-reveal>
+                <div class="menu-leaders__row">
+                  <span class="menu-leaders__name">{item.data.name}</span>
+                  {item.data.price && (
+                    <>
+                      <span class="menu-leaders__leader" aria-hidden="true" />
+                      <span class="menu-leaders__price">{item.data.price}</span>
+                    </>
+                  )}
+                </div>
+
+                {item.data.description && (
+                  <p class="menu-leaders__desc">{item.data.description}</p>
+                )}
+
+                {item.data.tags.length > 0 && (
+                  <ul class="menu-leaders__tags" role="list">
+                    {item.data.tags.map((tag) => (
+                      <li class="menu-leaders__tag">{tag}</li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+
+  {note && <p class="menu-leaders__note" data-reveal>{note}</p>}
+</Section>
+
+<style>
+  .menu-leaders {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+  }
+
+  .menu-leaders__category {
+    font-size: var(--step-2);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--color-brand);
+    padding-block-end: var(--space-xs);
+    margin-block-end: var(--space-m);
+    border-block-end: var(--border-hair) solid var(--color-line);
+  }
+
+  .menu-leaders__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+  }
+
+  .menu-leaders__row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2xs);
+  }
+
+  .menu-leaders__name {
+    font-family: var(--face-display);
+    font-size: var(--step-1);
+    font-weight: var(--weight-display);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-strong);
+  }
+
+  /* The leader: a dotted rule that grows to fill the gap. Decorative and
+     aria-hidden, so it is never read aloud. */
+  .menu-leaders__leader {
+    flex: 1 1 auto;
+    min-width: var(--space-m);
+    height: 1px;
+    align-self: flex-end;
+    margin-block-end: 0.35em;
+    background-image: radial-gradient(
+      circle,
+      var(--color-line-strong) 1px,
+      transparent 1px
+    );
+    background-size: 0.5em 2px;
+    background-repeat: repeat-x;
+    background-position: bottom;
+    opacity: 0.7;
+  }
+
+  .menu-leaders__price {
+    font-family: var(--face-display);
+    font-size: var(--step-1);
+    font-weight: var(--weight-display);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-strong);
+    white-space: nowrap;
+  }
+
+  .menu-leaders__desc {
+    margin-block-start: var(--space-3xs);
+    max-width: 58ch;
+    color: var(--color-ink-muted);
+  }
+
+  .menu-leaders__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-3xs);
+  }
+
+  .menu-leaders__tag {
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .menu-leaders__note {
+    margin-block-start: var(--space-xl);
+    text-align: center;
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+</style>

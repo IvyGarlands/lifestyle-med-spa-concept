@@ -1,0 +1,159 @@
+---
+/**
+ * EventsFeature — private dining, parties, classes, recurring nights.
+ *
+ * Doubles as the "book the space" section for venues and the "what's on"
+ * section for studios and bars. Every entry carries its own CTA, because an
+ * events section without an obvious way to enquire is decoration.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+import type { CollectionEntry } from "astro:content";
+import type { SectionProps } from "./Section.astro";
+import { useTranslations, type Locale } from "../../i18n/ui";
+
+interface Props extends SectionProps {
+  locale?: Locale;
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  items: CollectionEntry<"events">[];
+  image?: ImageMetadata;
+  alt?: string;
+}
+
+const {
+  locale = "en",
+  eyebrow,
+  heading,
+  body,
+  items,
+  image,
+  alt = "",
+  id = "events",
+  tone = "dark",
+  spacing,
+  ...rest
+} = Astro.props;
+
+const t = useTranslations(locale as Locale);
+
+const fmt = new Intl.DateTimeFormat(locale, {
+  weekday: "short",
+  month: "long",
+  day: "numeric",
+});
+
+/** A dated event shows its date; a standing offer shows its cadence. */
+const when = (e: CollectionEntry<"events">) =>
+  e.data.date ? fmt.format(e.data.date) : e.data.recurring;
+---
+
+<Section id={id} tone={tone} spacing={spacing} width="xl" labelledBy={`${id}-heading`} {...rest}>
+  <div class="events">
+    {
+      image && (
+        <div class="events__media" data-reveal="left">
+          <div class="media media--portrait">
+            <Image
+              src={image}
+              alt={alt}
+              widths={[480, 720, 1080]}
+              sizes="(min-width: 60em) 42vw, 100vw"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      )
+    }
+
+    <div class="events__body">
+      <SectionHeader
+        eyebrow={eyebrow}
+        heading={heading}
+        body={body}
+        headingId={`${id}-heading`}
+      />
+
+      <ul class="events__list" role="list" data-reveal-stagger>
+        {
+          items.map((e) => (
+            <li class="events__item" data-reveal>
+              <div class="events__item-head">
+                <h3 class="events__item-title">{e.data.title}</h3>
+                {when(e) && <p class="events__when">{when(e)}</p>}
+              </div>
+
+              {e.data.summary && <p class="events__summary">{e.data.summary}</p>}
+
+              {e.data.ctaHref && (
+                <a class="btn btn--secondary events__cta" href={e.data.ctaHref}>
+                  {e.data.ctaLabel ?? t("cta.inquire")}
+                </a>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</Section>
+
+<style>
+  .events {
+    display: grid;
+    gap: var(--space-2xl);
+    align-items: center;
+  }
+
+  .events__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+  }
+
+  .events__item + .events__item {
+    padding-block-start: var(--space-l);
+    border-block-start: var(--border-hair) solid var(--color-line);
+  }
+
+  .events__item-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+  }
+
+  .events__item-title {
+    font-size: var(--step-3);
+  }
+
+  .events__when {
+    font-size: var(--step--1);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+
+  .events__summary {
+    margin-block-start: var(--space-2xs);
+    color: var(--color-ink-muted);
+    max-width: var(--measure);
+  }
+
+  .events__cta {
+    margin-block-start: var(--space-s);
+  }
+
+  @media (min-width: 60em) {
+    .events {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+      gap: var(--space-3xl);
+    }
+  }
+</style>

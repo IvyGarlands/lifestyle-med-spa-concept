@@ -1,0 +1,252 @@
+---
+/**
+ * HeroLayered (variant F) — the signature hero.
+ *
+ * Multi-depth parallax scene with masked line-by-line type. This is the hero
+ * you reach for when the brief is "make it a screenshot moment" (CLAUDE.md
+ * §4a) — it is deliberately the most expensive-looking thing in the library
+ * and deliberately the one that needs the best photography.
+ *
+ * COMPOSITION
+ *   backdrop  depth 0.15  the wide environment shot
+ *   subject   depth 0.55  the hero object, cut out or tightly cropped
+ *   type      depth 0     welded to the page so the headline never drifts
+ *   foreground depth 0.9  an optional near element that passes over the type
+ *
+ * LCP: both images are eager. The headline is [data-split], which means it is
+ * plain text at paint and only becomes masked lines once motion.ts runs — so
+ * the LCP text is never gated on JS.
+ *
+ * STATIC FALLBACK: with JS off or reduced motion on, this is a composed
+ * stacked hero with a scrim. That is the acid test for any signature moment —
+ * if it is worthless without motion, the composition was never good enough.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  /** Wide environment shot. Sits furthest back and moves least. */
+  backdrop: ImageMetadata;
+  backdropAlt: string;
+  /** Optional cut-out or tight crop that floats in front of the backdrop. */
+  subject?: ImageMetadata;
+  subjectAlt?: string;
+  /** Optional near element that passes OVER the headline. Use sparingly. */
+  foreground?: ImageMetadata;
+  foregroundAlt?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+  /** Where the type block sits in the scene. */
+  align?: "start" | "center";
+  /** Vertical rule of thumb: "tall" for portrait subjects. */
+  height?: "standard" | "tall";
+  id?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  backdrop,
+  backdropAlt,
+  subject,
+  subjectAlt = "",
+  foreground,
+  foregroundAlt = "",
+  ctaLabel,
+  ctaHref,
+  secondaryLabel,
+  secondaryHref,
+  align = "start",
+  height = "standard",
+  id,
+} = Astro.props;
+---
+
+<section
+  id={id}
+  class:list={["hero-layered", `hero-layered--${align}`, `hero-layered--${height}`, "on-dark"]}
+  data-parallax-scene
+>
+  <div class="hero-layered__backdrop" data-depth="0.15">
+    <Image
+      src={backdrop}
+      alt={backdropAlt}
+      widths={[640, 960, 1280, 1920, 2400]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+      decoding="sync"
+      class="hero-layered__img"
+    />
+    <div class="scrim scrim--full" aria-hidden="true"></div>
+  </div>
+
+  {
+    subject && (
+      <div class="hero-layered__subject" data-depth="0.55">
+        <Image
+          src={subject}
+          alt={subjectAlt}
+          widths={[480, 720, 1080]}
+          sizes="(min-width: 60em) 45vw, 80vw"
+          loading="eager"
+          class="hero-layered__subject-img"
+        />
+      </div>
+    )
+  }
+
+  <div class="hero-layered__inner container container--xl" data-depth="0">
+    <div class="hero-layered__content">
+      {eyebrow && <p class="eyebrow hero-layered__eyebrow" data-hero-settle>{eyebrow}</p>}
+
+      {/* Plain text at paint; motion.ts splits it into masked lines. */}
+      <h1 class="display hero-layered__heading" data-split="lines">{heading}</h1>
+
+      {body && <p class="hero-layered__body" data-hero-settle>{body}</p>}
+
+      {
+        (ctaHref || secondaryHref) && (
+          <div class="cluster hero-layered__actions" data-hero-settle>
+            {ctaHref && ctaLabel && (
+              <a class="btn btn--large" href={ctaHref} data-magnetic>
+                {ctaLabel}
+              </a>
+            )}
+            {secondaryHref && secondaryLabel && (
+              <a class="btn btn--large btn--secondary" href={secondaryHref}>
+                {secondaryLabel}
+              </a>
+            )}
+          </div>
+        )
+      }
+    </div>
+  </div>
+
+  {
+    foreground && (
+      <div class="hero-layered__foreground" data-depth="0.9" aria-hidden="true">
+        <Image
+          src={foreground}
+          alt={foregroundAlt}
+          widths={[480, 720, 1080]}
+          sizes="60vw"
+          loading="lazy"
+          class="hero-layered__img"
+        />
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .hero-layered {
+    position: relative;
+    display: grid;
+    isolation: isolate;
+    min-height: clamp(32rem, 84svh, 50rem);
+  }
+
+  .hero-layered--tall {
+    min-height: clamp(36rem, 92svh, 56rem);
+  }
+
+  .hero-layered__backdrop {
+    position: absolute;
+    /* Oversized so the parallax translate never exposes an edge. */
+    inset: -12% 0;
+    z-index: -3;
+  }
+
+  .hero-layered__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: var(--image-filter-hero);
+  }
+
+  .hero-layered__subject {
+    position: absolute;
+    z-index: -2;
+    inset-block-end: 0;
+    inset-inline-end: 0;
+    width: min(52%, 34rem);
+    pointer-events: none;
+  }
+
+  .hero-layered__subject-img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    filter: var(--image-filter);
+  }
+
+  .hero-layered__foreground {
+    position: absolute;
+    z-index: 1;
+    inset-block-end: -8%;
+    inset-inline-start: -6%;
+    width: min(38%, 26rem);
+    pointer-events: none;
+  }
+
+  .hero-layered__inner {
+    display: flex;
+    align-items: flex-end;
+    padding-block: var(--space-4xl) var(--space-2xl);
+  }
+
+  .hero-layered--center .hero-layered__inner {
+    align-items: center;
+  }
+
+  .hero-layered__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+    max-width: min(46rem, 100%);
+  }
+
+  .hero-layered--center .hero-layered__content {
+    margin-inline: auto;
+    text-align: center;
+    align-items: center;
+  }
+
+  .hero-layered__eyebrow {
+    color: var(--color-accent);
+  }
+
+  .hero-layered__heading {
+    color: var(--n-000);
+    max-width: 16ch;
+    overflow-wrap: normal;
+  }
+
+  /* Once split, each line is its own block — balance would fight the masks. */
+  .hero-layered__heading.is-split {
+    text-wrap: initial;
+  }
+
+  .hero-layered__body {
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    max-width: 40ch;
+  }
+
+  @media (max-width: 48em) {
+    /* The subject would cover the headline on a phone. Drop it and let the
+       backdrop and type carry the composition. */
+    .hero-layered__subject,
+    .hero-layered__foreground {
+      display: none;
+    }
+  }
+</style>

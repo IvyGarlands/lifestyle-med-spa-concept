@@ -1,0 +1,128 @@
+---
+/**
+ * TestimonialPullQuote — one review, set large.
+ *
+ * One real review at display size outperforms six in a carousel. Use the
+ * client's single best Google review here and put the rest on an inner page.
+ *
+ * Real review text only, with its source attributed — never authored by us
+ * (CLAUDE.md §11). `source` is a required field on the collection precisely so
+ * an invented quote cannot be laundered into the page.
+ */
+import Section from "./Section.astro";
+import Stars from "../core/Stars.astro";
+import type { CollectionEntry } from "astro:content";
+import type { SectionProps } from "./Section.astro";
+import { useTranslations, type Locale } from "../../i18n/ui";
+
+interface Props extends SectionProps {
+  locale: Locale;
+  eyebrow?: string;
+  testimonial: CollectionEntry<"testimonials">;
+}
+
+const {
+  locale,
+  eyebrow,
+  testimonial,
+  id = "reviews",
+  tone = "brand",
+  spacing,
+  ...rest
+} = Astro.props;
+
+const t = useTranslations(locale);
+const { quote, author, rating, source, date } = testimonial.data;
+
+const dateLabel = date
+  ? new Intl.DateTimeFormat(locale, { year: "numeric", month: "long" }).format(date)
+  : undefined;
+---
+
+{/* No heading is rendered here, so the landmark is named with aria-label
+    rather than a dangling aria-labelledby. */}
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width="m"
+  aria-label={t("testimonials.title")}
+  {...rest}
+>
+  <figure class="pull-quote" data-reveal-stagger>
+    {eyebrow && <p class="eyebrow pull-quote__eyebrow" data-reveal>{eyebrow}</p>}
+
+    {rating && <div data-reveal><Stars rating={rating} /></div>}
+
+    <blockquote class="pull-quote__quote" data-reveal>
+      <p>{quote}</p>
+    </blockquote>
+
+    <figcaption class="pull-quote__cite" data-reveal>
+      <span class="pull-quote__author">{author}</span>
+      <span class="pull-quote__source">
+        {t("testimonials.source")} {source}{dateLabel && ` · ${dateLabel}`}
+      </span>
+    </figcaption>
+  </figure>
+</Section>
+
+<style>
+  .pull-quote {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-m);
+    text-align: center;
+    margin: 0;
+  }
+
+  .pull-quote__eyebrow {
+    color: var(--color-accent);
+  }
+
+  .pull-quote__quote {
+    font-family: var(--face-display);
+    font-size: var(--step-3);
+    font-weight: var(--weight-display);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-heading);
+    color: var(--color-ink-strong);
+    text-wrap: balance;
+    max-width: 28ch;
+  }
+
+  /* Typographic quote marks, not an icon. Hung so the first line stays optically
+     aligned with the rest of the block. */
+  .pull-quote__quote p::before {
+    content: open-quote;
+    margin-inline-start: -0.4em;
+  }
+
+  .pull-quote__quote p::after {
+    content: close-quote;
+  }
+
+  .pull-quote__quote p {
+    quotes: "\201C" "\201D";
+  }
+
+  .pull-quote__cite {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+  }
+
+  .pull-quote__author {
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    font-size: var(--step--1);
+    color: var(--color-ink);
+  }
+
+  .pull-quote__source {
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+</style>

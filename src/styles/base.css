@@ -1,0 +1,917 @@
+/* ==========================================================================
+   BASE.CSS — reset, typographic defaults, layout primitives, utilities
+   --------------------------------------------------------------------------
+   RULE: this file may consume SEMANTIC tokens only. If you find yourself
+   reaching for --n-400 or --b-700 here, the semantic layer has a gap — add
+   the semantic token to tokens.css §3 instead.
+
+   §1  Reset
+   §2  Document + typographic defaults
+   §3  Focus, selection, skip link
+   §4  Layout primitives: container, stack, cluster, grid, full-bleed
+   §5  Prose (long-form editorial copy)
+   §6  Media defaults + image treatment
+   §7  Buttons, links, form controls
+   §8  Motion primitives (GSAP reveal contract + CSS-only fallback)
+   §9  Texture: grain overlay
+   §10 Utilities
+   ========================================================================== */
+
+/* ==========================================================================
+   §1  RESET
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  /* Anchored sections must not hide under the sticky header. */
+  scroll-padding-top: calc(var(--header-h) + var(--space-m));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  min-height: 100svh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* Modern typographic niceties, safely degraded. */
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+
+p,
+li,
+figcaption,
+blockquote {
+  text-wrap: pretty;
+}
+
+ul[role="list"],
+ol[role="list"] {
+  list-style: none;
+  padding: 0;
+}
+
+address {
+  font-style: normal;
+}
+
+/* ==========================================================================
+   §2  DOCUMENT + TYPOGRAPHIC DEFAULTS
+   ========================================================================== */
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--face-body);
+  font-size: var(--step-0);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--face-display);
+  color: var(--color-ink-strong);
+  font-weight: var(--weight-display);
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-heading);
+}
+
+h1 {
+  font-size: var(--step-5);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+}
+h2 {
+  font-size: var(--step-4);
+}
+h3 {
+  font-size: var(--step-3);
+}
+h4 {
+  font-size: var(--step-2);
+}
+h5 {
+  font-size: var(--step-1);
+}
+h6 {
+  font-size: var(--step-0);
+}
+
+small {
+  font-size: var(--step--1);
+}
+
+strong,
+b {
+  font-weight: var(--weight-strong);
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--face-mono);
+  font-size: 0.9em;
+}
+
+hr {
+  border: 0;
+  border-top: var(--border-hair) solid var(--color-line);
+  margin-block: var(--space-l);
+}
+
+/* The house "eyebrow" — small caps label above a heading. Used constantly. */
+.eyebrow {
+  display: block;
+  font-family: var(--face-body);
+  font-size: var(--step--1);
+  font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-brand);
+  line-height: var(--leading-snug);
+}
+
+/* Display type that must break the body scale — hero lines, pull quotes. */
+.display {
+  font-family: var(--face-display);
+  font-size: var(--step-6);
+  font-weight: var(--weight-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  color: var(--color-ink-strong);
+}
+
+.display--xl {
+  font-size: var(--step-7);
+}
+
+.lead {
+  font-size: var(--step-1);
+  line-height: var(--leading-snug);
+  color: var(--color-ink-muted);
+  max-width: var(--measure);
+}
+
+/* ==========================================================================
+   §3  FOCUS, SELECTION, SKIP LINK
+   --------------------------------------------------------------------------
+   Focus is NEVER removed. :focus-visible keeps it off mouse clicks. The ring
+   uses an offset so it reads on both light and dark surfaces.
+   ========================================================================== */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-s);
+}
+
+/* Older engines that lack :focus-visible still get a ring. */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+::selection {
+  background-color: var(--color-brand);
+  color: var(--color-brand-contrast);
+}
+
+.skip-link {
+  position: absolute;
+  top: var(--space-s);
+  left: var(--space-s);
+  z-index: var(--z-badge);
+  padding: var(--space-2xs) var(--space-s);
+  background-color: var(--color-surface);
+  color: var(--color-ink-strong);
+  border: var(--border-thick) solid var(--color-focus);
+  border-radius: var(--radius-control);
+  font-weight: var(--weight-strong);
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* Screen-reader-only, but focusable if it needs to be. */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==========================================================================
+   §4  LAYOUT PRIMITIVES
+   --------------------------------------------------------------------------
+   Four primitives cover ~95% of section layout. Sections compose these
+   instead of inventing bespoke grids.
+   ========================================================================== */
+
+/* container — centred, gutter-padded, width set by token. */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.container--xs { --container: var(--container-xs); }
+.container--s  { --container: var(--container-s); }
+.container--m  { --container: var(--container-m); }
+.container--l  { --container: var(--container-l); }
+.container--xl { --container: var(--container-xl); }
+
+/* section — the vertical rhythm of the page. */
+.section {
+  padding-block: var(--section-y);
+}
+.section--tight { padding-block: var(--section-y-tight); }
+.section--loose { padding-block: var(--section-y-loose); }
+.section--flush-top { padding-block-start: 0; }
+.section--flush-bottom { padding-block-end: 0; }
+
+/* stack — vertical flow with one consistent gap. */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack-gap);
+}
+.stack--3xs { --stack-gap: var(--space-3xs); }
+.stack--2xs { --stack-gap: var(--space-2xs); }
+.stack--xs  { --stack-gap: var(--space-xs); }
+.stack--s   { --stack-gap: var(--space-s); }
+.stack--m   { --stack-gap: var(--space-m); }
+.stack--l   { --stack-gap: var(--space-l); }
+.stack--xl  { --stack-gap: var(--space-xl); }
+.stack--2xl { --stack-gap: var(--space-2xl); }
+
+/* cluster — horizontal group that wraps gracefully (nav, tags, button rows). */
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--cluster-gap, var(--space-s));
+}
+.cluster--between { justify-content: space-between; }
+.cluster--center { justify-content: center; }
+.cluster--end { justify-content: flex-end; }
+
+/* grid — auto-fitting card grid; --grid-min sets the breakpoint implicitly. */
+.grid {
+  display: grid;
+  gap: var(--grid-gap, var(--space-l));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(var(--grid-min, 18rem), 100%), 1fr)
+  );
+}
+.grid--2 { --grid-min: 26rem; }
+.grid--3 { --grid-min: 18rem; }
+.grid--4 { --grid-min: 13rem; }
+
+/* switcher — two columns above a threshold, stacked below, no media query. */
+.switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--switcher-gap, var(--space-2xl));
+  align-items: var(--switcher-align, center);
+}
+.switcher > * {
+  flex-grow: 1;
+  flex-basis: calc((var(--switcher-threshold, 34rem) - 100%) * 999);
+}
+
+/* full-bleed — escape the container to the viewport edge. */
+.full-bleed {
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+  max-width: 100vw;
+}
+
+/* center — constrain prose to a comfortable measure. */
+.measure { max-width: var(--measure); }
+.measure--narrow { max-width: var(--measure-narrow); }
+
+/* ==========================================================================
+   §5  PROSE
+   --------------------------------------------------------------------------
+   Applied to rendered markdown from content collections. Deliberately narrow
+   in scope: sections style themselves, prose styles author-written copy.
+   ========================================================================== */
+.prose {
+  max-width: var(--measure);
+}
+
+.prose > * + * {
+  margin-block-start: var(--space-m);
+}
+
+.prose > * + :is(h2, h3, h4) {
+  margin-block-start: var(--space-xl);
+}
+
+.prose :is(h2, h3, h4) + * {
+  margin-block-start: var(--space-s);
+}
+
+.prose :is(ul, ol) {
+  padding-inline-start: var(--space-m);
+}
+
+.prose li + li {
+  margin-block-start: var(--space-2xs);
+}
+
+.prose blockquote {
+  border-inline-start: var(--border-rule) solid var(--color-accent);
+  padding-inline-start: var(--space-m);
+  font-family: var(--face-display);
+  font-size: var(--step-1);
+  line-height: var(--leading-snug);
+  color: var(--color-ink-strong);
+}
+
+.prose a {
+  color: var(--color-brand);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+/* ==========================================================================
+   §6  MEDIA
+   --------------------------------------------------------------------------
+   Every image gets a locked ratio so nothing shifts on load. The house photo
+   treatment is a token so a whole site's mood changes in one edit.
+   ========================================================================== */
+.media {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-image);
+  background-color: var(--color-surface-sunken);
+}
+
+.media > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: var(--image-filter);
+}
+
+.media--hero > img {
+  filter: var(--image-filter-hero);
+}
+
+.media--landscape { aspect-ratio: var(--ratio-landscape); }
+.media--portrait  { aspect-ratio: var(--ratio-portrait); }
+.media--square    { aspect-ratio: var(--ratio-square); }
+.media--wide      { aspect-ratio: var(--ratio-wide); }
+.media--hero-ratio { aspect-ratio: var(--ratio-hero); }
+
+/* Zoom-on-hover, only where a pointer can actually hover. */
+@media (hover: hover) {
+  .media--zoom > img {
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+  .media--zoom:hover > img,
+  a:hover .media--zoom > img,
+  a:focus-visible .media--zoom > img {
+    transform: scale(var(--image-hover-scale));
+  }
+}
+
+/* Scrims — mandatory behind any type overlaid on a photo. */
+.scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.scrim--bottom { background-image: var(--scrim-bottom); }
+.scrim--full   { background-image: var(--scrim-full); }
+.scrim--side   { background-image: var(--scrim-side); }
+
+figcaption {
+  margin-block-start: var(--space-2xs);
+  font-size: var(--step--1);
+  color: var(--color-ink-muted);
+}
+
+/* ==========================================================================
+   §7  BUTTONS, LINKS, FORM CONTROLS
+   ========================================================================== */
+a {
+  color: var(--color-brand);
+}
+
+a:hover {
+  color: var(--color-brand-strong);
+}
+
+.btn {
+  --btn-bg: var(--color-brand);
+  --btn-ink: var(--color-brand-contrast);
+  --btn-border: var(--color-brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2xs);
+  padding: var(--space-xs) var(--space-m);
+  min-height: 3rem; /* 48px touch target */
+  background-color: var(--btn-bg);
+  color: var(--btn-ink);
+  border: var(--border-thick) solid var(--btn-border);
+  border-radius: var(--radius-control);
+  font-family: var(--face-body);
+  font-size: var(--step-0);
+  font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.btn:hover {
+  --btn-bg: var(--color-brand-strong);
+  --btn-border: var(--color-brand-strong);
+  color: var(--btn-ink);
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn--secondary {
+  --btn-bg: transparent;
+  --btn-ink: var(--color-ink-strong);
+  --btn-border: var(--color-line-strong);
+}
+.btn--secondary:hover {
+  --btn-bg: transparent;
+  --btn-ink: var(--color-brand);
+  --btn-border: var(--color-brand);
+}
+
+.btn--accent {
+  --btn-bg: var(--color-accent);
+  --btn-ink: var(--color-accent-contrast);
+  --btn-border: var(--color-accent);
+}
+
+.btn--ghost {
+  --btn-bg: transparent;
+  --btn-ink: var(--color-ink-strong);
+  --btn-border: transparent;
+  padding-inline: var(--space-2xs);
+}
+.btn--ghost:hover {
+  --btn-bg: transparent;
+  --btn-ink: var(--color-brand);
+}
+
+.btn--large {
+  font-size: var(--step-1);
+  padding: var(--space-s) var(--space-l);
+  min-height: 3.5rem;
+}
+
+.btn--block {
+  width: 100%;
+}
+
+/* Form controls */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xs);
+}
+
+.field > label {
+  font-size: var(--step--1);
+  font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.field :is(input, textarea, select) {
+  width: 100%;
+  padding: var(--space-xs) var(--space-s);
+  min-height: 3rem;
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  border: var(--border-hair) solid var(--color-line-strong);
+  border-radius: var(--radius-control);
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.field :is(input, textarea):focus-visible {
+  border-color: var(--color-focus);
+}
+
+.field textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.field :is(input, textarea)::placeholder {
+  color: var(--color-ink-muted);
+  opacity: 1;
+}
+
+.field :is(input, textarea)[aria-invalid="true"] {
+  border-color: var(--color-err);
+  border-width: var(--border-thick);
+}
+
+.field-error {
+  font-size: var(--step--1);
+  color: var(--color-err);
+  font-weight: var(--weight-medium);
+}
+
+/* Honeypot — hidden from humans, visible to naive bots. Never display:none,
+   which some bots skip; and never focusable/announced for real users. */
+.hp-field {
+  position: absolute !important;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   §8  MOTION PRIMITIVES
+   --------------------------------------------------------------------------
+   THE REVEAL CONTRACT
+   Any element marked [data-reveal] starts hidden and is revealed by GSAP
+   ScrollTrigger (see src/lib/motion.ts).
+     data-reveal="up"    translate from below   (default)
+     data-reveal="fade"  opacity only
+     data-reveal="left"  translate from the left
+     data-reveal="right" translate from the right
+     data-reveal-stagger on a PARENT staggers its [data-reveal] children
+     data-reveal-delay="0.2" extra delay in seconds
+
+   FAIL-SAFE: if JS never runs, never loads, or errors, content MUST still be
+   visible. So the hidden state is applied by a class that motion.ts adds to
+   <html> only once it is alive, and reduced-motion never hides anything.
+   ========================================================================== */
+.js-motion [data-reveal] {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.js-motion [data-reveal="up"],
+.js-motion [data-reveal=""],
+.js-motion [data-reveal]:not([data-reveal="fade"]):not([data-reveal="left"]):not([data-reveal="right"]) {
+  transform: translate3d(0, var(--motion-distance), 0);
+}
+
+.js-motion [data-reveal="left"] {
+  transform: translate3d(calc(var(--motion-distance) * -1), 0, 0);
+}
+
+.js-motion [data-reveal="right"] {
+  transform: translate3d(var(--motion-distance), 0, 0);
+}
+
+.js-motion [data-reveal="fade"] {
+  transform: none;
+}
+
+/* Once revealed, drop the compositor hint. */
+.js-motion [data-reveal].is-revealed {
+  will-change: auto;
+}
+
+/* ---- hero settle ------------------------------------------------------
+   Secondary hero furniture (eyebrow, lede, buttons) settles in via a CSS
+   animation rather than GSAP, deliberately:
+
+   - it starts at first paint instead of waiting for the JS bundle, so
+     above-the-fold content is never gated on a script;
+   - a stalled or throttled requestAnimationFrame cannot strand it at
+     opacity 0, which is exactly what a JS-driven fade can do in a
+     backgrounded tab;
+   - it costs zero main-thread work.
+
+   The stagger is done with sibling combinators — each additional
+   [data-hero-settle] sibling pushes its own delay one step further.
+   The hero HEADING and IMAGE are never in here: they are the LCP
+   candidates and must paint immediately (CLAUDE.md §4).                  */
+@keyframes hero-settle {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--motion-distance-s), 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.js-motion [data-hero-settle] {
+  --settle-step: 0s;
+  animation: hero-settle var(--duration-hero) var(--ease-out) both;
+  animation-delay: calc(var(--motion-hero-delay) + var(--settle-step));
+}
+
+.js-motion [data-hero-settle] ~ [data-hero-settle] {
+  --settle-step: var(--motion-stagger);
+}
+.js-motion [data-hero-settle] ~ [data-hero-settle] ~ [data-hero-settle] {
+  --settle-step: calc(var(--motion-stagger) * 2);
+}
+.js-motion
+  [data-hero-settle]
+  ~ [data-hero-settle]
+  ~ [data-hero-settle]
+  ~ [data-hero-settle] {
+  --settle-step: calc(var(--motion-stagger) * 3);
+}
+
+/* Print, and any context without animation support, must show everything. */
+@media print {
+  .js-motion [data-reveal],
+  .js-motion [data-hero-settle] {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   §8a  SIGNATURE TIER
+   --------------------------------------------------------------------------
+   Support for the ONE signature moment per page (CLAUDE.md §4a). Everything
+   here is opt-in and every piece has a composed static fallback: if the JS
+   never runs, [data-split] is just a heading, [data-parallax-scene] is just a
+   stacked composition, and the marquee simply does not move.
+   ========================================================================== */
+
+/* ---- masked type reveal --------------------------------------------------
+   motion.ts rewrites [data-split] into .split__mask > .split__line/.split__word.
+   Until it does, the element is ordinary text — which is exactly what a
+   no-JS visitor, a crawler, and a reduced-motion user get.                  */
+.split__mask {
+  display: block;
+  overflow: hidden;
+  /* Descenders (g, y, p) get clipped by a tight mask, so pad and pull back. */
+  padding-block-end: 0.12em;
+  margin-block-end: -0.12em;
+}
+
+.split__line,
+.split__word {
+  display: inline-block;
+  will-change: transform;
+}
+
+[data-split="words"] .split__mask {
+  display: inline-block;
+  vertical-align: top;
+}
+
+/* ---- layered parallax scene ---------------------------------------------- */
+[data-parallax-scene] {
+  position: relative;
+  isolation: isolate;
+  /* Layers translate beyond their box; without this they bleed into the
+     neighbouring section and reveal the trick. */
+  overflow: clip;
+}
+
+[data-parallax-scene] [data-depth] {
+  will-change: transform;
+}
+
+/* ---- pinned showcase ------------------------------------------------------
+   .is-pinned is added by motion.ts only when pinning actually engaged
+   (pointer-fine, tall-enough viewport). Without it the scene is a normal
+   stacked section, which is the correct mobile layout anyway.               */
+[data-pin-sticky] {
+  will-change: transform;
+}
+
+[data-pin-step] {
+  transition:
+    opacity var(--duration-slow) var(--ease-out),
+    transform var(--duration-slow) var(--ease-out);
+}
+
+.is-pinned [data-pin-step]:not(.is-active) {
+  opacity: 0.35;
+}
+
+/* ---- marquee --------------------------------------------------------------
+   Pure CSS. The track is duplicated in markup and translated by exactly -50%,
+   so the loop is seamless. The duplicate is aria-hidden — a screen reader
+   should hear the list once.                                                */
+.marquee {
+  display: flex;
+  overflow: hidden;
+  user-select: none;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+}
+
+.marquee__track {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--marquee-gap, var(--space-xl));
+  padding-inline-end: var(--marquee-gap, var(--space-xl));
+  min-width: 100%;
+  animation: marquee-scroll var(--sig-marquee-duration) linear infinite;
+}
+
+.marquee--reverse .marquee__track {
+  animation-direction: reverse;
+}
+
+@keyframes marquee-scroll {
+  to {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+/* Pausing on hover is not decoration: it is how someone actually reads an
+   item they spotted going past. */
+@media (hover: hover) {
+  .marquee:hover .marquee__track {
+    animation-play-state: paused;
+  }
+}
+
+/* Keyboard focus inside the marquee must stop it too. */
+.marquee:focus-within .marquee__track {
+  animation-play-state: paused;
+}
+
+/* ---- reactive elements ---------------------------------------------------- */
+[data-magnetic],
+[data-tilt] {
+  will-change: transform;
+}
+
+[data-tilt] {
+  transform-style: preserve-3d;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee__track {
+    animation: none;
+    /* Static, it must not sit half-clipped — let it wrap and be readable. */
+    flex-wrap: wrap;
+  }
+  .marquee {
+    mask-image: none;
+  }
+  .marquee__track[aria-hidden="true"] {
+    display: none;
+  }
+  .is-pinned [data-pin-step]:not(.is-active) {
+    opacity: 1;
+  }
+}
+
+@media print {
+  .marquee__track {
+    animation: none;
+  }
+  .marquee__track[aria-hidden="true"] {
+    display: none;
+  }
+  .split__mask {
+    overflow: visible;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js-motion [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   §9  TEXTURE — GRAIN
+   --------------------------------------------------------------------------
+   Opt-in per project by adding .has-grain to <body>. The noise is an inline
+   SVG turbulence data URI: no network request, no image asset, ~200 bytes.
+   ========================================================================== */
+.has-grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sticky);
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: var(--grain-blend);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ==========================================================================
+   §10  UTILITIES
+   --------------------------------------------------------------------------
+   Deliberately few. This is not a utility framework — if you need a fifth
+   variant of a spacing utility, you actually need a component.
+   ========================================================================== */
+.text-center { text-align: center; }
+.text-balance { text-wrap: balance; }
+.mx-auto { margin-inline: auto; }
+
+.surface { background-color: var(--color-surface); }
+.surface--sunken { background-color: var(--color-surface-sunken); }
+
+.ink-muted { color: var(--color-ink-muted); }
+.ink-brand { color: var(--color-brand); }
+.ink-accent { color: var(--color-accent); }
+
+.no-underline { text-decoration: none; }
+
+/* Stretch a link's hit area over its whole card without nesting <a> tags. */
+.stretch-target { position: relative; }
+.stretch-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-raised);
+}
+
+@media print {
+  .no-print { display: none !important; }
+}

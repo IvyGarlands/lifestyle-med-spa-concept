@@ -1,0 +1,207 @@
+---
+/**
+ * HeroVideo (variant D) — background video with a mandatory image fallback.
+ *
+ * PERFORMANCE CONTRACT (CLAUDE.md §6): the poster image is the LCP element and
+ * loads eagerly; the video is `preload="none"` and is only attached after the
+ * page has loaded. A hero video must never cost us the performance budget, so
+ * it is skipped entirely when:
+ *   - prefers-reduced-motion is set
+ *   - the connection reports save-data or 2g/3g
+ *   - the pointer is coarse (phones: the poster is better and cheaper)
+ *
+ * In every one of those cases the visitor gets HeroFullBleed's experience, which
+ * is why the poster has to be a genuinely good photograph on its own.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  /** Required. The video is the enhancement; this is the actual hero. */
+  poster: ImageMetadata;
+  alt: string;
+  /** Served from /public. MP4 (h.264) is the only universally safe format. */
+  videoSrc?: string;
+  videoWebm?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  id?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  poster,
+  alt,
+  videoSrc,
+  videoWebm,
+  ctaLabel,
+  ctaHref,
+  id,
+} = Astro.props;
+---
+
+<section id={id} class="hero-video on-dark">
+  <div class="hero-video__media">
+    <Image
+      src={poster}
+      alt={alt}
+      widths={[640, 960, 1280, 1920, 2400]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+      decoding="sync"
+      class="hero-video__img"
+    />
+
+    {
+      videoSrc && (
+        <video
+          class="hero-video__vid"
+          data-hero-video
+          data-src={videoSrc}
+          data-src-webm={videoWebm}
+          muted
+          loop
+          playsinline
+          preload="none"
+          aria-hidden="true"
+          tabindex="-1"
+        />
+      )
+    }
+
+    <div class="scrim scrim--full" aria-hidden="true"></div>
+  </div>
+
+  <div class="hero-video__inner container container--xl">
+    <div class="hero-video__content">
+      {eyebrow && <p class="eyebrow hero-video__eyebrow" data-hero-settle>{eyebrow}</p>}
+      <h1 class="display hero-video__heading">{heading}</h1>
+      {body && <p class="hero-video__body" data-hero-settle>{body}</p>}
+      {
+        ctaHref && ctaLabel && (
+          <div data-hero-settle>
+            <a class="btn btn--large" href={ctaHref}>
+              {ctaLabel}
+            </a>
+          </div>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  const video = document.querySelector<HTMLVideoElement>("[data-hero-video]");
+
+  if (video) {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+
+    // navigator.connection is Chromium-only; absence means "assume it's fine".
+    const conn = (navigator as any).connection;
+    const thrifty =
+      conn?.saveData === true || /(^|-)(2g|3g)$/.test(conn?.effectiveType ?? "");
+
+    if (!reduced && !coarse && !thrifty) {
+      // Attach sources only once the page has settled, so the video never
+      // competes with the LCP image for bandwidth.
+      const attach = () => {
+        const webm = video.dataset.srcWebm;
+        if (webm) {
+          const s = document.createElement("source");
+          s.src = webm;
+          s.type = "video/webm";
+          video.appendChild(s);
+        }
+        const mp4 = document.createElement("source");
+        mp4.src = video.dataset.src!;
+        mp4.type = "video/mp4";
+        video.appendChild(mp4);
+
+        video.load();
+        video.play().then(
+          () => video.classList.add("is-playing"),
+          // Autoplay refused (some power-saving modes): keep the poster.
+          () => {}
+        );
+      };
+
+      if (document.readyState === "complete") attach();
+      else window.addEventListener("load", attach, { once: true });
+    }
+  }
+</script>
+
+<style>
+  .hero-video {
+    position: relative;
+    display: grid;
+    isolation: isolate;
+    min-height: clamp(30rem, 80svh, 48rem);
+  }
+
+  .hero-video__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+  }
+
+  .hero-video__img,
+  .hero-video__vid {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: var(--image-filter-hero);
+  }
+
+  .hero-video__vid {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity var(--duration-slow) var(--ease-out);
+  }
+
+  /* Cross-fade from poster to video so there is never a black flash. */
+  .hero-video__vid.is-playing {
+    opacity: 1;
+  }
+
+  .hero-video__inner {
+    display: flex;
+    align-items: flex-end;
+    padding-block: var(--space-3xl) var(--space-2xl);
+  }
+
+  /* rem, not ch — see the note in HeroFullBleed: a ch cap on this container
+     resolves against the body size, not the display size. */
+  .hero-video__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+    max-width: min(46rem, 100%);
+  }
+
+  .hero-video__eyebrow {
+    color: var(--color-accent);
+  }
+
+  .hero-video__heading {
+    color: var(--n-000);
+    text-wrap: balance;
+    max-width: 18ch;
+    overflow-wrap: normal;
+  }
+
+  .hero-video__body {
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    max-width: 42ch;
+  }
+</style>

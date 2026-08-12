@@ -1,0 +1,96 @@
+---
+/**
+ * Icon — inline SVG from a small hand-picked set.
+ *
+ * Inline rather than an icon library or sprite sheet: these sites use eight
+ * icons, and an icon package would cost more bytes than the entire CSS budget.
+ * Everything here is a single stroked path on a 24-grid so the set looks like
+ * one family rather than eight clip-art choices.
+ *
+ * Purely decorative — labelled by the heading beside it, so aria-hidden.
+ */
+interface Props {
+  name: string;
+  class?: string;
+}
+
+const { name, class: className } = Astro.props;
+
+const PATHS: Record<string, string> = {
+  // trades & home services
+  wrench: "M14.7 6.3a4 4 0 0 0 5 5l-9 9a2.8 2.8 0 0 1-4-4l8-10Z",
+  drop: "M12 3s6 6.6 6 10.5a6 6 0 0 1-12 0C6 9.6 12 3 12 3Z",
+  bolt: "M13 2 4 14h6l-1 8 9-12h-6l1-8Z",
+  flame: "M12 3c3 4 6 5.6 6 9a6 6 0 0 1-12 0c0-2 1-3.4 2-4.5.4 1.4 1.2 2 2 2 0-2.6 1-5 2-6.5Z",
+  home: "M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9Z",
+  ruler: "M3 15 15 3l6 6L9 21l-6-6Zm5-1 2 2m1-5 2 2m1-5 2 2",
+  // care & clinical
+  heart: "M12 20s-7-4.4-7-9.5A4 4 0 0 1 12 7a4 4 0 0 1 7 3.5c0 5.1-7 9.5-7 9.5Z",
+  tooth: "M12 3c2 0 3-1 5 0s2 4 1 7-1 4-1.5 7-2 3-2.5 0-1-4-2-4-1.5 1-2 4-2 3-2.5 0S6 13 5 10 5 4 7 3s3 0 5 0Z",
+  paw: "M12 14c2.5 0 4.5 1.8 4.5 3.5S14.5 20 12 20s-4.5-.8-4.5-2.5S9.5 14 12 14ZM7 10.5a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6Zm10 0a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6ZM10 7a1.6 1.6 0 1 0 0-3.2A1.6 1.6 0 0 0 10 7Zm4 0a1.6 1.6 0 1 0 0-3.2A1.6 1.6 0 0 0 14 7Z",
+  sparkle: "M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z",
+  // professional
+  scale: "M12 4v16M7 20h10M12 6 5 9m7-3 7 3M5 9l-2.5 5a2.5 2.5 0 0 0 5 0L5 9Zm14 0-2.5 5a2.5 2.5 0 0 0 5 0L19 9Z",
+  chart: "M4 20V10m5 10V4m5 16v-7m5 7V8",
+  shield: "M12 3l7 3v6c0 4.3-3 7.5-7 9-4-1.5-7-4.7-7-9V6l7-3Z",
+  // general
+  clock: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-14v5l3.5 2",
+  phone:
+    "M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.4.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.2 1l-2.3 2.2Z",
+  check: "M4 12.5 9 17.5 20 6.5",
+  car: "M5 16v2m14-2v2M4 16h16v-4l-2-5H6l-2 5v4Zm3-2h.01M17 14h.01",
+  scissors:
+    "M6 4l12 12M6 20 18 8M7.5 20a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm0-11a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z",
+};
+
+const d = PATHS[name];
+// An unknown icon name renders nothing rather than a broken glyph — but it is
+// almost always a typo in a content file, so surface it during development.
+if (!d && import.meta.env.DEV) {
+  console.warn(
+    `[Icon] Unknown icon "${name}". Available: ${Object.keys(PATHS).join(", ")}`
+  );
+}
+
+/** Filled shapes vs stroked shapes need different rendering. */
+const FILLED = new Set(["wrench", "drop", "bolt", "flame", "home", "heart", "tooth", "paw", "sparkle", "shield"]);
+const filled = FILLED.has(name);
+---
+
+{
+  d && (
+    <svg
+      class={className}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+      fill={filled ? "currentColor" : "none"}
+      stroke={filled ? "none" : "currentColor"}
+      stroke-width={filled ? undefined : 1.6}
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d={d} />
+    </svg>
+  )
+}
+
+<style>
+  /**
+   * A default size, because there was not one.
+   *
+   * This SVG carried no width/height and relied entirely on the consumer's
+   * class. Astro scopes that class to the CONSUMING component, so it never
+   * reached this element — an unsized inline SVG then falls back to the CSS
+   * default 300x150 box and renders enormous. Found in the wild in TrustBar,
+   * where the check ticks rendered at roughly 60px.
+   *
+   * Sizing in em means a consumer still controls it, now with font-size, and
+   * a missed override degrades to "slightly wrong" instead of "enormous".
+   */
+  svg {
+    inline-size: 1.15em;
+    block-size: 1.15em;
+    flex-shrink: 0;
+  }
+</style>

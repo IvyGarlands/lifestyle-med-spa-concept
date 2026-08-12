@@ -1,0 +1,163 @@
+---
+/**
+ * LocationContact — map, hours, phone-first CTA and the contact form.
+ *
+ * The most important section on most of these sites and the one visitors
+ * scroll to deliberately. The phone number is the primary action and is set at
+ * display size: small businesses convert on calls (CLAUDE.md §13).
+ */
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+import GoogleMap from "../core/GoogleMap.astro";
+import HoursTable from "../core/HoursTable.astro";
+import ContactForm, { type FormField } from "../core/ContactForm.astro";
+import { SITE } from "../../config/site";
+import { useTranslations, type Locale } from "../../i18n/ui";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  locale: Locale;
+  eyebrow?: string;
+  heading?: string;
+  body?: string;
+  showForm?: boolean;
+  showMap?: boolean;
+  showHours?: boolean;
+  formFields?: FormField[];
+  formSubject?: string;
+}
+
+const {
+  locale,
+  eyebrow,
+  heading,
+  body,
+  showForm = true,
+  showMap = true,
+  showHours = true,
+  formFields,
+  formSubject,
+  id = "contact",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+
+const t = useTranslations(locale);
+---
+
+<Section id={id} tone={tone} spacing={spacing} width="xl" labelledBy={`${id}-heading`} {...rest}>
+  <SectionHeader
+    eyebrow={eyebrow}
+    heading={heading ?? t("location.title")}
+    body={body}
+    headingId={`${id}-heading`}
+  />
+
+  <div class="loc">
+    <div class="loc__details stack stack--l" data-reveal-stagger>
+      {/* Phone as the hero action, not a line of body copy. */}
+      <div class="loc__call" data-reveal>
+        <p class="loc__call-label">{t("location.phone")}</p>
+        <a class="loc__call-number" href={`tel:${SITE.phoneHref}`}>
+          {SITE.phone}
+        </a>
+      </div>
+
+      <div class="loc__block" data-reveal>
+        <p class="loc__label">{t("location.address")}</p>
+        {/* The explicit {" "} is load-bearing: Astro collapses the newline
+            between two adjacent expressions, which rendered "CA91362". */}
+        <address class="loc__address">
+          {SITE.address.street}<br />
+          {SITE.address.locality}, {SITE.address.region}{" "}
+          {SITE.address.postalCode}
+        </address>
+        <a class="loc__link" href={SITE.mapsUrl} rel="noopener">
+          {t("cta.directions")}
+        </a>
+      </div>
+
+      {
+        SITE.email && (
+          <div class="loc__block" data-reveal>
+            <p class="loc__label">{t("location.email")}</p>
+            <a class="loc__link" href={`mailto:${SITE.email}`}>
+              {SITE.email}
+            </a>
+          </div>
+        )
+      }
+
+      {showHours && <div data-reveal><HoursTable locale={locale} /></div>}
+    </div>
+
+    <div class="loc__aside stack stack--l">
+      {showMap && <div data-reveal><GoogleMap locale={locale} /></div>}
+
+      {
+        showForm && (
+          <div data-reveal>
+            <ContactForm
+              locale={locale}
+              fields={formFields}
+              subject={formSubject}
+            />
+          </div>
+        )
+      }
+    </div>
+  </div>
+</Section>
+
+<style>
+  .loc {
+    display: grid;
+    gap: var(--space-2xl);
+  }
+
+  .loc__call-label,
+  .loc__label {
+    font-size: var(--step--1);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+    margin-block-end: var(--space-3xs);
+  }
+
+  .loc__call-number {
+    display: inline-block;
+    font-family: var(--face-display);
+    font-size: var(--step-4);
+    font-weight: var(--weight-display);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-heading);
+    color: var(--color-brand);
+    text-decoration: none;
+  }
+
+  .loc__call-number:hover {
+    color: var(--color-brand-strong);
+    text-decoration: underline;
+    text-underline-offset: 0.12em;
+  }
+
+  .loc__address {
+    color: var(--color-ink);
+    margin-block-end: var(--space-3xs);
+  }
+
+  .loc__link {
+    font-weight: var(--weight-medium);
+    text-underline-offset: 0.18em;
+  }
+
+  @media (min-width: 60em) {
+    .loc {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+      gap: var(--space-3xl);
+      align-items: start;
+    }
+  }
+</style>

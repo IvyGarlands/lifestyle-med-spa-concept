@@ -1,0 +1,76 @@
+---
+/**
+ * SectionHeader — eyebrow + heading + intro, with the house reveal applied.
+ *
+ * Every section that has a heading uses this, so the eyebrow/heading rhythm is
+ * identical site-wide and a recipe can retune it in one place.
+ */
+interface Props {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  /** The id a Section uses for aria-labelledby. */
+  headingId?: string;
+  /** h2 in normal use; h1 only when a section IS the page's main heading. */
+  as?: "h1" | "h2" | "h3";
+  align?: "start" | "center";
+  /** Constrain the intro copy to a comfortable measure. */
+  width?: "measure" | "narrow" | "full";
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  headingId,
+  as: Tag = "h2",
+  align = "start",
+  width = "measure",
+} = Astro.props;
+---
+
+<header
+  class:list={["section-header", align === "center" && "section-header--center"]}
+  data-reveal-stagger
+>
+  {eyebrow && <p class="eyebrow" data-reveal>{eyebrow}</p>}
+  <Tag id={headingId} class="section-header__heading" data-reveal>{heading}</Tag>
+  {
+    body && (
+      <p
+        class:list={[
+          "section-header__body",
+          width === "measure" && "measure",
+          width === "narrow" && "measure--narrow",
+        ]}
+        data-reveal
+      >
+        {body}
+      </p>
+    )
+  }
+</header>
+
+<style>
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin-block-end: var(--space-xl);
+  }
+
+  .section-header--center {
+    align-items: center;
+    text-align: center;
+  }
+
+  .section-header__heading {
+    font-size: var(--step-4);
+  }
+
+  .section-header__body {
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-muted);
+  }
+</style>

@@ -1,0 +1,175 @@
+---
+/**
+ * ProviderBios — the people. AttorneyBio, AdvisorBio, ProviderBios, Meet the Team.
+ *
+ * For solo attorneys, advisors and clinicians the person IS the product, so a
+ * single good portrait plus real credentials outperforms any amount of copy.
+ *
+ * Credentials are rendered as a list from client-supplied strings and are never
+ * paraphrased into prose — paraphrasing a credential is how "JD" becomes
+ * "specialist" and lands someone in front of their state bar (CLAUDE.md §11).
+ */
+import { Image } from "astro:assets";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+import type { CollectionEntry } from "astro:content";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  people: CollectionEntry<"people">[];
+  /** "feature" gives a single person the full width — the solo-practitioner case. */
+  layout?: "grid" | "feature";
+  ctaLabel?: string;
+  ctaHref?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  people,
+  layout = "grid",
+  ctaLabel,
+  ctaHref,
+  id = "team",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+
+// One person never looks right in a grid cell.
+const mode = people.length === 1 ? "feature" : layout;
+---
+
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width="xl"
+  labelledBy={`${id}-heading`}
+  {...rest}
+>
+  <SectionHeader
+    eyebrow={eyebrow}
+    heading={heading}
+    body={body}
+    headingId={`${id}-heading`}
+  />
+
+  <ul class:list={["people", `people--${mode}`]} role="list" data-reveal-stagger>
+    {
+      people.map((p) => (
+        <li class="person" data-reveal>
+          {p.data.photo && (
+            <div class="media media--portrait person__media">
+              <Image
+                src={p.data.photo}
+                alt={p.data.alt ?? `${p.data.name}, ${p.data.role}`}
+                widths={[320, 480, 720]}
+                sizes={mode === "feature" ? "(min-width: 60em) 24rem, 60vw" : "(min-width: 60em) 20rem, 45vw"}
+                loading="lazy"
+              />
+            </div>
+          )}
+
+          <div class="person__body">
+            <h3 class="person__name">{p.data.name}</h3>
+            <p class="person__role">{p.data.role}</p>
+
+            {p.data.credentials.length > 0 && (
+              <ul class="person__creds" role="list">
+                {p.data.credentials.map((c) => (
+                  <li class="person__cred">{c}</li>
+                ))}
+              </ul>
+            )}
+
+            {p.data.bio && <p class="person__bio">{p.data.bio}</p>}
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+
+  {
+    ctaHref && ctaLabel && (
+      <p class="people__cta" data-reveal>
+        <a class="btn btn--large" href={ctaHref}>
+          {ctaLabel}
+        </a>
+      </p>
+    )
+  }
+</Section>
+
+<style>
+  .people--grid {
+    display: grid;
+    gap: var(--space-xl);
+    grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+  }
+
+  .people--feature .person {
+    display: grid;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  .person__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+  }
+
+  .people--grid .person__media {
+    margin-block-end: var(--space-s);
+  }
+
+  .person__name {
+    font-size: var(--step-3);
+  }
+
+  .person__role {
+    font-size: var(--step--1);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-brand);
+  }
+
+  .person__creds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3xs) var(--space-2xs);
+    margin-block-start: var(--space-2xs);
+  }
+
+  .person__cred {
+    padding: 0.15em var(--space-2xs);
+    font-size: var(--step--1);
+    font-weight: var(--weight-medium);
+    color: var(--color-ink);
+    border: var(--border-hair) solid var(--color-line-strong);
+    border-radius: var(--radius-pill);
+  }
+
+  .person__bio {
+    margin-block-start: var(--space-2xs);
+    color: var(--color-ink-muted);
+    max-width: var(--measure);
+  }
+
+  .people__cta {
+    margin-block-start: var(--space-xl);
+  }
+
+  @media (min-width: 60em) {
+    .people--feature .person {
+      grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr);
+      gap: var(--space-3xl);
+    }
+  }
+</style>

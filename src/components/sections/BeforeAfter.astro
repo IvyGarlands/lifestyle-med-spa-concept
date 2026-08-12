@@ -1,0 +1,176 @@
+---
+/**
+ * BeforeAfter — the remodeler's and detailer's closing argument.
+ *
+ * Deliberately NOT a draggable slider. Sliders show half of each image at any
+ * moment, need JS, need a pointer, and are fiddly on a phone — which is where
+ * most of this traffic is. A labelled side-by-side pair shows both images in
+ * full, works with no JS, and prints.
+ *
+ * Both images carry their own required alt text (enforced by the projects
+ * schema), because "before" and "after" mean nothing to a screen reader.
+ */
+import { Image } from "astro:assets";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+import type { CollectionEntry } from "astro:content";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  items: CollectionEntry<"projects">[];
+  beforeLabel?: string;
+  afterLabel?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  items,
+  beforeLabel = "Before",
+  afterLabel = "After",
+  id = "work",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+
+// Only entries that actually have a pair belong in this section.
+const pairs = items.filter((i) => i.data.beforePhoto && i.data.photo);
+---
+
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width="xl"
+  labelledBy={`${id}-heading`}
+  {...rest}
+>
+  <SectionHeader
+    eyebrow={eyebrow}
+    heading={heading}
+    body={body}
+    headingId={`${id}-heading`}
+  />
+
+  <div class="ba">
+    {
+      pairs.map((p) => (
+        <article class="ba__project" data-reveal-stagger>
+          <div class="ba__pair">
+            <figure class="ba__side" data-reveal="left">
+              <div class="media media--landscape">
+                <Image
+                  src={p.data.beforePhoto!}
+                  alt={p.data.beforeAlt!}
+                  widths={[400, 640, 900]}
+                  sizes="(min-width: 60em) 40vw, 100vw"
+                  loading="lazy"
+                />
+              </div>
+              <figcaption class="ba__tag ba__tag--before">{beforeLabel}</figcaption>
+            </figure>
+
+            <figure class="ba__side" data-reveal="right">
+              <div class="media media--landscape">
+                <Image
+                  src={p.data.photo!}
+                  alt={p.data.alt!}
+                  widths={[400, 640, 900]}
+                  sizes="(min-width: 60em) 40vw, 100vw"
+                  loading="lazy"
+                />
+              </div>
+              <figcaption class="ba__tag ba__tag--after">{afterLabel}</figcaption>
+            </figure>
+          </div>
+
+          <div class="ba__meta" data-reveal>
+            <h3 class="ba__title">{p.data.title}</h3>
+            {(p.data.location || p.data.year) && (
+              <p class="ba__where">
+                {[p.data.location, p.data.year].filter(Boolean).join(" · ")}
+              </p>
+            )}
+            {p.data.summary && <p class="ba__summary">{p.data.summary}</p>}
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</Section>
+
+<style>
+  .ba {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xl);
+  }
+
+  .ba__pair {
+    display: grid;
+    gap: var(--space-s);
+  }
+
+  .ba__side {
+    position: relative;
+    margin: 0;
+  }
+
+  /* The label sits on the image so the pairing survives being screenshotted
+     and pasted into a text message, which is how these actually get shared. */
+  .ba__tag {
+    position: absolute;
+    inset-block-start: var(--space-2xs);
+    inset-inline-start: var(--space-2xs);
+    padding: 0.2em var(--space-2xs);
+    font-size: var(--step--1);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    border-radius: var(--radius-s);
+    margin: 0;
+  }
+
+  .ba__tag--before {
+    background-color: var(--n-900);
+    color: var(--n-000);
+  }
+
+  .ba__tag--after {
+    background-color: var(--color-brand);
+    color: var(--color-brand-contrast);
+  }
+
+  .ba__meta {
+    margin-block-start: var(--space-m);
+  }
+
+  .ba__title {
+    font-size: var(--step-3);
+  }
+
+  .ba__where {
+    margin-block-start: var(--space-3xs);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .ba__summary {
+    margin-block-start: var(--space-2xs);
+    color: var(--color-ink-muted);
+    max-width: var(--measure);
+  }
+
+  @media (min-width: 52em) {
+    .ba__pair {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

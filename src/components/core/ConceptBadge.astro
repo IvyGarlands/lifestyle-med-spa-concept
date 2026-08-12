@@ -1,0 +1,159 @@
+---
+/**
+ * ConceptBadge — the honesty badge on every ambush demo.
+ *
+ * "Concept redesign by Looking Glass Labs — not affiliated with [Business]."
+ *
+ * This is NOT decoration and it is NOT optional. It is the thing that makes
+ * cold-outreach demos honest rather than deceptive, and it never comes off to
+ * make a demo look more real (CLAUDE.md §11).
+ *
+ * Rendered by BaseLayout whenever SITE.isConcept is true, alongside an
+ * automatic noindex. Dismissible so it can't obscure the design during review,
+ * but it re-appears on reload — there is no way to permanently remove it from
+ * the page.
+ */
+import { SITE } from "../../config/site";
+import { useTranslations, type Locale } from "../../i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<aside class="concept-badge" data-concept-badge aria-label="Demo disclosure">
+  <p class="concept-badge__text">
+    {t("concept.badge")}
+    {
+      SITE.studioUrl ? (
+        <a href={SITE.studioUrl} rel="noopener">
+          {SITE.studioName}
+        </a>
+      ) : (
+        <strong>{SITE.studioName}</strong>
+      )
+    }
+    <span class="concept-badge__sep">·</span>
+    <span class="concept-badge__disclaimer">
+      {t("concept.disclaimer")} {SITE.name}
+    </span>
+  </p>
+
+  <button
+    type="button"
+    class="concept-badge__close"
+    data-concept-badge-close
+    aria-label="Hide this notice"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        d="M6 6l12 12M18 6L6 18"></path>
+    </svg>
+  </button>
+</aside>
+
+<script>
+  const badge = document.querySelector<HTMLElement>("[data-concept-badge]");
+  const close = document.querySelector<HTMLElement>("[data-concept-badge-close]");
+  // Session-only, deliberately: a reload brings the disclosure back.
+  close?.addEventListener("click", () => badge?.remove());
+</script>
+
+<style>
+  .concept-badge {
+    position: fixed;
+    inset-block-end: var(--space-s);
+    inset-inline-end: var(--space-s);
+    z-index: var(--z-badge);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    max-width: min(24rem, calc(100vw - var(--space-m)));
+    padding: var(--space-2xs) var(--space-2xs) var(--space-2xs) var(--space-xs);
+    background-color: var(--n-900);
+    color: var(--n-050);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-l);
+    font-family: var(--face-body);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+  }
+
+  .concept-badge__text {
+    margin: 0;
+  }
+
+  .concept-badge strong {
+    font-weight: var(--weight-strong);
+  }
+
+  .concept-badge a {
+    color: var(--a-300);
+    text-underline-offset: 0.18em;
+  }
+
+  .concept-badge__sep {
+    opacity: 0.5;
+    margin-inline: 0.15em;
+  }
+
+  .concept-badge__disclaimer {
+    opacity: 0.8;
+  }
+
+  .concept-badge__close {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: var(--radius-pill);
+    color: currentColor;
+    opacity: 0.7;
+    cursor: pointer;
+  }
+
+  .concept-badge__close:hover {
+    opacity: 1;
+  }
+
+  .concept-badge__close svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  /* On the narrowest phones the pill would cover the sticky call bar.
+     Going full-width was only half the fix — it still sat ON the bar, hiding
+     the primary CTA behind the disclosure notice, which is the worst possible
+     pair of things to stack. The badge has the higher z-index and wins, so it
+     has to be lifted clear of the bar's reserved height instead. */
+  @media (max-width: 30em) {
+    .concept-badge {
+      inset-inline: var(--space-2xs);
+      inset-block-end: var(--space-2xs);
+      max-width: none;
+    }
+
+    :global(body.has-sticky-call) .concept-badge {
+      inset-block-end: calc(4.5rem + env(safe-area-inset-bottom));
+    }
+  }
+
+  @media print {
+    .concept-badge {
+      position: static;
+      box-shadow: none;
+    }
+  }
+</style>

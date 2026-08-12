@@ -1,0 +1,72 @@
+---
+/**
+ * Section — the shell every section component wraps itself in.
+ *
+ * Owns the <section> element, the vertical rhythm, the container width and the
+ * colour context. `tone` is the ONLY mechanism for changing a section's colour
+ * context (CLAUDE.md §3) — it maps to the .on-dark / .on-brand blocks in
+ * tokens.css §10, so one component serves a cream band and a near-black footer
+ * with no variant props and no contrast bugs.
+ */
+export interface SectionProps {
+  id?: string;
+  tone?: "default" | "sunken" | "dark" | "brand";
+  spacing?: "tight" | "default" | "loose" | "none";
+  width?: "xs" | "s" | "m" | "l" | "xl";
+  /** Drop the container entirely — for full-bleed sections that manage their own. */
+  bleed?: boolean;
+  class?: string;
+  "aria-label"?: string;
+  /**
+   * id of the heading that names this section. Pass it ONLY when that element
+   * is actually rendered — this used to be inferred from `id`, which produced a
+   * dangling aria-labelledby on every section whose heading is optional
+   * (a pull-quote, an untitled gallery). A dangling reference leaves the
+   * landmark unnamed while looking correct in the markup.
+   */
+  labelledBy?: string;
+}
+
+const {
+  id,
+  tone = "default",
+  spacing = "default",
+  width = "l",
+  bleed = false,
+  class: className,
+  "aria-label": ariaLabel,
+  labelledBy,
+} = Astro.props as SectionProps;
+---
+
+<section
+  id={id}
+  class:list={[
+    "section",
+    spacing === "tight" && "section--tight",
+    spacing === "loose" && "section--loose",
+    spacing === "none" && "section--none",
+    tone === "sunken" && "surface--sunken",
+    tone === "dark" && "on-dark",
+    tone === "brand" && "on-brand",
+    className,
+  ]}
+  aria-label={ariaLabel}
+  aria-labelledby={!ariaLabel && labelledBy ? labelledBy : undefined}
+>
+  {
+    bleed ? (
+      <slot />
+    ) : (
+      <div class:list={["container", `container--${width}`]}>
+        <slot />
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .section--none {
+    padding-block: 0;
+  }
+</style>

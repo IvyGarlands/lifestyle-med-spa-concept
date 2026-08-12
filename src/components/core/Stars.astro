@@ -1,0 +1,116 @@
+---
+/**
+ * Stars — a rating, drawn as SVG.
+ *
+ * The visual stars are aria-hidden and the rating is announced as text, because
+ * "★★★★★" read aloud is five identical noises. Half stars are supported via a
+ * clip, since real Google averages are 4.7, not 5.
+ */
+interface Props {
+  /** 0–5, may be fractional. */
+  rating: number;
+  /** Number of reviews, if known. */
+  count?: number;
+  size?: "s" | "m";
+}
+
+const { rating, count, size = "m" } = Astro.props;
+
+const clamped = Math.max(0, Math.min(5, rating));
+const label = count
+  ? `${clamped} out of 5 stars, from ${count} reviews`
+  : `${clamped} out of 5 stars`;
+---
+
+<p class:list={["stars", `stars--${size}`]}>
+  <span class="stars__marks" aria-hidden="true">
+    {
+      [0, 1, 2, 3, 4].map((i) => {
+        // Fill fraction for this individual star: 1, 0, or something between.
+        const fill = Math.max(0, Math.min(1, clamped - i));
+        return (
+          <span class="stars__star">
+            <svg viewBox="0 0 24 24" class="stars__base">
+              <path
+                fill="currentColor"
+                d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5L2.6 9.4l6.5-.9z"
+              />
+            </svg>
+            <span class="stars__fill" style={`width:${fill * 100}%`}>
+              <svg viewBox="0 0 24 24">
+                <path
+                  fill="currentColor"
+                  d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5L2.6 9.4l6.5-.9z"
+                />
+              </svg>
+            </span>
+          </span>
+        );
+      })
+    }
+  </span>
+
+  <span class="visually-hidden">{label}</span>
+
+  {
+    count && (
+      <span class="stars__count" aria-hidden="true">
+        {clamped.toFixed(1)} · {count} reviews
+      </span>
+    )
+  }
+</p>
+
+<style>
+  .stars {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+  }
+
+  .stars__marks {
+    display: inline-flex;
+    gap: 0.1em;
+  }
+
+  .stars__star {
+    position: relative;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+  }
+
+  .stars--m {
+    font-size: var(--step-1);
+  }
+
+  .stars--s {
+    font-size: var(--step-0);
+  }
+
+  .stars__base {
+    width: 100%;
+    height: 100%;
+    color: var(--color-line-strong);
+  }
+
+  /* The filled layer is clipped by width, which is what gives us half stars. */
+  .stars__fill {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    overflow: hidden;
+    color: var(--color-accent);
+  }
+
+  .stars__fill svg {
+    width: 1em;
+    height: 1em;
+  }
+
+  .stars__count {
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+</style>

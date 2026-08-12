@@ -1,0 +1,221 @@
+---
+/**
+ * ServiceIndex — a long capability list, set as an index rather than a grid.
+ *
+ * WHY NOT ServicesGrid
+ * --------------------
+ * ServicesGrid is the right component for six things you are selling. This
+ * clinic publishes forty-three. In a card grid that becomes either forty-three
+ * cards (unreadable) or an arbitrary top nine (dishonest by omission, and it
+ * throws away the strongest thing the list has going for it, which is its
+ * length). Set as a ruled index it reads as depth — the way a wine list or a
+ * practice-area page reads as depth — and it fits on one screen-and-a-bit.
+ *
+ * It also solves an honesty problem. A card needs a description; forty-three
+ * descriptions of aesthetic procedures would be forty-three clinical claims we
+ * invented (CLAUDE.md §11). An index needs only the name, which is exactly
+ * what the client published.
+ *
+ * The rule that runs between each group name and its count is the identity's
+ * calibrated scale at a third size — the same object as the wordmark's rule
+ * and the hero's measure, reading here as a menu leader.
+ *
+ * The counts are derived from the arrays. Nothing on this page asserts a
+ * number that is not simply true of the list beside it.
+ */
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+import type { CollectionEntry } from "astro:content";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  groups: CollectionEntry<"treatments">[];
+  /**
+   * Words that follow the derived total, e.g. "published treatments." The
+   * number is computed; the sentence around it belongs to the page, so this
+   * component can never be the thing that makes a claim.
+   */
+  totalLabel: string;
+  /** Closing line under the index. */
+  note?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  groups,
+  totalLabel,
+  note,
+  ctaLabel,
+  ctaHref,
+  id = "treatments",
+  spacing,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const ordered = [...groups].sort((a, b) => a.data.order - b.data.order);
+const total = ordered.reduce((n, g) => n + g.data.items.length, 0);
+---
+
+<Section
+  id={id}
+  spacing={spacing}
+  width="xl"
+  class={["on-light", className].filter(Boolean).join(" ")}
+  labelledBy={`${id}-heading`}
+  {...rest}
+>
+  <SectionHeader
+    eyebrow={eyebrow}
+    heading={heading}
+    body={body}
+    headingId={`${id}-heading`}
+  />
+
+  <div class="index" data-reveal-stagger>
+    {
+      ordered.map((group, i) => (
+        <section class="index__group" data-reveal>
+          <header class="index__head">
+            <span class="index__ordinal" aria-hidden="true">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <h3 class="index__name">{group.data.group}</h3>
+            <span class="index__rule" aria-hidden="true" />
+            <span class="index__count">
+              {group.data.items.length}
+              <span class="visually-hidden"> treatments</span>
+            </span>
+          </header>
+
+          <ul class="index__items" role="list">
+            {group.data.items.map((item) => (
+              <li class="index__item">{item}</li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+
+  <footer class="index__foot" data-reveal>
+    <p class="index__total">
+      <span class="index__total-num">{total}</span> {totalLabel}
+    </p>
+    {note && <p class="index__note">{note}</p>}
+    {
+      ctaHref && ctaLabel && (
+        <a class="btn btn--large" href={ctaHref}>
+          {ctaLabel}
+        </a>
+      )
+    }
+  </footer>
+</Section>
+
+<style>
+  .index {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+  }
+
+  .index__head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-xs);
+    padding-block-end: var(--space-2xs);
+    border-block-end: var(--border-hair) solid var(--color-line-strong);
+  }
+
+  .index__ordinal,
+  .index__count {
+    font-family: var(--face-mono);
+    font-size: var(--step--1);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-label);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-accent);
+  }
+
+  .index__count {
+    color: var(--color-ink-muted);
+  }
+
+  .index__name {
+    font-size: var(--step-3);
+    letter-spacing: var(--tracking-heading);
+    white-space: nowrap;
+  }
+
+  /* The identity's calibrated scale, working here as a menu leader. Same
+     gradient as the wordmark rule and the hero measure — one object, three
+     sizes, which is what makes them read as a brand rather than as motifs. */
+  .index__rule {
+    flex: 1 1 var(--space-l);
+    align-self: center;
+    height: var(--tick-h);
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--tick-color) 0 var(--tick-w),
+      transparent var(--tick-w) var(--tick-gap)
+    );
+    background-position: left bottom;
+    background-repeat: repeat-x;
+  }
+
+  .index__items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
+    column-gap: var(--space-xl);
+  }
+
+  .index__item {
+    padding-block: var(--space-2xs);
+    border-block-end: var(--border-hair) solid var(--color-line);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink);
+    /* Instrument Serif is the display face, but the index reads as a document,
+       so the items stay in the body face and let the group names carry it. */
+    font-family: var(--face-body);
+  }
+
+  .index__foot {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-s);
+    margin-block-start: var(--space-2xl);
+    padding-block-start: var(--space-m);
+    border-block-start: var(--border-rule) solid var(--color-ink-strong);
+    max-width: 46ch;
+  }
+
+  .index__total {
+    font-family: var(--face-display);
+    font-size: var(--step-3);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-heading);
+    color: var(--color-ink-strong);
+  }
+
+  .index__total-num {
+    font-family: var(--face-mono);
+    font-size: 0.78em;
+    font-weight: var(--weight-strong);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-accent);
+  }
+
+  .index__note {
+    color: var(--color-ink-muted);
+  }
+</style>

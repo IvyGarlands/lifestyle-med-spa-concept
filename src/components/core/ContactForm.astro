@@ -1,0 +1,299 @@
+---
+/**
+ * ContactForm — Formspree / Web3Forms, via one FORM_ENDPOINT. No backend, ever.
+ *
+ * SPAM: a honeypot field (`_gotcha`, off-screen, never display:none so naive
+ * bots still fill it) plus a time-to-submit check. Both are checked client-side
+ * before the request is made, so a bot never even reaches the endpoint quota.
+ *
+ * DEMO SAFETY: with FORM_ENDPOINT empty the form renders visibly disabled
+ * rather than silently posting into the void. An ambush demo should never look
+ * like it accepts a message it will actually drop.
+ *
+ * Submits via fetch so the visitor stays on the page; falls back to a normal
+ * form POST if JS is unavailable.
+ */
+import { SITE } from "../../config/site";
+import { useTranslations, type Locale } from "../../i18n/ui";
+
+export interface FormField {
+  name: string;
+  label: string;
+  type?: "text" | "email" | "tel" | "date" | "number" | "textarea";
+  required?: boolean;
+  autocomplete?: string;
+  placeholder?: string;
+}
+
+interface Props {
+  locale: Locale;
+  fields?: FormField[];
+  submitLabel?: string;
+  /** Shown in the notification email subject. */
+  subject?: string;
+}
+
+const { locale, fields, submitLabel, subject } = Astro.props;
+const t = useTranslations(locale);
+
+const defaultFields: FormField[] = [
+  { name: "name", label: t("form.name"), required: true, autocomplete: "name" },
+  {
+    name: "email",
+    label: t("form.email"),
+    type: "email",
+    required: true,
+    autocomplete: "email",
+  },
+  { name: "phone", label: t("form.phone"), type: "tel", autocomplete: "tel" },
+  { name: "message", label: t("form.message"), type: "textarea", required: true },
+];
+
+const use = fields ?? defaultFields;
+const enabled = Boolean(SITE.FORM_ENDPOINT);
+---
+
+<form
+  class="contact-form"
+  method="POST"
+  action={SITE.FORM_ENDPOINT || undefined}
+  data-contact-form
+  data-enabled={String(enabled)}
+  novalidate
+>
+  {/* Web3Forms wants the key in the body; Formspree ignores it. */}
+  {
+    SITE.FORM_ACCESS_KEY && (
+      <input type="hidden" name="access_key" value={SITE.FORM_ACCESS_KEY} />
+    )
+  }
+  {subject && <input type="hidden" name="_subject" value={subject} />}
+
+  {/* Honeypot. Off-screen rather than display:none, and never focusable. */}
+  <div class="hp-field" aria-hidden="true">
+    <label for="cf-gotcha">Leave this field empty</label>
+    <input id="cf-gotcha" type="text" name="_gotcha" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="contact-form__fields">
+    {
+      use.map((field) => (
+        <div
+          class:list={[
+            "field",
+            field.type === "textarea" && "field--wide",
+          ]}
+        >
+          <label for={`cf-${field.name}`}>
+            {field.label}
+            {field.required && (
+              <span class="contact-form__req" aria-hidden="true">
+                *
+              </span>
+            )}
+            {field.required && (
+              <span class="visually-hidden">({t("form.required")})</span>
+            )}
+          </label>
+
+          {field.type === "textarea" ? (
+            <textarea
+              id={`cf-${field.name}`}
+              name={field.name}
+              required={field.required}
+              placeholder={field.placeholder}
+              disabled={!enabled}
+              aria-describedby={`cf-${field.name}-err`}
+            />
+          ) : (
+            <input
+              id={`cf-${field.name}`}
+              name={field.name}
+              type={field.type ?? "text"}
+              required={field.required}
+              autocomplete={field.autocomplete}
+              placeholder={field.placeholder}
+              disabled={!enabled}
+              aria-describedby={`cf-${field.name}-err`}
+            />
+          )}
+
+          <p class="field-error" id={`cf-${field.name}-err`} hidden />
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="contact-form__foot">
+    <button type="submit" class="btn btn--large" disabled={!enabled}>
+      {submitLabel ?? t("form.send")}
+    </button>
+
+    {
+      !enabled && (
+        <p class="contact-form__disabled">
+          {t("form.disabled")}
+        </p>
+      )
+    }
+  </div>
+
+  {/* Status is polite, not assertive: a success message should not interrupt
+      a screen reader mid-sentence. */}
+  <p class="contact-form__status" data-form-status role="status" aria-live="polite" hidden></p>
+</form>
+
+<script is:inline define:vars={{
+  strings: {
+    sending: t("form.sending"),
+    success: t("form.success"),
+    error: t("form.error"),
+    required: t("form.required"),
+    invalidEmail: t("form.invalidEmail"),
+    send: t("form.send"),
+  },
+}}>
+  (() => {
+    const form = document.querySelector("[data-contact-form]");
+    if (!form || form.dataset.enabled !== "true") return;
+
+    const status = form.querySelector("[data-form-status]");
+    const submit = form.querySelector('button[type="submit"]');
+    const mountedAt = Date.now();
+
+    const showError = (input, message) => {
+      const err = form.querySelector(`#cf-${input.name}-err`);
+      input.setAttribute("aria-invalid", "true");
+      if (err) {
+        err.textContent = message;
+        err.hidden = false;
+      }
+    };
+
+    const clearError = (input) => {
+      const err = form.querySelector(`#cf-${input.name}-err`);
+      input.removeAttribute("aria-invalid");
+      if (err) {
+        err.textContent = "";
+        err.hidden = true;
+      }
+    };
+
+    const validate = () => {
+      let firstBad = null;
+      for (const input of form.querySelectorAll("input[name], textarea[name]")) {
+        if (input.name.startsWith("_") || input.name === "access_key") continue;
+        clearError(input);
+
+        if (input.required && !input.value.trim()) {
+          showError(input, strings.required);
+          firstBad = firstBad ?? input;
+        } else if (
+          input.type === "email" &&
+          input.value &&
+          !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(input.value)
+        ) {
+          showError(input, strings.invalidEmail);
+          firstBad = firstBad ?? input;
+        }
+      }
+      return firstBad;
+    };
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // Honeypot filled, or submitted implausibly fast: drop it silently.
+      // Reporting failure just teaches the bot what tripped it.
+      const trap = form.querySelector('[name="_gotcha"]');
+      if (trap?.value || Date.now() - mountedAt < 2500) {
+        status.textContent = strings.success;
+        status.hidden = false;
+        form.reset();
+        return;
+      }
+
+      const bad = validate();
+      if (bad) {
+        bad.focus();
+        return;
+      }
+
+      submit.disabled = true;
+      submit.textContent = strings.sending;
+      status.hidden = true;
+
+      try {
+        const res = await fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+          headers: { Accept: "application/json" },
+        });
+
+        if (!res.ok) throw new Error(String(res.status));
+
+        form.reset();
+        status.textContent = strings.success;
+        status.className = "contact-form__status is-ok";
+      } catch {
+        status.textContent = strings.error;
+        status.className = "contact-form__status is-err";
+      } finally {
+        status.hidden = false;
+        submit.disabled = false;
+        submit.textContent = strings.send;
+      }
+    });
+  })();
+</script>
+
+<style>
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+  }
+
+  .contact-form__fields {
+    display: grid;
+    gap: var(--space-m);
+    grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+  }
+
+  .field--wide {
+    grid-column: 1 / -1;
+  }
+
+  .contact-form__req {
+    color: var(--color-brand);
+    margin-inline-start: 0.15em;
+  }
+
+  .contact-form__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-s);
+  }
+
+  .contact-form__disabled,
+  .contact-form__status {
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+
+  .contact-form__status.is-ok {
+    color: var(--color-ok);
+    font-weight: var(--weight-strong);
+  }
+
+  .contact-form__status.is-err {
+    color: var(--color-err);
+    font-weight: var(--weight-strong);
+  }
+
+  .contact-form :is(input, textarea):disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+</style>

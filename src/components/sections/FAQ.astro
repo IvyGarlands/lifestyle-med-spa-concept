@@ -1,0 +1,154 @@
+---
+/**
+ * FAQ — questions, answered in the open.
+ *
+ * Built on <details>/<summary>: native disclosure semantics, keyboard support
+ * and in-page find all for free, and it still works with JS disabled. No ARIA
+ * accordion pattern to get wrong.
+ *
+ * The answers are REAL TEXT in the DOM, not injected on expand — Google treats
+ * hidden FAQ content as a structured-data violation, and `details` content is
+ * indexable. Pass the same items to BaseLayout's `faq` prop to emit FAQPage
+ * JSON-LD; never emit that schema for content the page does not show.
+ *
+ * Order the list by what people actually ask first — for these verticals that
+ * is almost always cost and insurance, not credentials.
+ */
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+import type { CollectionEntry } from "astro:content";
+import type { SectionProps } from "./Section.astro";
+import { useTranslations, type Locale } from "../../i18n/ui";
+
+interface Props extends SectionProps {
+  locale: Locale;
+  eyebrow?: string;
+  heading?: string;
+  body?: string;
+  items: CollectionEntry<"faq">[];
+  /** Expand the first entry so the section never reads as a wall of buttons. */
+  openFirst?: boolean;
+}
+
+const {
+  locale,
+  eyebrow,
+  heading,
+  body,
+  items,
+  openFirst = true,
+  id = "faq",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+
+const t = useTranslations(locale);
+---
+
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width="s"
+  labelledBy={`${id}-heading`}
+  {...rest}
+>
+  <SectionHeader
+    eyebrow={eyebrow}
+    heading={heading ?? t("faq.title")}
+    body={body}
+    headingId={`${id}-heading`}
+  />
+
+  <div class="faq" data-reveal-stagger>
+    {
+      items.map((item, i) => (
+        <details class="faq__item" open={openFirst && i === 0} data-reveal>
+          <summary class="faq__q">
+            <span class="faq__q-text">{item.data.question}</span>
+            <span class="faq__marker" aria-hidden="true" />
+          </summary>
+          <div class="faq__a">
+            <p>{item.data.answer}</p>
+          </div>
+        </details>
+      ))
+    }
+  </div>
+</Section>
+
+<style>
+  .faq {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .faq__item {
+    border-block-end: var(--border-hair) solid var(--color-line);
+  }
+
+  .faq__item:first-child {
+    border-block-start: var(--border-hair) solid var(--color-line);
+  }
+
+  .faq__q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-m);
+    padding-block: var(--space-m);
+    /* min-height keeps the tap target comfortable on short questions. */
+    min-height: 3rem;
+    font-family: var(--face-display);
+    font-size: var(--step-1);
+    font-weight: var(--weight-display);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-strong);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  /* Remove the default disclosure triangle in every engine. */
+  .faq__q::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq__q:hover {
+    color: var(--color-brand);
+  }
+
+  /* Our own marker: a plus that becomes a minus. Two bars, one rotated. */
+  .faq__marker {
+    position: relative;
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .faq__marker::before,
+  .faq__marker::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 0;
+    width: 100%;
+    height: 2px;
+    background-color: currentColor;
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .faq__marker::after {
+    transform: rotate(90deg);
+  }
+
+  .faq__item[open] .faq__marker::after {
+    transform: rotate(0deg);
+  }
+
+  .faq__a {
+    padding-block-end: var(--space-m);
+    color: var(--color-ink-muted);
+    max-width: var(--measure);
+  }
+</style>

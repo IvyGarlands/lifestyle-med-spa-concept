@@ -1,0 +1,171 @@
+---
+/**
+ * Footer — address, hours summary, phone, social, legal.
+ *
+ * Renders on `.on-dark` by default. Regulated verticals get their
+ * license number and disclaimer here, verbatim from site.ts (CLAUDE.md §11).
+ */
+import { SITE } from "../../config/site";
+import { useTranslations, localizePath, type Locale } from "../../i18n/ui";
+import type { NavLink } from "./SiteNav.astro";
+
+interface Props {
+  locale: Locale;
+  links?: NavLink[];
+  tone?: "dark" | "default";
+}
+
+const { locale, links = [], tone = "dark" } = Astro.props;
+const t = useTranslations(locale);
+const year = new Date().getFullYear();
+const social = Object.entries(SITE.social).filter(([, url]) => url);
+const legalName = (SITE.legalName || SITE.name).replace(/\.$/, "");
+---
+
+<footer class:list={["site-footer", tone === "dark" && "on-dark"]}>
+  <div class="container container--xl">
+    <div class="site-footer__grid">
+      <div class="stack stack--s">
+        <p class="site-footer__brand">{SITE.name}</p>
+        {SITE.tagline && <p class="ink-muted measure--narrow">{SITE.tagline}</p>}
+      </div>
+
+      <div class="stack stack--2xs">
+        <h2 class="site-footer__heading">{t("location.title")}</h2>
+        <address class="stack stack--3xs">
+          <span>{SITE.address.street}</span>
+          <span>
+            {SITE.address.locality}, {SITE.address.region}{" "}
+            {SITE.address.postalCode}
+          </span>
+        </address>
+        <a class="site-footer__link" href={`tel:${SITE.phoneHref}`}>
+          {SITE.phone}
+        </a>
+        {
+          SITE.email && (
+            <a class="site-footer__link" href={`mailto:${SITE.email}`}>
+              {SITE.email}
+            </a>
+          )
+        }
+      </div>
+
+      {
+        links.length > 0 && (
+          <nav class="stack stack--2xs" aria-label="Footer">
+            <h2 class="site-footer__heading">{SITE.name}</h2>
+            <ul class="stack stack--3xs" role="list">
+              {links.map((link) => (
+                <li>
+                  <a class="site-footer__link" href={link.href}>
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
+    </div>
+
+    <div class="site-footer__base">
+      {/* The trailing period is stripped before ours is added: a legalName
+          ending in "Inc." otherwise renders "Approved Contractor, Inc..". */}
+      <p class="site-footer__fine">
+        © {year} {legalName}. {t("footer.rights")}
+      </p>
+
+      {
+        social.length > 0 && (
+          <ul class="cluster" role="list">
+            {social.map(([name, url]) => (
+              <li>
+                <a class="site-footer__link" href={url} rel="noopener">
+                  {name.charAt(0).toUpperCase() + name.slice(1)}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+
+    {
+      (SITE.licenseNumber || SITE.legalDisclaimer) && (
+        <div class="site-footer__legal">
+          {SITE.licenseNumber && <p class="site-footer__fine">{SITE.licenseNumber}</p>}
+          {SITE.legalDisclaimer && (
+            <p class="site-footer__fine">{SITE.legalDisclaimer}</p>
+          )}
+        </div>
+      )
+    }
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    padding-block: var(--space-2xl) var(--space-xl);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    gap: var(--space-xl);
+    grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+  }
+
+  .site-footer__brand {
+    font-family: var(--face-display);
+    font-size: var(--step-3);
+    font-weight: var(--weight-display);
+    line-height: var(--leading-heading);
+    color: var(--color-ink-strong);
+  }
+
+  .site-footer__heading {
+    font-family: var(--face-body);
+    font-size: var(--step--1);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .site-footer__link {
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+
+  .site-footer__link:hover {
+    color: var(--color-brand);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .site-footer__base,
+  .site-footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    margin-block-start: var(--space-xl);
+    padding-block-start: var(--space-m);
+    border-block-start: var(--border-hair) solid var(--color-line);
+  }
+
+  .site-footer__legal {
+    display: block;
+  }
+
+  .site-footer__fine {
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+    max-width: var(--measure);
+  }
+
+  .site-footer__legal .site-footer__fine + .site-footer__fine {
+    margin-block-start: var(--space-2xs);
+  }
+</style>

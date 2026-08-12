@@ -1,0 +1,136 @@
+---
+/**
+ * MarqueeBand — a kinetic type ticker.
+ *
+ * Cheap personality: no JS, no images, and it gives a page a pulse. Good for
+ * treatments, service lists, neighbourhood names, "walk-ins welcome · open
+ * late · third generation".
+ *
+ * Pure CSS animation — the track is duplicated and translated -100%, so the
+ * loop is seamless. Pauses on hover and on focus-within so anyone who spots an
+ * item can actually read it. Under reduced motion it stops and wraps into a
+ * readable list rather than sitting frozen mid-scroll.
+ *
+ * ACCESSIBILITY: the duplicate track is aria-hidden, so the list is announced
+ * exactly once.
+ *
+ * Use once per page. Two marquees is a car dealership.
+ */
+interface Props {
+  items: string[];
+  /** Separator glyph between items. */
+  separator?: string;
+  direction?: "normal" | "reverse";
+  size?: "s" | "m" | "l";
+  tone?: "default" | "sunken" | "dark" | "brand";
+  /** Outline type reads as design; solid reads as a sale banner. */
+  style?: "solid" | "outline";
+  id?: string;
+}
+
+const {
+  items,
+  separator = "·",
+  direction = "normal",
+  size = "m",
+  tone = "dark",
+  style = "solid",
+  id,
+} = Astro.props;
+
+// Two identical tracks: the second exists only to fill the gap as the first
+// scrolls out. It carries no information, hence aria-hidden.
+const track = items;
+---
+
+<section
+  id={id}
+  class:list={[
+    "marquee-band",
+    tone === "sunken" && "surface--sunken",
+    tone === "dark" && "on-dark",
+    tone === "brand" && "on-brand",
+  ]}
+  aria-label="Highlights"
+>
+  <div
+    class:list={[
+      "marquee",
+      `marquee-band--${size}`,
+      direction === "reverse" && "marquee--reverse",
+      style === "outline" && "marquee-band--outline",
+    ]}
+  >
+    <ul class="marquee__track" role="list">
+      {
+        track.map((item) => (
+          <li class="marquee__item">
+            <span class="marquee__text">{item}</span>
+            <span class="marquee__sep" aria-hidden="true">
+              {separator}
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <ul class="marquee__track" role="list" aria-hidden="true">
+      {
+        track.map((item) => (
+          <li class="marquee__item">
+            <span class="marquee__text">{item}</span>
+            <span class="marquee__sep">{separator}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .marquee-band {
+    padding-block: var(--space-m);
+    overflow: hidden;
+  }
+
+  .marquee__item {
+    display: flex;
+    align-items: center;
+    gap: var(--marquee-gap, var(--space-xl));
+    white-space: nowrap;
+  }
+
+  .marquee__text {
+    font-family: var(--face-display);
+    font-weight: var(--weight-display);
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
+    color: var(--color-ink-strong);
+  }
+
+  .marquee-band--s .marquee__text {
+    font-size: var(--step-2);
+  }
+  .marquee-band--m .marquee__text {
+    font-size: var(--step-4);
+  }
+  .marquee-band--l .marquee__text {
+    font-size: var(--step-5);
+  }
+
+  .marquee__sep {
+    color: var(--color-accent);
+    font-size: 0.6em;
+  }
+
+  /* Outline type: the same words, but as a texture rather than a statement.
+     -webkit-text-stroke is non-standard but universally supported; the
+     fallback (no stroke, transparent fill) would be invisible, so we only
+     go transparent where the stroke is known to apply. */
+  @supports (-webkit-text-stroke: 1px black) {
+    .marquee-band--outline .marquee__text {
+      -webkit-text-stroke: 1px var(--color-ink-strong);
+      color: transparent;
+    }
+  }
+</style>

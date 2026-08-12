@@ -1,0 +1,168 @@
+---
+/**
+ * ServicesGrid — offerings for trades and professional services.
+ *
+ * Doubles as PracticeAreas (legal), Treatments (medspa/dental) and Services
+ * (home services, vet, auto). Prices are optional and rendered as strings,
+ * because real service pricing is "from $180", not a number.
+ */
+import { Image } from "astro:assets";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+import Icon from "../core/Icon.astro";
+import type { CollectionEntry } from "astro:content";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  items: CollectionEntry<"services">[];
+  columns?: 2 | 3 | 4;
+  /** Photos read as marketing; icons read as a capability list. Pick one. */
+  media?: "photo" | "icon" | "none";
+  ctaLabel?: string;
+  ctaHref?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  items,
+  columns = 3,
+  media = "icon",
+  ctaLabel,
+  ctaHref,
+  id = "services",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+
+const gridClass =
+  columns === 2 ? "grid--2" : columns === 4 ? "grid--4" : "grid--3";
+---
+
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width="xl"
+  labelledBy={`${id}-heading`}
+  {...rest}
+>
+  <SectionHeader
+    eyebrow={eyebrow}
+    heading={heading}
+    body={body}
+    headingId={`${id}-heading`}
+  />
+
+  <ul class:list={["grid", gridClass]} role="list" data-reveal-stagger>
+    {
+      items.map((item) => (
+        <li class="service" data-reveal>
+          {media === "photo" && item.data.photo && (
+            <div class="media media--landscape media--zoom service__media">
+              <Image
+                src={item.data.photo}
+                alt={item.data.alt ?? ""}
+                widths={[320, 480, 720]}
+                sizes="(min-width: 72em) 22rem, (min-width: 48em) 33vw, 100vw"
+                loading="lazy"
+              />
+            </div>
+          )}
+
+          {media === "icon" && item.data.icon && (
+            <Icon name={item.data.icon} class="service__icon" />
+          )}
+
+          <h3 class="service__name">{item.data.name}</h3>
+          <p class="service__summary">{item.data.summary}</p>
+
+          {item.data.price && (
+            <p class="service__price">
+              {item.data.priceNote && (
+                <span class="service__price-note">{item.data.priceNote}</span>
+              )}
+              <span class="service__price-value">{item.data.price}</span>
+            </p>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+
+  {
+    ctaHref && ctaLabel && (
+      <p class="services__cta" data-reveal>
+        <a class="btn btn--large" href={ctaHref}>
+          {ctaLabel}
+        </a>
+      </p>
+    )
+  }
+</Section>
+
+<style>
+  .service {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    padding: var(--space-l);
+    background-color: var(--color-surface);
+    border: var(--border-hair) solid var(--color-line);
+    border-radius: var(--radius-card);
+  }
+
+  .service__media {
+    margin: calc(var(--space-l) * -1) calc(var(--space-l) * -1) var(--space-s);
+    border-radius: 0;
+  }
+
+  .service__icon {
+    width: 2rem;
+    height: 2rem;
+    color: var(--color-brand);
+    margin-block-end: var(--space-2xs);
+  }
+
+  .service__name {
+    font-size: var(--step-2);
+  }
+
+  .service__summary {
+    color: var(--color-ink-muted);
+  }
+
+  .service__price {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3xs);
+    /* Pin pricing to the card bottom so a row of cards aligns. */
+    margin-block-start: auto;
+    padding-block-start: var(--space-s);
+  }
+
+  .service__price-note {
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .service__price-value {
+    font-family: var(--face-display);
+    font-size: var(--step-2);
+    font-weight: var(--weight-display);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-brand);
+  }
+
+  .services__cta {
+    margin-block-start: var(--space-xl);
+    text-align: center;
+  }
+</style>

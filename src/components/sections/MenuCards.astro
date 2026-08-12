@@ -1,0 +1,177 @@
+---
+/**
+ * MenuCards (variant B) — card grid with photographs.
+ *
+ * Only use this when the client has genuinely good photography of most items.
+ * A grid where half the cards fall back to FPO looks worse than MenuClassic
+ * with no photos at all — the checklist calls this out before send.
+ */
+import { Image } from "astro:assets";
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+import { groupMenu, type MenuGroup } from "../../lib/content";
+import type { CollectionEntry } from "astro:content";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  items: CollectionEntry<"menu">[];
+  /** Hide category headers and render one flat grid. */
+  flat?: boolean;
+  note?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  items,
+  flat = false,
+  note,
+  id = "menu",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+
+const groups: MenuGroup[] = flat
+  ? [{ category: "", categoryOrder: 0, items }]
+  : groupMenu(items);
+---
+
+<Section id={id} tone={tone} spacing={spacing} width="xl" labelledBy={`${id}-heading`} {...rest}>
+  <SectionHeader
+    eyebrow={eyebrow}
+    heading={heading}
+    body={body}
+    headingId={`${id}-heading`}
+  />
+
+  <div class="menu-cards">
+    {
+      groups.map((group) => (
+        <section class="menu-cards__group">
+          {group.category && (
+            <h3 class="menu-cards__category" data-reveal>
+              {group.category}
+            </h3>
+          )}
+
+          <ul class="grid grid--3" role="list" data-reveal-stagger>
+            {group.items.map((item) => (
+              <li class="menu-card" data-reveal>
+                {item.data.photo && (
+                  <div class="media media--landscape media--zoom menu-card__media">
+                    <Image
+                      src={item.data.photo}
+                      alt={item.data.alt ?? ""}
+                      widths={[320, 480, 720]}
+                      sizes="(min-width: 72em) 22rem, (min-width: 48em) 33vw, 100vw"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+
+                <div class="menu-card__body">
+                  <div class="menu-card__head">
+                    <h4 class="menu-card__name">{item.data.name}</h4>
+                    {item.data.price && (
+                      <span class="menu-card__price">{item.data.price}</span>
+                    )}
+                  </div>
+
+                  {item.data.description && (
+                    <p class="menu-card__desc">{item.data.description}</p>
+                  )}
+
+                  {item.data.tags.length > 0 && (
+                    <p class="menu-card__tags">{item.data.tags.join(" · ")}</p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+
+  {note && <p class="menu-cards__note">{note}</p>}
+</Section>
+
+<style>
+  .menu-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+  }
+
+  .menu-cards__category {
+    font-size: var(--step-2);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-brand);
+    margin-block-end: var(--space-m);
+  }
+
+  .menu-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-surface);
+    border: var(--border-hair) solid var(--color-line);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+  }
+
+  .menu-card__media {
+    border-radius: 0;
+  }
+
+  .menu-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    padding: var(--space-m);
+  }
+
+  .menu-card__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-s);
+  }
+
+  .menu-card__name {
+    font-size: var(--step-2);
+    line-height: var(--leading-snug);
+  }
+
+  .menu-card__price {
+    font-family: var(--face-display);
+    font-size: var(--step-1);
+    font-weight: var(--weight-display);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-brand);
+    white-space: nowrap;
+  }
+
+  .menu-card__desc {
+    color: var(--color-ink-muted);
+  }
+
+  .menu-card__tags {
+    margin-block-start: auto;
+    padding-block-start: var(--space-2xs);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .menu-cards__note {
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+</style>

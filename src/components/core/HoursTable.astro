@@ -1,0 +1,252 @@
+---
+/**
+ * HoursTable — opening hours, from the same source as the JSON-LD.
+ *
+ * Reads SITE.hours directly so the visible table and the structured data can
+ * never disagree (CLAUDE.md §10a).
+ *
+ * "Today" is highlighted client-side, not at build time: a static page built on
+ * Tuesday would otherwise claim it is Tuesday forever.
+ */
+import { SITE } from "../../config/site";
+import { useTranslations, type Locale } from "../../i18n/ui";
+
+interface Props {
+  locale: Locale;
+  /** Show a live open/closed pill. */
+  showStatus?: boolean;
+}
+
+const { locale, showStatus = true } = Astro.props;
+const t = useTranslations(locale);
+
+const ORDER = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+] as const;
+
+/**
+ * BOTH formatters are pinned to UTC, and that is not a detail.
+ *
+ * The reference dates below are built with Date.UTC, but Intl.DateTimeFormat
+ * renders in the HOST timezone unless told otherwise — and this component runs
+ * at BUILD time, so the host is whatever machine ran `npm run build`.
+ *
+ * On a machine west of Greenwich the two failures compound:
+ *   - every weekday label shifts back one day, because Date.UTC(2024, 0, 1)
+ *     (a Monday) is Sunday 31 December locally;
+ *   - every opening time is re-expressed in local time, so "10:00" renders as
+ *     "2:00 AM" from Los Angeles.
+ *
+ * The result is a table of plausible-looking, completely wrong hours, on the
+ * one section of the page a visitor actually trusts. Pinning to UTC makes the
+ * output deterministic and correct on every build machine.
+ */
+const dayLabel = new Intl.DateTimeFormat(locale, {
+  weekday: "long",
+  timeZone: "UTC",
+});
+// 2024-01-01 was a Monday; used only to render localized weekday names.
+const labelFor = (i: number) =>
+  dayLabel.format(new Date(Date.UTC(2024, 0, 1 + i)));
+
+const timeLabel = new Intl.DateTimeFormat(locale, {
+  hour: "numeric",
+  minute: "2-digit",
+  timeZone: "UTC",
+});
+const fmt = (hhmm: string) => {
+  const [h, m] = hhmm.split(":").map(Number);
+  return timeLabel.format(new Date(Date.UTC(2024, 0, 1, h, m)));
+};
+
+const rows = ORDER.map((key, i) => {
+  const h = SITE.hours[key];
+  const open = h.open && h.close;
+  return {
+    key,
+    label: labelFor(i),
+    text: open ? `${fmt(h.open!)} – ${fmt(h.close!)}` : (h.note ?? t("hours.closed")),
+    isClosed: !open,
+  };
+});
+
+const hoursData = ORDER.map((key) => {
+  const h = SITE.hours[key];
+  return h.open && h.close ? [h.open, h.close] : null;
+});
+---
+
+<div class="hours">
+  <div class="hours__head">
+    <h3 class="hours__title">{t("hours.title")}</h3>
+    {
+      showStatus && (
+        <p class="hours__status" data-hours-status hidden>
+          <span class="hours__dot" aria-hidden="true" />
+          <span data-hours-status-text />
+        </p>
+      )
+    }
+  </div>
+
+  <table class="hours__table">
+    <caption class="visually-hidden">{t("hours.title")}</caption>
+    <tbody>
+      {
+        rows.map((row, i) => (
+          <tr data-day-index={i}>
+            <th scope="row" class="hours__day">
+              {row.label}
+            </th>
+            <td class:list={["hours__time", row.isClosed && "is-closed"]}>
+              {row.text}
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+
+<script is:inline define:vars={{ hoursData, openLabel: t("hours.openNow"), closedLabel: t("hours.closedNow"), todayLabel: t("hours.today") }}>
+  (() => {
+    // ISO weekday index where Monday = 0, matching hoursData's order.
+    const now = new Date();
+    const idx = (now.getDay() + 6) % 7;
+
+    const row = document.querySelector(`[data-day-index="${idx}"]`);
+    if (row) {
+      row.classList.add("is-today");
+      const th = row.querySelector("th");
+      if (th) {
+        const tag = document.createElement("span");
+        tag.className = "hours__today-tag";
+        tag.textContent = todayLabel;
+        th.appendChild(tag);
+      }
+    }
+
+    const status = document.querySelector("[data-hours-status]");
+    const text = document.querySelector("[data-hours-status-text]");
+    if (!status || !text) return;
+
+    const today = hoursData[idx];
+    let isOpen = false;
+    if (today) {
+      const [oh, om] = today[0].split(":").map(Number);
+      const [ch, cm] = today[1].split(":").map(Number);
+      const mins = now.getHours() * 60 + now.getMinutes();
+      const openMins = oh * 60 + om;
+      // A close time earlier than the open time means it runs past midnight.
+      const closeMins = ch * 60 + cm;
+      isOpen =
+        closeMins > openMins
+          ? mins >= openMins && mins < closeMins
+          : mins >= openMins || mins < closeMins;
+    }
+
+    status.classList.toggle("is-open", isOpen);
+    text.textContent = isOpen ? openLabel : closedLabel;
+    status.hidden = false;
+  })();
+</script>
+
+<style>
+  .hours__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-xs);
+    margin-block-end: var(--space-s);
+  }
+
+  .hours__title {
+    font-size: var(--step-2);
+  }
+
+  .hours__status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3xs);
+    font-size: var(--step--1);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .hours__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-ink-muted);
+  }
+
+  .hours__status.is-open {
+    color: var(--color-ok);
+  }
+  .hours__status.is-open .hours__dot {
+    background-color: var(--color-ok);
+  }
+
+  .hours__table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .hours__table tr + tr :is(th, td) {
+    border-block-start: var(--border-hair) solid var(--color-line);
+  }
+
+  .hours__table :is(th, td) {
+    padding-block: var(--space-2xs);
+    text-align: start;
+    font-weight: var(--weight-body);
+  }
+
+  .hours__day {
+    color: var(--color-ink);
+  }
+
+  .hours__time {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+
+  .hours__time.is-closed {
+    color: var(--color-ink-muted);
+  }
+
+  .hours__table tr.is-today :is(th, td) {
+    font-weight: var(--weight-strong);
+    color: var(--color-ink-strong);
+  }
+
+  /* :global because this element is created by the inline script above, at
+     runtime. Astro's scoped CSS compiles to `[data-astro-cid-…]` selectors and
+     stamps that attribute onto elements it rendered — a node built with
+     document.createElement never carries it, so the scoped rule silently never
+     matches and the "Today" tag renders as unstyled text jammed against the
+     weekday name. */
+  :global(.hours__today-tag) {
+    display: inline-block;
+    margin-inline-start: var(--space-2xs);
+    padding-inline: var(--space-3xs);
+    font-size: var(--step--1);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-brand-contrast);
+    background-color: var(--color-brand);
+    border-radius: var(--radius-s);
+  }
+</style>

@@ -1,0 +1,129 @@
+---
+/**
+ * ProcessSteps — "what happens when you call".
+ *
+ * The highest-value section on a professional-services site and the one almost
+ * every competitor omits. The visitor's real anxiety is not price, it is not
+ * knowing what they are about to be committed to. Three or four steps removes it.
+ *
+ * An <ol>, because the order is the content.
+ */
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+import type { CollectionEntry } from "astro:content";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  steps: CollectionEntry<"process">[];
+  ctaLabel?: string;
+  ctaHref?: string;
+  layout?: "row" | "column";
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  steps,
+  ctaLabel,
+  ctaHref,
+  layout = "row",
+  id = "process",
+  tone = "sunken",
+  spacing,
+  ...rest
+} = Astro.props;
+
+const ordered = [...steps].sort((a, b) => a.data.step - b.data.step);
+---
+
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width="xl"
+  labelledBy={`${id}-heading`}
+  {...rest}
+>
+  <SectionHeader
+    eyebrow={eyebrow}
+    heading={heading}
+    body={body}
+    headingId={`${id}-heading`}
+  />
+
+  <ol class:list={["process", `process--${layout}`]} data-reveal-stagger>
+    {
+      ordered.map((s) => (
+        <li class="process__step" data-reveal>
+          <p class="process__num" aria-hidden="true">
+            {String(s.data.step).padStart(2, "0")}
+          </p>
+          <h3 class="process__title">{s.data.title}</h3>
+          <p class="process__body">{s.data.body}</p>
+        </li>
+      ))
+    }
+  </ol>
+
+  {
+    ctaHref && ctaLabel && (
+      <p class="process__cta" data-reveal>
+        <a class="btn btn--large" href={ctaHref}>
+          {ctaLabel}
+        </a>
+      </p>
+    )
+  }
+</Section>
+
+<style>
+  .process {
+    display: grid;
+    gap: var(--space-xl);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: none;
+  }
+
+  .process__step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    padding-block-start: var(--space-s);
+    border-block-start: var(--border-rule) solid var(--color-brand);
+  }
+
+  .process__num {
+    font-family: var(--face-mono);
+    font-size: var(--step--1);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-accent);
+  }
+
+  .process__title {
+    font-size: var(--step-2);
+  }
+
+  .process__body {
+    color: var(--color-ink-muted);
+    max-width: 44ch;
+  }
+
+  .process__cta {
+    margin-block-start: var(--space-xl);
+  }
+
+  @media (min-width: 52em) {
+    .process--row {
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+      gap: var(--space-l);
+    }
+  }
+</style>

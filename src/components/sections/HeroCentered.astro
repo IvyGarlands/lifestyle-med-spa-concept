@@ -1,0 +1,151 @@
+---
+/**
+ * HeroCentered (variant E) — centred stacked type above a single dramatic
+ * photograph.
+ *
+ * Built for venues, where there is usually exactly one photo worth leading
+ * with and the name matters as much as the image. Type sits on the canvas above
+ * the photo rather than over it, so it works with photography we cannot control.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  image: ImageMetadata;
+  alt: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+  /** The photo shifts up into the type block — the "poster" look. */
+  overlap?: boolean;
+  tone?: "default" | "sunken" | "dark";
+  id?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  image,
+  alt,
+  ctaLabel,
+  ctaHref,
+  secondaryLabel,
+  secondaryHref,
+  overlap = false,
+  tone = "default",
+  id,
+} = Astro.props;
+---
+
+<section
+  id={id}
+  class:list={[
+    "hero-centered",
+    overlap && "hero-centered--overlap",
+    tone === "sunken" && "surface--sunken",
+    tone === "dark" && "on-dark",
+  ]}
+>
+  <div class="container container--m hero-centered__head">
+    {eyebrow && <p class="eyebrow" data-hero-settle>{eyebrow}</p>}
+
+    {/* LCP text — painted immediately. */}
+    <h1 class="display hero-centered__heading">{heading}</h1>
+
+    {body && <p class="lead hero-centered__body" data-hero-settle>{body}</p>}
+
+    {
+      (ctaHref || secondaryHref) && (
+        <div class="cluster cluster--center" data-hero-settle>
+          {ctaHref && ctaLabel && (
+            <a class="btn btn--large" href={ctaHref}>
+              {ctaLabel}
+            </a>
+          )}
+          {secondaryHref && secondaryLabel && (
+            <a class="btn btn--large btn--secondary" href={secondaryHref}>
+              {secondaryLabel}
+            </a>
+          )}
+        </div>
+      )
+    }
+  </div>
+
+  <div class="container container--xl hero-centered__media-wrap">
+    <div class="hero-centered__media">
+      <Image
+        src={image}
+        alt={alt}
+        widths={[640, 960, 1280, 1920, 2400]}
+        sizes="(min-width: 96em) 90rem, 100vw"
+        loading="eager"
+        fetchpriority="high"
+        decoding="sync"
+        class="hero-centered__img"
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-centered {
+    padding-block-start: var(--space-3xl);
+  }
+
+  .hero-centered__head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-s);
+    text-align: center;
+  }
+
+  .hero-centered__heading {
+    text-wrap: balance;
+  }
+
+  .hero-centered__body {
+    max-width: 48ch;
+  }
+
+  .hero-centered__media-wrap {
+    margin-block-start: var(--space-2xl);
+  }
+
+  .hero-centered__media {
+    overflow: hidden;
+    border-radius: var(--radius-image);
+    aspect-ratio: var(--ratio-wide);
+  }
+
+  .hero-centered__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: var(--image-filter-hero);
+  }
+
+  /* Overlap pulls the following section up under the photo, so the image reads
+     as a plate laid onto the page rather than another band. */
+  .hero-centered--overlap {
+    padding-block-end: 0;
+  }
+
+  .hero-centered--overlap .hero-centered__media-wrap {
+    margin-block-end: calc(var(--space-2xl) * -1);
+    position: relative;
+    z-index: var(--z-raised);
+  }
+
+  @media (max-width: 48em) {
+    .hero-centered__media {
+      aspect-ratio: var(--ratio-landscape);
+    }
+  }
+</style>

@@ -1,0 +1,215 @@
+---
+/**
+ * PackageTiers — good / better / best.
+ *
+ * Converts hard for detailing, med spas and anything with a repeatable scope.
+ * Three tiers, middle one highlighted: the middle option is what most people
+ * pick, and it should be the one you want them to pick.
+ *
+ * Prices are strings from the content collection, so "from $249" and "$1,200+"
+ * both render honestly. Never round or reformat a client's pricing.
+ */
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+import Icon from "../core/Icon.astro";
+import type { SectionProps } from "./Section.astro";
+
+export interface Tier {
+  name: string;
+  price: string;
+  priceNote?: string;
+  summary?: string;
+  /** Plain strings — one line each, ticked. */
+  includes: string[];
+  ctaLabel: string;
+  ctaHref: string;
+  /** Exactly one tier should set this. */
+  featured?: boolean;
+  featuredLabel?: string;
+}
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  tiers: Tier[];
+  note?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  tiers,
+  note,
+  id = "packages",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+---
+
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width="xl"
+  labelledBy={`${id}-heading`}
+  {...rest}
+>
+  <SectionHeader
+    eyebrow={eyebrow}
+    heading={heading}
+    body={body}
+    headingId={`${id}-heading`}
+    align="center"
+  />
+
+  <ul class="tiers" role="list" data-reveal-stagger>
+    {
+      tiers.map((tier) => (
+        <li class:list={["tier", tier.featured && "tier--featured"]} data-reveal>
+          {tier.featured && (
+            <p class="tier__flag">{tier.featuredLabel ?? "Most popular"}</p>
+          )}
+
+          <h3 class="tier__name">{tier.name}</h3>
+
+          <p class="tier__price">
+            <span class="tier__price-value">{tier.price}</span>
+            {tier.priceNote && (
+              <span class="tier__price-note">{tier.priceNote}</span>
+            )}
+          </p>
+
+          {tier.summary && <p class="tier__summary">{tier.summary}</p>}
+
+          <ul class="tier__includes" role="list">
+            {tier.includes.map((line) => (
+              <li class="tier__include">
+                <Icon name="check" class="tier__tick" />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
+
+          <a
+            class:list={["btn", "tier__cta", !tier.featured && "btn--secondary"]}
+            href={tier.ctaHref}
+          >
+            {tier.ctaLabel}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  {note && <p class="tiers__note" data-reveal>{note}</p>}
+</Section>
+
+<style>
+  .tiers {
+    display: grid;
+    gap: var(--space-l);
+    grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+    align-items: start;
+  }
+
+  .tier {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    height: 100%;
+    padding: var(--space-l);
+    background-color: var(--color-surface);
+    border: var(--border-hair) solid var(--color-line-strong);
+    border-radius: var(--radius-card);
+  }
+
+  /* The featured tier is distinguished by border weight and a flag, not by a
+     scale transform — a scaled card misaligns every row beside it. */
+  .tier--featured {
+    border-color: var(--color-brand);
+    border-width: var(--border-thick);
+    box-shadow: var(--shadow-m);
+  }
+
+  .tier__flag {
+    align-self: flex-start;
+    padding: 0.2em var(--space-2xs);
+    font-size: var(--step--1);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-brand-contrast);
+    background-color: var(--color-brand);
+    border-radius: var(--radius-s);
+  }
+
+  .tier__name {
+    font-size: var(--step-2);
+  }
+
+  .tier__price {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: var(--space-3xs);
+  }
+
+  .tier__price-value {
+    font-family: var(--face-display);
+    font-size: var(--step-4);
+    font-weight: var(--weight-display);
+    line-height: var(--leading-heading);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-strong);
+  }
+
+  .tier__price-note {
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .tier__summary {
+    color: var(--color-ink-muted);
+  }
+
+  .tier__includes {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    margin-block: var(--space-s);
+    padding-block-start: var(--space-s);
+    border-block-start: var(--border-hair) solid var(--color-line);
+  }
+
+  .tier__include {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2xs);
+  }
+
+  .tier__tick {
+    flex-shrink: 0;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-block-start: 0.15em;
+    color: var(--color-brand);
+  }
+
+  .tier__cta {
+    /* Pin every CTA to the bottom so buttons line up across uneven cards. */
+    margin-block-start: auto;
+    width: 100%;
+  }
+
+  .tiers__note {
+    margin-block-start: var(--space-l);
+    text-align: center;
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+</style>

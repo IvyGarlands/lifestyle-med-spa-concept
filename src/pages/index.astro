@@ -1,0 +1,44 @@
+---
+/**
+ * Homepage. Compose sections here; never lay out inside a page.
+ * See docs/ambush-workflow.md for the per-vertical section recipe.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import HeroSplit from "../components/sections/HeroSplit.astro";
+import CTABand from "../components/sections/CTABand.astro";
+import LocationContact from "../components/sections/LocationContact.astro";
+
+import { SITE } from "../config/site";
+import { useTranslations, localeFromUrl } from "../i18n/ui";
+import heroImg from "../assets/images/fpo-hero-16x9.jpg";
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+
+const navLinks = [{ label: "Visit", href: "#contact" }];
+---
+
+<BaseLayout
+  title="TODO — page title"
+  description="TODO — 150 character meta description."
+  path="/"
+  navLinks={navLinks}
+>
+  <HeroSplit
+    eyebrow="TODO"
+    heading="TODO — the one line that has to land."
+    body="TODO — two sentences in the owner's voice."
+    image={heroImg}
+    alt="TODO — describe this photo"
+    ctaLabel={`${t("cta.call")} ${SITE.phone}`}
+    ctaHref={`tel:${SITE.phoneHref}`}
+  />
+
+  <LocationContact locale={locale} id="contact" />
+
+  <CTABand
+    heading="TODO — the closing ask."
+    ctaLabel={`${t("cta.call")} ${SITE.phone}`}
+    ctaHref={`tel:${SITE.phoneHref}`}
+  />
+</BaseLayout>

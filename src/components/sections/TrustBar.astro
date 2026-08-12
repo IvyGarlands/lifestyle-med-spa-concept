@@ -1,0 +1,150 @@
+---
+/**
+ * TrustBar — licensed / insured / certified / insurance accepted.
+ *
+ * On trades and clinical sites this converts harder than any hero. It sits
+ * directly beneath the hero for exactly that reason.
+ *
+ * EVERY ITEM IS CLIENT-SUPPLIED, VERBATIM (CLAUDE.md §11). We never originate
+ * a licence number, a bond, a certification or an accepted-insurance list. If
+ * the client has not supplied them, the section does not render — an empty
+ * trust bar is fine, an invented one is a legal problem.
+ */
+import { Image } from "astro:assets";
+import Section from "./Section.astro";
+import Icon from "../core/Icon.astro";
+import type { CollectionEntry } from "astro:content";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  items: CollectionEntry<"credentials">[];
+  /** Optional lead-in, e.g. "Fully licensed and insured in Rhode Island". */
+  label?: string;
+  /** Logos read as insurance/affiliation; ticks read as claims. */
+  style?: "logos" | "ticks";
+}
+
+const {
+  items,
+  label,
+  style = "ticks",
+  id = "credentials",
+  tone = "sunken",
+  spacing = "tight",
+  ...rest
+} = Astro.props;
+---
+
+{
+  items.length > 0 && (
+    <Section
+      id={id}
+      tone={tone}
+      spacing={spacing}
+      width="xl"
+      aria-label={label ?? "Credentials"}
+      {...rest}
+    >
+      <div class="trust" data-reveal-stagger>
+        {label && (
+          <p class="trust__label" data-reveal>
+            {label}
+          </p>
+        )}
+
+        <ul class="trust__list" role="list">
+          {items.map((item) => (
+            <li class="trust__item" data-reveal>
+              {style === "logos" && item.data.logo ? (
+                <Image
+                  src={item.data.logo}
+                  alt={item.data.logoAlt ?? item.data.label}
+                  widths={[120, 240]}
+                  sizes="7.5rem"
+                  loading="lazy"
+                  class="trust__logo"
+                />
+              ) : (
+                <>
+                  <Icon name="check" class="trust__tick" />
+                  <span class="trust__text">
+                    <span class="trust__name">{item.data.label}</span>
+                    {item.data.issuer && (
+                      <span class="trust__issuer">{item.data.issuer}</span>
+                    )}
+                  </span>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </Section>
+  )
+}
+
+<style>
+  .trust {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    align-items: center;
+    text-align: center;
+  }
+
+  .trust__label {
+    font-size: var(--step--1);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .trust__list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-m) var(--space-xl);
+  }
+
+  .trust__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+  }
+
+  .trust__tick {
+    flex-shrink: 0;
+    width: 1.15rem;
+    height: 1.15rem;
+    color: var(--color-brand);
+  }
+
+  .trust__text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: start;
+  }
+
+  .trust__name {
+    font-weight: var(--weight-strong);
+    color: var(--color-ink-strong);
+    line-height: var(--leading-snug);
+  }
+
+  .trust__issuer {
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+
+  .trust__logo {
+    width: 7.5rem;
+    height: auto;
+    /* Mixed-quality supplied logos look like a jumble in colour; desaturating
+       makes an insurance row read as one set. */
+    filter: grayscale(1);
+    opacity: 0.75;
+  }
+</style>

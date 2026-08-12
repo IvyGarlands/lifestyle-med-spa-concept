@@ -1,0 +1,189 @@
+---
+/**
+ * HeroSplit (variant B) — split screen, type on one side, photograph on the
+ * other. The workhorse: it suits nine of the sixteen recipes and it is the only
+ * hero that holds a phone number, a form and a photo at once without crowding.
+ *
+ * No scrim needed — type sits on the canvas, not on the image — which makes it
+ * the safest variant when the client's photography is unpredictable.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  image: ImageMetadata;
+  alt: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+  /** Which side the image sits on at desktop. */
+  imageSide?: "start" | "end";
+  tone?: "default" | "sunken" | "dark" | "brand";
+  /** Small proof line under the CTAs — hours, "licensed & insured", rating. */
+  note?: string;
+  id?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  image,
+  alt,
+  ctaLabel,
+  ctaHref,
+  secondaryLabel,
+  secondaryHref,
+  imageSide = "end",
+  tone = "default",
+  note,
+  id,
+} = Astro.props;
+---
+
+<section
+  id={id}
+  class:list={[
+    "hero-split",
+    `hero-split--img-${imageSide}`,
+    tone === "sunken" && "surface--sunken",
+    tone === "dark" && "on-dark",
+    tone === "brand" && "on-brand",
+  ]}
+>
+  <div class="hero-split__grid">
+    <div class="hero-split__text">
+      <div class="hero-split__content">
+        {eyebrow && <p class="eyebrow" data-hero-settle>{eyebrow}</p>}
+
+        {/* LCP candidate — paints immediately, never revealed. */}
+        <h1 class="display hero-split__heading">{heading}</h1>
+
+        {body && <p class="lead" data-hero-settle>{body}</p>}
+
+        {
+          (ctaHref || secondaryHref) && (
+            <div class="cluster hero-split__actions" data-hero-settle>
+              {ctaHref && ctaLabel && (
+                <a class="btn btn--large" href={ctaHref}>
+                  {ctaLabel}
+                </a>
+              )}
+              {secondaryHref && secondaryLabel && (
+                <a class="btn btn--large btn--secondary" href={secondaryHref}>
+                  {secondaryLabel}
+                </a>
+              )}
+            </div>
+          )
+        }
+
+        {note && <p class="hero-split__note" data-hero-settle>{note}</p>}
+      </div>
+    </div>
+
+    <div class="hero-split__media">
+      <Image
+        src={image}
+        alt={alt}
+        widths={[480, 720, 1080, 1440]}
+        sizes="(min-width: 60em) 50vw, 100vw"
+        loading="eager"
+        fetchpriority="high"
+        decoding="sync"
+        class="hero-split__img"
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-split__grid {
+    display: grid;
+    /* Single column below the split point; the image leads on mobile because
+       a wall of type above the fold reads as a blog, not a business. */
+    grid-template-areas: "media" "text";
+    grid-template-columns: 1fr;
+  }
+
+  .hero-split__text {
+    display: flex;
+    align-items: center;
+    grid-area: text;
+    padding: var(--space-2xl) var(--gutter);
+  }
+
+  .hero-split__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+    width: 100%;
+    max-width: 34rem;
+    margin-inline: auto;
+  }
+
+  .hero-split__heading {
+    font-size: var(--step-5);
+    text-wrap: balance;
+  }
+
+  .hero-split__media {
+    grid-area: media;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: var(--ratio-landscape);
+  }
+
+  .hero-split__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: var(--image-filter-hero);
+  }
+
+  .hero-split__actions {
+    margin-block-start: var(--space-2xs);
+  }
+
+  .hero-split__note {
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+
+  @media (min-width: 60em) {
+    .hero-split__grid {
+      grid-template-areas: "text media";
+      grid-template-columns: 1fr 1fr;
+      min-height: clamp(32rem, 74svh, 46rem);
+    }
+
+    .hero-split--img-start .hero-split__grid {
+      grid-template-areas: "media text";
+    }
+
+    .hero-split__media {
+      aspect-ratio: auto;
+      height: 100%;
+    }
+
+    .hero-split__text {
+      padding: var(--space-3xl) var(--space-2xl);
+    }
+
+    /* Pull the text column toward the page gutter rather than centring it in
+       its half — centred columns in a split layout read as a template. */
+    .hero-split--img-end .hero-split__content {
+      margin-inline: auto 0;
+      padding-inline-end: var(--space-xl);
+    }
+
+    .hero-split--img-start .hero-split__content {
+      margin-inline: 0 auto;
+      padding-inline-start: var(--space-xl);
+    }
+  }
+</style>

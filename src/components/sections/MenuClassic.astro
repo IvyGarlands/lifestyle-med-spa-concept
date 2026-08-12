@@ -1,0 +1,153 @@
+---
+/**
+ * MenuClassic (variant A) — two-column menu with categories.
+ *
+ * The traditional printed-menu rhythm. Uses CSS multi-column so categories flow
+ * naturally and never split mid-item (break-inside: avoid), which a grid cannot
+ * do without hardcoding which category goes in which column.
+ */
+import Section from "./Section.astro";
+import SectionHeader from "./SectionHeader.astro";
+import { groupMenu, type MenuGroup } from "../../lib/content";
+import type { CollectionEntry } from "astro:content";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  items: CollectionEntry<"menu">[];
+  note?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  items,
+  note,
+  id = "menu",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+
+const groups: MenuGroup[] = groupMenu(items);
+---
+
+<Section id={id} tone={tone} spacing={spacing} width="l" labelledBy={`${id}-heading`} {...rest}>
+  <SectionHeader
+    eyebrow={eyebrow}
+    heading={heading}
+    body={body}
+    headingId={`${id}-heading`}
+  />
+
+  <div class="menu-classic" data-reveal-stagger>
+    {
+      groups.map((group) => (
+        <section class="menu-classic__group" data-reveal>
+          <h3 class="menu-classic__category">{group.category}</h3>
+
+          <ul class="menu-classic__list" role="list">
+            {group.items.map((item) => (
+              <li class="menu-classic__item">
+                <div class="menu-classic__head">
+                  <h4 class="menu-classic__name">{item.data.name}</h4>
+                  {item.data.price && (
+                    <span class="menu-classic__price">{item.data.price}</span>
+                  )}
+                </div>
+                {item.data.description && (
+                  <p class="menu-classic__desc">{item.data.description}</p>
+                )}
+                {item.data.tags.length > 0 && (
+                  <p class="menu-classic__tags">{item.data.tags.join(" · ")}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+
+  {note && <p class="menu-classic__note">{note}</p>}
+</Section>
+
+<style>
+  .menu-classic {
+    column-gap: var(--space-3xl);
+  }
+
+  .menu-classic__group {
+    /* Keeps a category and its items together in one column. */
+    break-inside: avoid;
+    margin-block-end: var(--space-2xl);
+  }
+
+  .menu-classic__category {
+    font-size: var(--step-2);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-brand);
+    padding-block-end: var(--space-2xs);
+    margin-block-end: var(--space-m);
+    border-block-end: var(--border-thick) solid var(--color-brand);
+  }
+
+  .menu-classic__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+  }
+
+  .menu-classic__item {
+    break-inside: avoid;
+  }
+
+  .menu-classic__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-s);
+  }
+
+  .menu-classic__name {
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  .menu-classic__price {
+    font-family: var(--face-display);
+    font-size: var(--step-1);
+    font-weight: var(--weight-display);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-strong);
+    white-space: nowrap;
+  }
+
+  .menu-classic__desc {
+    margin-block-start: var(--space-3xs);
+    color: var(--color-ink-muted);
+  }
+
+  .menu-classic__tags {
+    margin-block-start: var(--space-3xs);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .menu-classic__note {
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+
+  @media (min-width: 56em) {
+    .menu-classic {
+      columns: 2;
+    }
+  }
+</style>

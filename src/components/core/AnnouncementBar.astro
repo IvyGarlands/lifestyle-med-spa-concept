@@ -1,0 +1,156 @@
+---
+/**
+ * AnnouncementBar — specials, holiday hours, tonight's lineup, closures.
+ *
+ * Above the header, dismissible, remembers dismissal for the session so it
+ * doesn't nag. Renders nothing when there is no message, so a client can
+ * "turn it off" by clearing one string.
+ */
+interface Props {
+  message?: string;
+  href?: string;
+  linkLabel?: string;
+  tone?: "brand" | "dark" | "accent";
+  /** Bump when the message changes so a prior dismissal doesn't hide it. */
+  id?: string;
+  dismissible?: boolean;
+}
+
+const {
+  message,
+  href,
+  linkLabel,
+  tone = "brand",
+  id = "default",
+  dismissible = true,
+} = Astro.props;
+---
+
+{
+  message && (
+    <div
+      class:list={[
+        "announce",
+        tone === "brand" && "on-brand",
+        tone === "dark" && "on-dark",
+        tone === "accent" && "announce--accent",
+      ]}
+      data-announce
+      data-announce-id={id}
+      hidden
+    >
+      <div class="container container--xl announce__inner">
+        <p class="announce__text">
+          {message}
+          {href && (
+            <a class="announce__link" href={href}>
+              {linkLabel ?? "Learn more"}
+            </a>
+          )}
+        </p>
+
+        {dismissible && (
+          <button
+            type="button"
+            class="announce__close"
+            data-announce-close
+            aria-label="Dismiss announcement"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                d="M6 6l12 12M18 6L6 18"
+              />
+            </svg>
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+<script>
+  const bar = document.querySelector<HTMLElement>("[data-announce]");
+  if (bar) {
+    const key = `announce:${bar.dataset.announceId}`;
+    let dismissed = false;
+    try {
+      dismissed = sessionStorage.getItem(key) === "1";
+    } catch {
+      // Private mode or blocked storage: show the bar rather than fail.
+    }
+
+    if (!dismissed) bar.hidden = false;
+
+    bar.querySelector("[data-announce-close]")?.addEventListener("click", () => {
+      bar.hidden = true;
+      try {
+        sessionStorage.setItem(key, "1");
+      } catch {
+        /* non-fatal */
+      }
+    });
+  }
+</script>
+
+<style>
+  .announce {
+    position: relative;
+    z-index: calc(var(--z-header) + 1);
+  }
+
+  .announce--accent {
+    background-color: var(--color-accent);
+    color: var(--color-accent-contrast);
+  }
+
+  .announce__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-s);
+    min-height: 2.75rem;
+    padding-block: var(--space-3xs);
+  }
+
+  .announce__text {
+    font-size: var(--step--1);
+    font-weight: var(--weight-medium);
+    text-align: center;
+  }
+
+  .announce__link {
+    margin-inline-start: var(--space-2xs);
+    color: inherit;
+    font-weight: var(--weight-strong);
+    text-underline-offset: 0.18em;
+  }
+
+  .announce__close {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    margin-inline-start: auto;
+    padding: 0;
+    background: none;
+    border: 0;
+    color: currentColor;
+    opacity: 0.75;
+    cursor: pointer;
+  }
+
+  .announce__close:hover {
+    opacity: 1;
+  }
+
+  .announce__close svg {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+</style>

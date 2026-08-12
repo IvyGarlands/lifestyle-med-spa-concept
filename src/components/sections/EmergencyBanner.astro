@@ -1,0 +1,120 @@
+---
+/**
+ * EmergencyBanner — after-hours and urgent-call handling.
+ *
+ * For home services and veterinary practices this is the single most useful
+ * thing on the page at 11pm, and it must be findable without reading.
+ *
+ * HONESTY (CLAUDE.md §11): never claim 24/7 availability, emergency capability
+ * or species/trade coverage the client has not confirmed in writing. For vets
+ * in particular, a wrong after-hours claim is an animal-welfare hazard, not a
+ * marketing error. If the client has no emergency service, use this to say so
+ * and point at who does — that is genuinely more useful than silence.
+ */
+import Section from "./Section.astro";
+import Icon from "../core/Icon.astro";
+import { SITE } from "../../config/site";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  heading: string;
+  /** e.g. "Burst pipe? We answer the phone at 3am." */
+  body?: string;
+  /** Defaults to the site phone. Override for a dedicated emergency line. */
+  phone?: string;
+  phoneHref?: string;
+  phoneLabel?: string;
+  /** Where to send people when the client does NOT offer after-hours care. */
+  referralLabel?: string;
+  referralHref?: string;
+  icon?: string;
+}
+
+const {
+  heading,
+  body,
+  phone = SITE.phone,
+  phoneHref = SITE.phoneHref,
+  phoneLabel = "Call now",
+  referralLabel,
+  referralHref,
+  icon = "phone",
+  id = "emergency",
+  tone = "brand",
+  spacing = "tight",
+  ...rest
+} = Astro.props;
+---
+
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width="l"
+  labelledBy={`${id}-heading`}
+  {...rest}
+>
+  <div class="emergency">
+    <Icon name={icon} class="emergency__icon" />
+
+    <div class="emergency__text">
+      <h2 id={`${id}-heading`} class="emergency__heading">{heading}</h2>
+      {body && <p class="emergency__body">{body}</p>}
+    </div>
+
+    <div class="emergency__actions">
+      <a class="btn btn--accent btn--large" href={`tel:${phoneHref}`}>
+        {phoneLabel} · {phone}
+      </a>
+      {
+        referralHref && referralLabel && (
+          <a class="emergency__referral" href={referralHref} rel="noopener">
+            {referralLabel}
+          </a>
+        )
+      }
+    </div>
+  </div>
+</Section>
+
+<style>
+  .emergency {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-m);
+  }
+
+  .emergency__icon {
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    color: var(--color-accent);
+  }
+
+  .emergency__text {
+    flex: 1 1 18rem;
+  }
+
+  .emergency__heading {
+    font-size: var(--step-2);
+  }
+
+  .emergency__body {
+    margin-block-start: var(--space-3xs);
+    color: var(--color-ink);
+  }
+
+  .emergency__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2xs);
+  }
+
+  .emergency__referral {
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+    text-underline-offset: 0.18em;
+  }
+</style>

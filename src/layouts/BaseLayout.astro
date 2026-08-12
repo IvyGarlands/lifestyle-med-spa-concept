@@ -1,0 +1,139 @@
+---
+/**
+ * BaseLayout — the only layout. Every page renders through it.
+ *
+ * FONTS: imported here, self-hosted via Fontsource, never a runtime CDN call
+ * (CLAUDE.md §1). Swap these two imports when you change recipe — the family
+ * names are wired through --face-display / --face-body in tokens.css §2.
+ *
+ * The <script> for motion.ts is a plain Astro script: bundled, hashed, and
+ * `type="module"` (therefore deferred), so GSAP never blocks render.
+ */
+import "@fontsource-variable/bitter";
+import "@fontsource-variable/karla";
+
+import "../styles/tokens.css";
+import "../styles/base.css";
+
+import { SITE } from "../config/site";
+import { useTranslations, localeFromUrl, type Locale } from "../i18n/ui";
+import SEOHead from "../components/core/SEOHead.astro";
+import SiteNav, { type NavLink } from "../components/core/SiteNav.astro";
+import Footer from "../components/core/Footer.astro";
+import ConceptBadge from "../components/core/ConceptBadge.astro";
+import AnnouncementBar from "../components/core/AnnouncementBar.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  path?: string;
+  image?: string;
+  noindex?: boolean;
+  faq?: { question: string; answer: string }[];
+  priceRange?: string;
+  navLinks?: NavLink[];
+  announcement?: {
+    message: string;
+    href?: string;
+    linkLabel?: string;
+    id?: string;
+  };
+  /** Adds the film-grain overlay. Recipe-dependent. */
+  grain?: boolean;
+  /** Sticky call bar on mobile. On by default — small businesses live on calls. */
+  stickyCall?: boolean;
+}
+
+const {
+  title,
+  description,
+  path = "/",
+  image,
+  noindex,
+  faq,
+  priceRange,
+  navLinks = [],
+  announcement,
+  grain = false,
+  stickyCall = true,
+} = Astro.props;
+
+const locale: Locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <SEOHead
+      title={title}
+      description={description}
+      path={path}
+      image={image}
+      noindex={noindex}
+      faq={faq}
+      priceRange={priceRange}
+    />
+    <slot name="head" />
+  </head>
+
+  <body class:list={[grain && "has-grain", stickyCall && "has-sticky-call"]}>
+    <a class="skip-link" href="#main">{t("skip.content")}</a>
+
+    {announcement && <AnnouncementBar {...announcement} />}
+
+    <SiteNav locale={locale} links={navLinks} current={path} />
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <Footer locale={locale} links={navLinks} />
+
+    {
+      stickyCall && (
+        <div class="sticky-call no-print">
+          <a class="btn btn--block" href={`tel:${SITE.phoneHref}`}>
+            {t("cta.callNow")} · {SITE.phone}
+          </a>
+        </div>
+      )
+    }
+
+    {SITE.isConcept && <ConceptBadge locale={locale} />}
+
+    <script>
+      import "../lib/motion";
+    </script>
+
+    <style>
+      /* Mobile-only sticky call bar. Desktop has the number in the header, so
+         this would be redundant clutter above the nav breakpoint. */
+      .sticky-call {
+        position: fixed;
+        inset-inline: 0;
+        inset-block-end: 0;
+        z-index: var(--z-sticky);
+        padding: var(--space-2xs);
+        background-color: var(--color-canvas);
+        border-block-start: var(--border-hair) solid var(--color-line);
+        /* Clear the iOS home indicator. */
+        padding-block-end: calc(var(--space-2xs) + env(safe-area-inset-bottom));
+      }
+
+      /* Reserve the bar's height so it never covers the end of the footer. */
+      :global(body.has-sticky-call) {
+        padding-block-end: 4.25rem;
+      }
+
+      @media (min-width: 60em) {
+        .sticky-call {
+          display: none;
+        }
+        :global(body.has-sticky-call) {
+          padding-block-end: 0;
+        }
+      }
+    </style>
+  </body>
+</html>

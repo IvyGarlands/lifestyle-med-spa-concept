@@ -1,0 +1,209 @@
+---
+/**
+ * AboutHeritage — the "since 19XX" variant, with a timeline.
+ *
+ * Longevity is the single most persuasive thing a neighbourhood business owns,
+ * and almost none of them put it on the page. This section exists to make that
+ * easy: a big established year, a story, and a vertical timeline of milestones.
+ *
+ * The timeline is an <ol> — it is genuinely ordered, and screen readers should
+ * announce it that way. The dots and rule are drawn in CSS, not markup.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import Section from "./Section.astro";
+import type { SectionProps } from "./Section.astro";
+
+export interface Milestone {
+  year: string;
+  title: string;
+  body?: string;
+}
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  body: string;
+  /** Rendered oversized as the section's anchor. e.g. "1974" */
+  since?: string;
+  sinceLabel?: string;
+  image?: ImageMetadata;
+  alt?: string;
+  milestones: Milestone[];
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  since,
+  sinceLabel = "Serving since",
+  image,
+  alt = "",
+  milestones,
+  id = "story",
+  tone = "sunken",
+  spacing,
+  ...rest
+} = Astro.props;
+---
+
+<Section id={id} tone={tone} spacing={spacing} width="xl" labelledBy={`${id}-heading`} {...rest}>
+  <div class="heritage">
+    <div class="heritage__intro" data-reveal-stagger>
+      {eyebrow && <p class="eyebrow" data-reveal>{eyebrow}</p>}
+      <h2 id={`${id}-heading`} class="heritage__heading" data-reveal>{heading}</h2>
+
+      {
+        since && (
+          <p class="heritage__since" data-reveal>
+            <span class="heritage__since-label">{sinceLabel}</span>
+            <span class="heritage__since-year">{since}</span>
+          </p>
+        )
+      }
+
+      <p class="heritage__body" data-reveal>{body}</p>
+
+      {
+        image && (
+          <div class="media media--landscape heritage__media" data-reveal>
+            <Image
+              src={image}
+              alt={alt}
+              widths={[480, 720, 1080]}
+              sizes="(min-width: 60em) 45vw, 100vw"
+              loading="lazy"
+            />
+          </div>
+        )
+      }
+    </div>
+
+    <ol class="timeline" data-reveal-stagger>
+      {
+        milestones.map((m) => (
+          <li class="timeline__item" data-reveal>
+            <p class="timeline__year">{m.year}</p>
+            <h3 class="timeline__title">{m.title}</h3>
+            {m.body && <p class="timeline__body">{m.body}</p>}
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</Section>
+
+<style>
+  .heritage {
+    display: grid;
+    gap: var(--space-2xl);
+  }
+
+  .heritage__intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+
+  .heritage__heading {
+    font-size: var(--step-4);
+  }
+
+  .heritage__since {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    padding-block: var(--space-xs);
+  }
+
+  .heritage__since-label {
+    font-size: var(--step--1);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .heritage__since-year {
+    font-family: var(--face-display);
+    font-size: var(--step-6);
+    font-weight: var(--weight-display);
+    line-height: var(--leading-display);
+    letter-spacing: var(--tracking-display);
+    color: var(--color-brand);
+    font-variant-numeric: lining-nums;
+  }
+
+  .heritage__body {
+    color: var(--color-ink-muted);
+    max-width: var(--measure);
+  }
+
+  .heritage__media {
+    margin-block-start: var(--space-s);
+  }
+
+  /* Timeline: the rule is a pseudo-element on the list, the dots on each item,
+     so the markup stays a clean ordered list. */
+  .timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    margin: 0;
+    padding: 0 0 0 var(--space-l);
+    list-style: none;
+  }
+
+  .timeline::before {
+    content: "";
+    position: absolute;
+    inset-block: 0.6em 0;
+    inset-inline-start: 0;
+    width: var(--border-hair);
+    background-color: var(--color-line-strong);
+  }
+
+  .timeline__item {
+    position: relative;
+  }
+
+  .timeline__item::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 0.5em;
+    inset-inline-start: calc(var(--space-l) * -1);
+    width: 0.65rem;
+    height: 0.65rem;
+    transform: translateX(-45%);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-accent);
+  }
+
+  .timeline__year {
+    font-family: var(--face-mono);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    color: var(--color-accent);
+  }
+
+  .timeline__title {
+    font-size: var(--step-2);
+    margin-block-start: var(--space-3xs);
+  }
+
+  .timeline__body {
+    margin-block-start: var(--space-3xs);
+    color: var(--color-ink-muted);
+    max-width: 52ch;
+  }
+
+  @media (min-width: 60em) {
+    .heritage {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4xl);
+      align-items: start;
+    }
+  }
+</style>

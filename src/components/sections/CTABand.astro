@@ -1,0 +1,128 @@
+---
+/**
+ * CTABand — the closing ask. One band, one decision.
+ *
+ * Deliberately allows at most two actions. A band with four buttons converts
+ * worse than a band with one, and the phone number should almost always be the
+ * primary on these verticals.
+ */
+import Section from "./Section.astro";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  ctaLabel: string;
+  ctaHref: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+  /** Small reassurance under the buttons — hours, response time, "no call-out fee". */
+  note?: string;
+  align?: "center" | "split";
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  ctaLabel,
+  ctaHref,
+  secondaryLabel,
+  secondaryHref,
+  note,
+  align = "center",
+  id = "cta",
+  tone = "brand",
+  spacing = "tight",
+  ...rest
+} = Astro.props;
+---
+
+<Section id={id} tone={tone} spacing={spacing} width="l" labelledBy={`${id}-heading`} {...rest}>
+  <div class:list={["cta-band", `cta-band--${align}`]} data-reveal-stagger>
+    <div class="cta-band__text">
+      {eyebrow && <p class="eyebrow cta-band__eyebrow" data-reveal>{eyebrow}</p>}
+      <h2 id={`${id}-heading`} class="cta-band__heading" data-reveal>{heading}</h2>
+      {body && <p class="cta-band__body" data-reveal>{body}</p>}
+    </div>
+
+    <div class="cta-band__actions" data-reveal>
+      <div class="cluster">
+        <a class="btn btn--accent btn--large" href={ctaHref}>{ctaLabel}</a>
+        {
+          secondaryHref && secondaryLabel && (
+            <a class="btn btn--secondary btn--large" href={secondaryHref}>
+              {secondaryLabel}
+            </a>
+          )
+        }
+      </div>
+      {note && <p class="cta-band__note">{note}</p>}
+    </div>
+  </div>
+</Section>
+
+<style>
+  .cta-band {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+  }
+
+  .cta-band--center {
+    align-items: center;
+    text-align: center;
+  }
+
+  .cta-band--center .cta-band__actions {
+    align-items: center;
+  }
+
+  .cta-band__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .cta-band__heading {
+    font-size: var(--step-4);
+    text-wrap: balance;
+  }
+
+  .cta-band__body {
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink);
+    max-width: 46ch;
+  }
+
+  .cta-band--center .cta-band__body {
+    margin-inline: auto;
+  }
+
+  .cta-band__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .cta-band__note {
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+
+  @media (min-width: 52em) {
+    .cta-band--split {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-2xl);
+    }
+
+    .cta-band--split .cta-band__actions {
+      flex-shrink: 0;
+      align-items: flex-end;
+    }
+  }
+</style>

@@ -1,0 +1,187 @@
+---
+/**
+ * HeroFullBleed (variant A) — full-bleed photograph with overlaid display type.
+ *
+ * LCP DISCIPLINE (CLAUDE.md §6): the image is eager + fetchpriority="high" and
+ * the headline is NOT a [data-reveal] — both are LCP candidates and must paint
+ * immediately. Only secondary furniture gets [data-hero-settle].
+ *
+ * The scrim is mandatory, not stylistic: it is what guarantees AA contrast for
+ * white type over an unknown photograph, and check-contrast.mjs verifies it
+ * against a worst-case bright image.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  eyebrow?: string;
+  heading: string;
+  body?: string;
+  image: ImageMetadata;
+  alt: string;
+  /** Primary CTA — usually a phone number for small businesses. */
+  ctaLabel?: string;
+  ctaHref?: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+  /** "tall" uses a 4:5 crop on mobile so the subject survives the narrow frame. */
+  height?: "full" | "tall" | "standard";
+  align?: "start" | "center" | "end";
+  id?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  image,
+  alt,
+  ctaLabel,
+  ctaHref,
+  secondaryLabel,
+  secondaryHref,
+  height = "full",
+  align = "start",
+  id,
+} = Astro.props;
+---
+
+<section
+  id={id}
+  class:list={["hero-fb", `hero-fb--${height}`, `hero-fb--${align}`, "on-dark"]}
+>
+  <div class="hero-fb__media">
+    <Image
+      src={image}
+      alt={alt}
+      widths={[640, 960, 1280, 1920, 2400]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+      decoding="sync"
+      class="hero-fb__img"
+    />
+    <div class="scrim scrim--full" aria-hidden="true"></div>
+  </div>
+
+  <div class="hero-fb__inner container container--xl">
+    <div class="hero-fb__content">
+      {eyebrow && <p class="eyebrow hero-fb__eyebrow" data-hero-settle>{eyebrow}</p>}
+
+      {/* Not a [data-reveal]: this is the LCP text and must paint at once. */}
+      <h1 class="display hero-fb__heading">{heading}</h1>
+
+      {body && <p class="hero-fb__body" data-hero-settle>{body}</p>}
+
+      {
+        (ctaHref || secondaryHref) && (
+          <div class="cluster hero-fb__actions" data-hero-settle>
+            {ctaHref && ctaLabel && (
+              <a class="btn btn--large" href={ctaHref}>
+                {ctaLabel}
+              </a>
+            )}
+            {secondaryHref && secondaryLabel && (
+              <a class="btn btn--large btn--secondary" href={secondaryHref}>
+                {secondaryLabel}
+              </a>
+            )}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-fb {
+    position: relative;
+    display: grid;
+    isolation: isolate;
+    /* Never a full 100vh: it strands the content on landscape phones and
+       buys nothing on desktop. */
+    min-height: clamp(30rem, 78svh, 46rem);
+  }
+
+  .hero-fb--tall {
+    min-height: clamp(34rem, 88svh, 52rem);
+  }
+
+  .hero-fb--standard {
+    min-height: clamp(24rem, 60svh, 36rem);
+  }
+
+  .hero-fb__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+  }
+
+  .hero-fb__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: var(--image-filter-hero);
+  }
+
+  .hero-fb__inner {
+    display: flex;
+    align-items: flex-end;
+    padding-block: var(--space-3xl) var(--space-2xl);
+  }
+
+  .hero-fb--center .hero-fb__inner {
+    align-items: center;
+  }
+
+  /* Width lives in rem here, NOT ch: `ch` on this container resolves against
+     the inherited body size, so a ch-based cap would be a fraction of the
+     intended width once the h1 renders at --step-6 and would break words
+     mid-syllable. Character-count caps belong on the heading itself. */
+  .hero-fb__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+    max-width: min(46rem, 100%);
+  }
+
+  .hero-fb--center .hero-fb__content {
+    max-width: min(52rem, 100%);
+    margin-inline: auto;
+    text-align: center;
+    align-items: center;
+  }
+
+  .hero-fb--end .hero-fb__content {
+    margin-inline-start: auto;
+  }
+
+  .hero-fb__eyebrow {
+    color: var(--color-accent);
+  }
+
+  .hero-fb__heading {
+    color: var(--n-000);
+    text-wrap: balance;
+    /* Measured at the display size, which is the point of putting it here. */
+    max-width: 18ch;
+    /* Never hyphenate or break a word in a hero line. */
+    overflow-wrap: normal;
+  }
+
+  .hero-fb--center .hero-fb__heading {
+    max-width: 20ch;
+  }
+
+  .hero-fb__body {
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink);
+    max-width: 40ch;
+  }
+
+  .hero-fb__actions {
+    margin-block-start: var(--space-2xs);
+  }
+</style>
