@@ -1,0 +1,193 @@
+---
+/**
+ * SignedReviews — the reviews, signed in the same hand as the staff.
+ *
+ * Reinforces the page's one idea from the other side: the practice signs its
+ * work, and so do the people who wrote about it. The reviewer's name is set in
+ * the brand script at the same size as a staff signature, so the roster and
+ * the reviews visibly belong to the same document.
+ *
+ * TWO reviews, deliberately. Five were recoverable in full; two named a pound
+ * figure, and one could not be pinned to a single verbatim text across
+ * repeated fetches (input/reviews.txt). Publishing three of five would have
+ * meant either an unverifiable quote or a weight-loss result claim on a page
+ * we built. Two real ones beat five laundered ones, and both survivors happen
+ * to be about the STAFF rather than about results — which is the argument.
+ *
+ * NO AGGREGATE RATING AND NO REVIEW COUNT anywhere. Three sources gave three
+ * irreconcilable figures — 4.8/53, 4.8/18, 5.0/10 — so the number is omitted
+ * entirely rather than picked. Per-review stars are rendered because those are
+ * attached to the individual review and agree across sources.
+ */
+import type { CollectionEntry } from "astro:content";
+import Section from "./Section.astro";
+import Stars from "../core/Stars.astro";
+import WaterRule from "../brand/WaterRule.astro";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  eyebrow: string;
+  heading: string;
+  testimonials: CollectionEntry<"testimonials">[];
+  /** Sourcing line. Says where these came from and what is missing, plainly. */
+  note?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  testimonials,
+  note,
+  id = "reviews",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+---
+
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width="l"
+  labelledBy={`${id}-heading`}
+  {...rest}
+>
+  <div class="revs__head">
+    <p class="revs__eyebrow">{eyebrow}</p>
+    <h2 class="revs__heading" id={`${id}-heading`}>{heading}</h2>
+    <WaterRule size="m" />
+  </div>
+
+  <ul class="revs" data-reveal-stagger>
+    {
+      testimonials.map((t) => (
+        <li class="rev" data-reveal>
+          <figure>
+            {t.data.rating && (
+              <div class="rev__stars">
+                <Stars rating={t.data.rating} size="s" />
+              </div>
+            )}
+            <blockquote class="rev__quote">
+              <p>{t.data.quote}</p>
+            </blockquote>
+            <figcaption class="rev__by">
+              <span class="rev__name">{t.data.author}</span>
+              <span class="rev__source">{t.data.source}</span>
+            </figcaption>
+          </figure>
+        </li>
+      ))
+    }
+  </ul>
+
+  {note && <p class="revs__note">{note}</p>}
+</Section>
+
+<style>
+  .revs__head {
+    text-align: center;
+    margin-block-end: var(--space-2xl);
+  }
+
+  .revs__eyebrow {
+    margin: 0 0 var(--space-s);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-brand);
+  }
+
+  .revs__heading {
+    margin: 0 0 var(--space-m);
+    font-family: var(--face-display);
+    font-size: var(--step-4);
+    font-weight: var(--weight-display);
+    font-variation-settings: "opsz" 40;
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-heading);
+    color: var(--color-ink-strong);
+    text-wrap: balance;
+  }
+
+  .revs {
+    display: grid;
+    gap: var(--space-xl);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 48em) {
+    .revs {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .rev figure {
+    margin: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-l);
+    background-color: var(--color-surface);
+    border: var(--border-hair) solid var(--color-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-m);
+  }
+
+  .rev__stars {
+    margin-block-end: var(--space-s);
+  }
+
+  .rev__quote {
+    margin: 0;
+    flex: 1;
+  }
+
+  .rev__quote p {
+    margin: 0;
+    font-family: var(--face-display);
+    font-size: var(--step-2);
+    font-variation-settings: "opsz" 28;
+    line-height: var(--leading-snug);
+    color: var(--color-ink-strong);
+    text-wrap: pretty;
+  }
+
+  .rev__by {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-block-start: var(--space-l);
+  }
+
+  /* The reviewer signs, in the same hand as the staff. */
+  .rev__name {
+    font-family: var(--face-script);
+    font-size: var(--step-3);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-script);
+    color: var(--color-brand);
+  }
+
+  .rev__source {
+    margin-block-start: var(--space-3xs);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .revs__note {
+    margin: var(--space-xl) auto 0;
+    max-inline-size: var(--measure);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-muted);
+    text-align: center;
+    text-wrap: pretty;
+  }
+</style>

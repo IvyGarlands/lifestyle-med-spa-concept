@@ -1,0 +1,190 @@
+---
+/**
+ * FoundersNote — the origin, set as a signed note.
+ *
+ * The single best fact gathered about this business is that the person who
+ * started it was its own first patient (input/facts.txt §3). It is
+ * primary-sourced from their own about page, it explains the register of
+ * everything else they write, and it is buried two clicks down on their
+ * current site under a stock photograph of a model.
+ *
+ * COMPLIANCE, and it is the reason this section is shaped the way it is.
+ * Their published version of this story carries a specific result — a pound
+ * figure over a timeframe. That figure is NOT on this page. Weight-loss
+ * advertising is FTC-enforced, republishing a result on a page we built is
+ * the exposure the whole build is designed to avoid, and the story loses
+ * nothing without it: "he was the patient before he was the founder" is the
+ * part that does the work.
+ *
+ * The section also does one piece of honest correction. Their site styles the
+ * founder as "Dr. Kim Barrus" throughout. He holds a PhD and is Chief of
+ * Operations, and their own team page is explicit that medical services are
+ * provided by the clinical team under the medical director. On a page about
+ * prescription medicine that distinction is not pedantry, so this build names
+ * the doctorate and separates the clinical roles.
+ */
+import Section from "./Section.astro";
+import WaterRule from "../brand/WaterRule.astro";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  eyebrow: string;
+  heading: string;
+  /** Paragraphs, in order. */
+  body: string[];
+  /** Their own words, verbatim. */
+  quote: string;
+  quoteAttribution: string;
+  /** Rendered in the brand script, as a signature under the note. */
+  signature: string;
+  signatureRole: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  body,
+  quote,
+  quoteAttribution,
+  signature,
+  signatureRole,
+  id = "story",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+---
+
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width="m"
+  labelledBy={`${id}-heading`}
+  {...rest}
+>
+  <div class="note" data-reveal-stagger>
+    <p class="note__eyebrow" data-reveal>{eyebrow}</p>
+
+    <h2 class="note__heading" id={`${id}-heading`} data-reveal>{heading}</h2>
+
+    <div class="note__rule"><WaterRule size="m" center={false} /></div>
+
+    <div class="note__body" data-reveal>
+      {body.map((p) => <p>{p}</p>)}
+    </div>
+
+    <figure class="note__quote" data-reveal>
+      <blockquote>
+        <p>{quote}</p>
+      </blockquote>
+      <figcaption>{quoteAttribution}</figcaption>
+    </figure>
+
+    {/* The note is signed, like everything else on this page. */}
+    <div class="note__sign" data-reveal>
+      <span class="note__signature">{signature}</span>
+      <span class="note__role">{signatureRole}</span>
+    </div>
+  </div>
+</Section>
+
+<style>
+  .note__eyebrow {
+    margin: 0 0 var(--space-s);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-brand);
+  }
+
+  .note__heading {
+    margin: 0;
+    font-family: var(--face-display);
+    font-size: var(--step-4);
+    font-weight: var(--weight-display);
+    /* A lower opsz than the hero: at 34-52px the hairlines of a full Didone
+       start to disappear on a light ground, so the axis is pulled back to
+       thicken the thins. This is the whole reason for importing the opsz
+       subset rather than the standard one. */
+    font-variation-settings: "opsz" 40;
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-heading);
+    color: var(--color-ink-strong);
+    text-wrap: balance;
+  }
+
+  .note__rule {
+    margin-block: var(--space-m) var(--space-l);
+  }
+
+  .note__body {
+    max-inline-size: var(--measure);
+  }
+
+  .note__body p {
+    margin: 0 0 var(--space-m);
+    font-size: var(--step-1);
+    line-height: var(--leading-body);
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .note__body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .note__quote {
+    margin: var(--space-2xl) 0 0;
+    padding-inline-start: var(--space-l);
+    border-inline-start: var(--border-rule) solid var(--color-brand);
+    max-inline-size: var(--measure);
+  }
+
+  .note__quote blockquote {
+    margin: 0;
+  }
+
+  .note__quote p {
+    margin: 0;
+    font-family: var(--face-display);
+    font-size: var(--step-2);
+    font-variation-settings: "opsz" 28;
+    font-style: italic;
+    line-height: var(--leading-snug);
+    color: var(--color-ink-strong);
+    text-wrap: pretty;
+  }
+
+  .note__quote figcaption {
+    margin-block-start: var(--space-s);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .note__sign {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-block-start: var(--space-2xl);
+  }
+
+  .note__signature {
+    font-family: var(--face-script);
+    font-size: var(--step-3);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-script);
+    color: var(--color-brand);
+  }
+
+  .note__role {
+    margin-block-start: var(--space-2xs);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+</style>

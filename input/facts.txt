@@ -1,0 +1,313 @@
+LIFESTYLE MED SPA — GATHERED FACTS
+Gathered 2026-08-12 by Looking Glass Labs. Every line carries its source.
+Nothing in this file was supplied by the operator; nothing in it was invented.
+A fact without a source URL below does not appear on the built page.
+
+================================================================================
+1. IDENTITY AND NAME
+================================================================================
+
+Trading name (leads everywhere on their own site):
+  "Lifestyle Med Spa"
+  SOURCE: https://lifestylehealthservices.com/ — body copy uses "At Lifestyle
+  Med Spa" four times; logo reads "Lifestyle / Med Spa"; page <title> is
+  "Lifestyle Med Spa | Medical Weight Loss Clinic in Agoura Hills, CA"
+
+Legal/entity name (used in the domain, the footer and by Yelp):
+  "Lifestyle Health Services"
+  SOURCE: https://lifestylehealthservices.com/ footer; Yelp listing is
+  "LIFESTYLE HEALTH SERVICES" — https://www.yelp.com/biz/lifestyle-health-services-agoura-hills
+
+  CONFLICT (logged, resolved deliberately): the domain and the Yelp/legal
+  listing say "Lifestyle Health Services"; the wordmark, the page title and
+  100% of their own body copy say "Lifestyle Med Spa". Their staff bios use
+  BOTH inside one page — Samantha Nunley's bio says "Lifestyle Health
+  Services" while every other bio says "Lifestyle Med Spa".
+  RESOLUTION: lead with "Lifestyle Med Spa" (their wordmark and their own
+  voice), carry "Lifestyle Health Services" as the legal name in the footer
+  and in JSON-LD `legalName`. The previous concept (004) led with the legal
+  name; that was the wrong call against their own branding.
+
+Self-description, verbatim:
+  "Weight Loss Clinic of Agoura Hills, CA"
+  SOURCE: https://lifestylehealthservices.com/ — H1
+
+Tagline, verbatim:
+  "Your journey to a healthier, more confident you starts here."
+  SOURCE: https://lifestylehealthservices.com/ — H2
+
+================================================================================
+2. CONTACT AND LOCATION
+================================================================================
+
+Address:  30497 Canwood St, Ste 200, Agoura Hills, CA 91301
+  SOURCE: https://lifestylehealthservices.com/ — contact block and footer,
+  both render it identically.
+  CONFLICT (logged): Yelp lists "30495 Canwood St" (no suite).
+  SOURCE: https://www.yelp.com/biz/lifestyle-health-services-agoura-hills
+  RESOLUTION: use 30497 Ste 200 — it is what the business publishes itself,
+  twice, on its own site. Yelp is third-party data entry.
+
+Office phone:   (818) 206-3066
+Texting line:   (805) 391-2314
+  SOURCE: https://lifestylehealthservices.com/ — footer, "Office:" and
+  "Texting:" labelled separately. Both appear in the contact block too.
+  NOTE: a separate published texting number is unusual and worth using — it
+  is a real accommodation, not a marketing line.
+
+Email:  info@lifestylehealthservices.com
+  SOURCE: https://lifestylehealthservices.com/ — contact block and footer
+
+Hours (verbatim, their formatting):
+  "Monday & Wednesday: 9:00 AM to 1:00 PM"
+  "Tuesday & Thursday: 9:00 AM to 5:00 PM"
+  "Friday - Sunday: Closed"
+  SOURCE: https://lifestylehealthservices.com/ — contact block AND footer,
+  identical in both places.
+  CONFLICT (logged): Fresha lists "Monday-Friday 9:00 AM - 4:30 PM,
+  Saturday-Sunday Closed".
+  SOURCE: https://www.fresha.com/lvp/lifestyle-health-services-med-spa-agoura-hills-semaglutide-and-tirzepatide-PVwqo4
+  RESOLUTION: use their own site's hours. The Fresha page states in its own
+  copy: "The business is not currently affiliated with or partnered with
+  Fresha" and that the listing is "based on publicly available data" — so it
+  is not a primary source.
+  NOTE: 28 open hours a week, four days, closed Fri/Sat/Sun. That is a small
+  practice and the page must not imply otherwise.
+
+Telehealth states: California, Utah, Texas
+  SOURCE: https://lifestylehealthservices.com/ — "Serving patients across
+  California, Utah, and Texas"
+
+Social:
+  Facebook  https://www.facebook.com/lifestylehealthservicesagoura
+  Instagram https://www.instagram.com/lifestylemedspa/
+  SOURCE: https://lifestylehealthservices.com/ — footer links
+
+================================================================================
+3. THE PEOPLE  — the most important material gathered
+================================================================================
+
+Their /team/ page names TEN people with titles and credentials, and shows
+ZERO photographs of any of them. Verified by reading the rendered DOM with
+every "See More" expanded: the only images on that page are the logo and two
+LegitScript seals.
+  SOURCE: https://lifestylehealthservices.com/team/
+
+All ten, verbatim as their site titles them:
+
+  1. Michael Rankin, MD — Medical Director
+     "Michael B. Rankin, MD is a diplomate of the American Board of Internal
+     Medicine"  (verbatim, complete — that is the entire bio)
+     Site elsewhere labels him "BOARD-CERTIFIED INTERNAL MEDICINE"
+
+  2. Kim B. Barrus, Ph.D. — Chief of Operations, FOUNDER
+     "Kim Barrus, Ph.D., is the founder of Lifestyle Med Spa, where he
+     provides the vision and leadership behind the practice's patient-centered
+     approach to health, wellness, and preventive care. After experiencing
+     firsthand the life-changing benefits of medically supervised GLP-1 weight
+     loss treatment, Dr. Barrus was inspired to create a practice dedicated to
+     helping others improve their health, confidence, and quality of life
+     through evidence-based medical care."
+
+  3. Beth Barrus, RN — Head Nurse, CO-FOUNDER
+     "As a co-founder of the practice, Beth played an important role in
+     establishing the clinical foundation of Lifestyle Med Spa and developing
+     protocols that support exceptional patient experiences."
+     "With more than 50 years of nursing experience, Beth brings extensive
+     expertise in critical care and surgical recovery."
+
+  4. Kristina Dino, MSN, FNP-C, PMHNP-BC — Certified Family Nurse Practitioner
+     "Kristina is a dual board-certified Nurse Practitioner specializing in
+     medical weight loss, aesthetic medicine, and wellness optimization. She
+     earned her Master of Science in Nursing and a Post Masters Certification
+     in Psychiatric Mental Health Nurse Practitioner from West Coast
+     University."
+
+  5. Samantha Nunley — Business Development & Patient Experience Manager
+     "Samantha holds a Bachelor of Arts in Communication Studies from Florida
+     State University."
+
+  6. Giselle Morales — Medical Assistant
+     "Giselle's background includes 4 years of dedicated esthetic practice and
+     5 years of experience as a medical assistant."
+
+  7. Jessica Salazar — Medical Assistant
+     "She earned her Bachelor's degree in Microbiology with a minor in Public
+     Health from UC Davis"; "Since beginning her career in 2019"
+
+  8. Anjmun Sharma, MD
+     "specializing in occupational medicine. He is an Aviation Medical
+     Examiner (A.M.E.) and a Designated Civil Surgeon for USCIS."
+     NOTE: his bio says he "practices at Monument Occupational Medicine, PC,
+     in Colorado Springs" — he is listed on the team but is not in Agoura
+     Hills. Do not imply he is in the room.
+
+  9. Traci Babcock, RN, NP
+     "Traci Babcock RN NP is an experienced board-certified nurse practitioner
+     with Lifestyle Med Spa and Family Psychological Services." (complete)
+
+ 10. Jaime Raymond — Plasma Fibroblast Pen Technician
+     "Has been in the beauty industry for 16 years as a makeup/hair artist"
+
+  CONFLICT (logged, name omitted from the build): one summarising read of the
+  team page returned an eleventh name, "Nicole Caunan, Medical Assistant",
+  which does not appear in the rendered page text I read directly. A patient
+  review does thank a "Nicole".  RESOLUTION: omit. Ten names are confirmed by
+  direct DOM read; the eleventh is not, and a misspelled or ex-employee name
+  on a cold-outreach page is unrecoverable.
+
+FOUNDING STORY — primary-sourced, and the single best fact gathered:
+  "Dr. Kim Barrus, our chief of operations, took GLP-1 injections
+  (Ozempic/Wegovy) and lost 22 pounds in four months." He then "opened the
+  medical spa to his clients from Ventura and Los Angeles counties".
+  SOURCE: https://lifestylehealthservices.com/about/
+  DECISION: the FACT of the founder having been a patient first is used and is
+  the organising idea. The POUND FIGURE AND TIMEFRAME ARE DELIBERATELY NOT
+  PUBLISHED — see §7 compliance. The story survives without the number.
+
+Founding YEAR: NOT STATED anywhere on their site, Yelp, Fresha, Zocdoc or
+  Birdeye. Their logo file is dated 2023-09 in the WordPress upload path
+  (/wp-content/uploads/2023/09/) which suggests but does not establish a date.
+  DECISION: no founding year appears on the page. Not inferred from a file
+  path.
+
+================================================================================
+4. WHAT THEY SELL
+================================================================================
+
+Positioning, their own words, verbatim:
+  "At Lifestyle Med Spa, we specialize in medical weight loss with a focus on
+  GLP-1 medications"
+  "Locally operated by a Board-Certified Medical Doctor and Nurse
+  Practitioner"
+  SOURCE: https://lifestylehealthservices.com/
+
+WEIGHT MANAGEMENT (their nav grouping and labels, verbatim)
+  Weight Loss Injections · GLP-1 Agonist · GLP-1/GIP Dual Agonist ·
+  Mounjaro · Ozempic · Wegovy · Zepbound · Natural Weight Loss
+WELLNESS
+  Vitamin IV Drips — Antioxidant · Immunity Booster · Vital Glow ·
+  Hangover Recovery · Energize and Recharge · Relaxation and Revive ·
+  Athlete's Fuel and Recovery · NAD+ IV · Probiotics · Vitamin Injections
+AESTHETICS
+  Neuromodulator · Botox · Xeomin · HydraFacial · Plasma Fibroblast ·
+  Cortisone Injection · Facials
+PRODUCTS
+  ZO Skin Health · Circadia Skincare
+  SOURCE: https://lifestylehealthservices.com/ — main nav and "Our Treatments"
+
+PRICES: NONE PUBLISHED ANYWHERE.
+  Checked: their own site (no prices on any page), Fresha (listing carries no
+  services or prices and disclaims affiliation), Yelp, Zocdoc, Birdeye.
+  There is no scanned menu, price sheet or fee schedule in any public source.
+  DECISION: the page shows NO PRICE FOR ANY SERVICE. The only monetary facts
+  published are the two below, which are theirs verbatim.
+
+THE COMMERCIAL MODEL — verbatim, and this is a differentiator:
+  "There are no contracts, no hidden fees, no membership costs — and
+  consultations are always free."
+  SOURCE: https://lifestylehealthservices.com/
+
+  "We accept CareCredit. CareCredit credit cards gives you a convenient,
+  flexible way to pay. Carecredit offers everyday promotional financing for
+  purchases of $200 or more allowing you to pay over time with convenient
+  monthly payments."
+  SOURCE: https://lifestylehealthservices.com/
+  (The $200 figure is CareCredit's promotional-financing threshold, not a
+  price of theirs. Used only in that sense, or not at all.)
+
+Current promotion running on their site as of 2026-08-12 (a modal popup):
+  "Get Glowing Skin This Summer / 50% OFF HYDRAFACIAL"
+  SOURCE: https://lifestylehealthservices.com/ — popup
+  DECISION: NOT published. A time-limited promo with no stated end date will
+  be stale by the time anyone reads the concept, and a wrong discount on a
+  cold-outreach page is worse than no discount.
+
+================================================================================
+5. REVIEWS AND RATINGS
+================================================================================
+
+See input/reviews.txt for verbatim quotes.
+
+AGGREGATE RATING AND REVIEW COUNT: NOT PUBLISHED ON THE BUILD.
+  Three sources, three different numbers, all describing the same business:
+    Birdeye        4.8 / 53 reviews  — https://reviews.birdeye.com/lifestyle-med-spa-agoura-hills-health-services-weight-loss-iv-therapy-hydrafacial-169807455448088
+    TrustAnalytica 4.8 / 18 reviews (Google) — https://trustanalytica.org/us/ca/agoura-hills/reviews/lifestyle-health-services
+    Zocdoc         5.00 / 10 reviews — https://www.zocdoc.com/practice/lifestyle-health-services-86225 (403 to direct fetch; figure from search result)
+  Per the no-invention rule: sources conflict, so the star count and review
+  count are OMITTED ENTIRELY. Individual verbatim quotes are used instead,
+  which is the stronger material anyway.
+  Their own homepage has a "Google Reviews" heading with no reviews rendered
+  under it.
+
+================================================================================
+6. BADGES AND CERTIFICATIONS — none of these ship
+================================================================================
+
+LegitScript seal: present on their site, seal ID 18388123, linking to
+  https://www.legitscript.com/websites/?checker_keywords=lifestylehealthservices.com
+  VERIFICATION ATTEMPTED AND FAILED: that lookup is behind a reCAPTCHA, which
+  I will not complete. Status therefore UNCONFIRMED.
+  DECISION: not published. Re-publishing someone else's certification seal
+  without verifying it is exactly the class of claim we never originate.
+
+HIPAA badge: present on their site as a graphic. No certifying body, no
+  registration number, nothing verifiable behind it. HIPAA compliance is not a
+  certification anyone issues.
+  DECISION: not published.
+
+CareCredit: verifiable as a real consumer product and stated by them in prose.
+  DECISION: publishable as a payment method, in their own words, no logo.
+
+================================================================================
+7. REGULATED-VERTICAL CONSTRAINTS APPLIED TO THIS BUILD
+================================================================================
+
+a. PHI / forms. Their site advertises HIPAA compliance. Our ContactForm posts
+   to a third-party form relay with no business-associate agreement. The form
+   therefore collects NAME, PHONE, EMAIL and PREFERRED TIME only, and carries
+   a visible notice inside the <form> telling people not to send medical
+   details. No weight field, no goal weight, no medication field, no condition
+   field.
+
+b. Weight-loss claims are FTC-enforced. NO before/after imagery. NO pound
+   figures anywhere on the page — including the founder's own published
+   22 lb / four months, which is omitted by choice. No timelines, no "typical
+   results", no "guaranteed", no "sustainable results" framed as a promise.
+   Their word "sustainable" appears only inside a directly attributed quote.
+
+c. Drug names are third-party trademarks. Mounjaro, Ozempic, Wegovy and
+   Zepbound appear only inside a factual list of medications the practice
+   works with, carrying a trademark note. Never a headline, never a logo,
+   never implied endorsement.
+
+d. Provider claims. "Board-certified" is used ONLY attached to the named
+   provider and the named board — Michael Rankin, MD, "a diplomate of the
+   American Board of Internal Medicine", verbatim. Kristina Dino is described
+   as "dual board-certified" because that is their word for her, in her own
+   bio, and the two boards are named in her credential string.
+
+e. Reviews naming staff members are quoted verbatim and un-edited except for
+   surname reduction.
+
+================================================================================
+8. PHOTOGRAPHY — the honest position
+================================================================================
+
+NO AUTHENTIC PHOTOGRAPHY OF THIS BUSINESS EXISTS IN ANY SOURCE I COULD REACH.
+
+  · Their /team/ page: ten named people, zero portraits.
+  · Their homepage: four large images, all downloaded and inspected. All four
+    are commercial stock — a studio beauty portrait on a pink seamless, a
+    cropped torso in navy activewear on a black seamless, a beach scene. None
+    depicts their clinic, their staff, their equipment or their room.
+  · No interior, exterior, signage or equipment photograph appears on any page
+    of their site.
+  · Instagram (@lifestylemedspa) and Facebook are login-walled.
+
+DECISION: no photograph appears on the concept. Their stock is licensed to
+them and not to us, and re-hosting a stock beauty portrait would reproduce the
+exact failure the redesign is arguing against. The page's imagery is drawn
+instead — a redrawn version of their own lotus mark and hand-drawn signatures
+— which is both defensible and on-brief, since the idea is the people.
+The concept badge already discloses that imagery and branding are recreated.

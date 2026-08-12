@@ -1,0 +1,24 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "_comment": [
+    "Lock 4 of 4 on findability, for the Vercel case. public/_headers covers",
+    "Cloudflare Pages and Netlify; this covers Vercel. Both are shipped because",
+    "which host a concept ends up on is decided after the build, and the wrong",
+    "one silently means no header at all.",
+    "See public/robots.txt for the other three locks."
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate"
+        },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+      ]
+    }
+  ]
+}

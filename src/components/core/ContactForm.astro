@@ -31,9 +31,24 @@ interface Props {
   submitLabel?: string;
   /** Shown in the notification email subject. */
   subject?: string;
+  /**
+   * A standing notice rendered INSIDE the <form>, above the fields.
+   *
+   * This lives in the component rather than in the calling page on purpose.
+   * Every regulated vertical needs one — medspa, dental, vet, legal — and if
+   * it is the page author's job to remember it, a page author will eventually
+   * forget. Inside the form element it is also unmissable to a screen-reader
+   * user tabbing straight into the first field, which a paragraph sitting
+   * above the form is not.
+   *
+   * On this build it carries the PHI warning: the endpoint is a third-party
+   * form relay with no business-associate agreement, and this practice
+   * advertises HIPAA compliance.
+   */
+  notice?: string;
 }
 
-const { locale, fields, submitLabel, subject } = Astro.props;
+const { locale, fields, submitLabel, subject, notice } = Astro.props;
 const t = useTranslations(locale);
 
 const defaultFields: FormField[] = [
@@ -68,6 +83,8 @@ const enabled = Boolean(SITE.FORM_ENDPOINT);
     )
   }
   {subject && <input type="hidden" name="_subject" value={subject} />}
+
+  {notice && <p class="contact-form__notice">{notice}</p>}
 
   {/* Honeypot. Off-screen rather than display:none, and never focusable. */}
   <div class="hp-field" aria-hidden="true">
@@ -277,6 +294,21 @@ const enabled = Boolean(SITE.FORM_ENDPOINT);
   }
 
   .contact-form__disabled,
+  /* Deliberately styled as a warning rather than as fine print. It is a
+     boundary on what the reader should type, so it has to be read BEFORE the
+     first field, not discovered afterwards. */
+  .contact-form__notice {
+    margin: 0 0 var(--space-m);
+    padding: var(--space-xs) var(--space-s);
+    border-inline-start: var(--border-rule) solid var(--color-line-strong);
+    border-radius: var(--radius-s);
+    background-color: var(--color-surface-sunken);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
   .contact-form__status {
     font-size: var(--step--1);
     color: var(--color-ink-muted);

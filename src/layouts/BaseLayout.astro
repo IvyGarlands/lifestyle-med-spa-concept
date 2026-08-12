@@ -9,8 +9,18 @@
  * The <script> for motion.ts is a plain Astro script: bundled, hashed, and
  * `type="module"` (therefore deferred), so GSAP never blocks render.
  */
-import "@fontsource-variable/bitter";
-import "@fontsource-variable/karla";
+/**
+ * Bodoni Moda is imported from its **opsz** subset rather than the default
+ * `index.css`, so the optical-size axis is live: the same file renders with
+ * modest stroke contrast at 17px and full Didone hairlines at 132px. That is
+ * the entire reason this face beats the Playfair Display on their current
+ * site, which is one drawing at every size.
+ *
+ * Pinyon Script is a single 400 weight and carries every name on the page.
+ */
+import "@fontsource-variable/bodoni-moda/opsz.css";
+import "@fontsource-variable/plus-jakarta-sans";
+import "@fontsource/pinyon-script";
 
 import "../styles/tokens.css";
 import "../styles/base.css";
@@ -22,6 +32,7 @@ import SiteNav, { type NavLink } from "../components/core/SiteNav.astro";
 import Footer from "../components/core/Footer.astro";
 import ConceptBadge from "../components/core/ConceptBadge.astro";
 import AnnouncementBar from "../components/core/AnnouncementBar.astro";
+import Wordmark from "../components/brand/Wordmark.astro";
 
 interface Props {
   title: string;
@@ -82,13 +93,17 @@ const t = useTranslations(locale);
 
     {announcement && <AnnouncementBar {...announcement} />}
 
-    <SiteNav locale={locale} links={navLinks} current={path} />
+    <SiteNav locale={locale} links={navLinks} current={path}>
+      <Wordmark slot="brand" ring={true} class="brand--header" />
+    </SiteNav>
 
     <main id="main">
       <slot />
     </main>
 
-    <Footer locale={locale} links={navLinks} />
+    <Footer locale={locale} links={navLinks}>
+      <Wordmark slot="brand" layout="stacked" ring={true} class="brand--footer" />
+    </Footer>
 
     {
       stickyCall && (
@@ -100,11 +115,54 @@ const t = useTranslations(locale);
       )
     }
 
-    {SITE.isConcept && <ConceptBadge locale={locale} />}
+    {SITE.isConcept && <ConceptBadge />}
 
     <script>
       import "../lib/motion";
     </script>
+
+    <style is:global>
+      /* ONE number for the sticky call bar's footprint.
+         It was previously two independent magic numbers — 4.25rem reserved by
+         the body and 4.5rem used by the concept badge to lift clear of the bar
+         — and neither was the bar's actual height. This build's type is larger
+         than the engine's default, so the bar measured 84px (5.25rem) and the
+         badge landed ON the primary call CTA at narrow widths: a disclosure
+         covering the one tap target the page exists to produce. Both consumers
+         now read this token, so they cannot drift apart again. */
+      body.has-sticky-call {
+        --sticky-call-h: 6rem;
+      }
+
+      /* The wordmark is one component at two scales. Sizing it from here, on
+         the instance, is what keeps Wordmark itself free of any knowledge of
+         where it has been placed. */
+      .brand--header {
+        --wordmark-size: 1.35rem;
+      }
+
+      /* At 320px the header carries the wordmark, a call icon and the menu
+         trigger. At 1.35rem the exit swash on the final "e" of Lifestyle ran
+         into the phone icon — a script wordmark's bounding box is narrower
+         than its ink, so the collision is invisible to a layout check and
+         obvious to a reader. */
+      @media (max-width: 26em) {
+        .brand--header {
+          --wordmark-size: 1.1rem;
+        }
+      }
+
+      .brand--footer {
+        --wordmark-size: 1.6rem;
+        margin-block-end: var(--space-s);
+      }
+
+      @media (min-width: 60em) {
+        .brand--header {
+          --wordmark-size: 1.6rem;
+        }
+      }
+    </style>
 
     <style>
       /* Mobile-only sticky call bar. Desktop has the number in the header, so
@@ -123,7 +181,7 @@ const t = useTranslations(locale);
 
       /* Reserve the bar's height so it never covers the end of the footer. */
       :global(body.has-sticky-call) {
-        padding-block-end: 4.25rem;
+        padding-block-end: calc(var(--sticky-call-h) + env(safe-area-inset-bottom));
       }
 
       @media (min-width: 60em) {

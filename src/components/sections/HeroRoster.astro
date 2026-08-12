@@ -1,0 +1,374 @@
+---
+/**
+ * HeroRoster — the hero, and the page's ONE signature moment (CLAUDE.md §4a).
+ *
+ * THE IDEA, made structural. Every GLP-1 seller within ten miles is either a
+ * website with a checkout or a clinic selling a membership ladder, and almost
+ * none of them will tell you who is prescribing. This practice publishes ten
+ * people with titles and credentials — and then shows no photograph of any of
+ * them and buries the page two levels down. So the roster is not a section
+ * near the bottom of this page. It IS the page's opening argument.
+ *
+ * THE SIGNATURE MOMENT: the roster signs itself. Ten names, set in the script
+ * from the client's own wordmark, are written on one after another, each with
+ * a gold nib travelling along it. The client's logotype is a signature; this
+ * turns that one observation into the structure of the page.
+ *
+ * HOW IT IS DRAWN, and why it is done this way:
+ *   - Each name sits under a cover panel painted in --color-canvas with a
+ *     gold leading edge. The panel translates out on X. That is a pure
+ *     transform, composited, and it costs nothing on the main thread — a
+ *     clip-path or a width animation would jank on a ten-item stagger.
+ *   - The leading edge of the panel IS the nib. There is no second element
+ *     chasing the reveal and no risk of the two desynchronising.
+ *   - GSAP is not involved. This is one IntersectionObserver and a class,
+ *     about 340 bytes, because loading a scroll library for a single one-shot
+ *     reveal would be the exact "if a feature needs a library" failure in §1.
+ *
+ * THE THREE CONSTRAINTS ON THE SIGNATURE TIER (§4a), all satisfied:
+ *   1. The static composition stands alone. With JS off, `.js-motion` is never
+ *      added, the cover panels are `display: none`, and all ten names are
+ *      simply present and legible. Nothing is hidden by a stylesheet waiting
+ *      for a script.
+ *   2. prefers-reduced-motion collapses it: --sig-draw-* go to zero and the
+ *      panels resolve instantly. The names are never withheld.
+ *   3. The perf budget does not move. Transform and opacity only; the
+ *      observer disconnects after it fires once.
+ *
+ * The H1 does NOT take any of this. It is the LCP element and it is visible at
+ * first paint — the decisions log is explicit that the signature toolkit gets
+ * no exception there.
+ */
+import type { CollectionEntry } from "astro:content";
+import WaterRule from "../brand/WaterRule.astro";
+import Lotus from "../brand/Lotus.astro";
+import { SITE } from "../../config/site";
+
+interface Props {
+  eyebrow: string;
+  heading: string;
+  lead: string;
+  /** Small line above the signatures. */
+  rosterLabel: string;
+  people: CollectionEntry<"people">[];
+  id?: string;
+}
+
+const { eyebrow, heading, lead, rosterLabel, people, id } = Astro.props;
+---
+
+<section class="hero-roster" id={id}>
+  <div class="hero-roster__top container">
+    <p class="hero-roster__eyebrow" data-hero-settle>{eyebrow}</p>
+
+    {/* The LCP element. No split, no mask, no reveal — painted immediately. */}
+    <h1 class="hero-roster__heading" data-hero-settle>{heading}</h1>
+
+    {/* WRAPPED, not classed. Astro scopes a component's CSS with a
+        data-astro-cid attribute that it only stamps onto elements in that
+        component's OWN template — a class handed to a child component lands on
+        the child's root, which never carries the parent's attribute, so the
+        rule silently does nothing. Same failure mode as the engine's
+        `document.createElement` note in the decisions log. Styling a wrapper
+        I own is the fix that does not need :global(). */}
+    <div class="hero-roster__rule">
+      <WaterRule size="l" />
+    </div>
+
+    <p class="hero-roster__lead" data-hero-settle>{lead}</p>
+
+    <div class="hero-roster__actions" data-hero-settle>
+      <a class="btn btn--primary" href={`tel:${SITE.phoneHref}`}>
+        Call {SITE.phone}
+      </a>
+      <a class="btn btn--ghost" href={`sms:${SITE.textPhoneHref}`}>
+        Text {SITE.textPhone}
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-roster__signatures" data-signing>
+    <div class="container">
+      <p class="hero-roster__roster-label">
+        <span class="hero-roster__label-mark"><Lotus ring={false} /></span>
+        <span>{rosterLabel}</span>
+      </p>
+
+      <ol class="sigs">
+        {
+          people.map((p, i) => (
+            <li class="sig" style={`--sig-index:${i}`}>
+              {/* Shrink-wraps to the signature, so the water rule beneath it
+                  is exactly as wide as the name rather than a fixed stub. A
+                  rule that does not agree with the thing it underlines reads
+                  as a stray mark. */}
+              <span class="sig__mark">
+                <span class="sig__inner">
+                  <span class="sig__name">{p.data.name}</span>
+                  {/* The cover panel. Only ever a visible element when JS is
+                      alive — see the .js-motion gate in the styles. */}
+                  <span class="sig__cover" aria-hidden="true" />
+                </span>
+                <span class="sig__rule"><WaterRule size="m" center={false} /></span>
+              </span>
+              <span class="sig__role">{p.data.role}</span>
+              {p.data.credentials.length > 0 && (
+                <span class="sig__creds">{p.data.credentials.join(" · ")}</span>
+              )}
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>
+
+<script>
+  /**
+   * One observer, one class, then it disconnects. No library.
+   * The class only ever ADDS the animation — every name is already in the DOM
+   * and already legible, so a failure here is invisible rather than fatal.
+   */
+  const block = document.querySelector<HTMLElement>("[data-signing]");
+  if (block && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add("is-signing");
+            io.disconnect();
+          }
+        }
+      },
+      // Fires a little before the block is fully in view, so the first name is
+      // already moving by the time it settles — a signature that starts only
+      // once you have stopped scrolling reads as a page that lagged.
+      { threshold: 0.15, rootMargin: "0px 0px -10% 0px" }
+    );
+    io.observe(block);
+  }
+</script>
+
+<style>
+  .hero-roster {
+    padding-block-start: var(--space-2xl);
+    padding-block-end: var(--section-y);
+    overflow: hidden; /* the signature covers translate out of frame */
+  }
+
+  .hero-roster__top {
+    text-align: center;
+    max-inline-size: var(--container-m);
+  }
+
+  .hero-roster__eyebrow {
+    margin: 0 0 var(--space-m);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-brand);
+  }
+
+  .hero-roster__heading {
+    margin: 0;
+    font-family: var(--face-display);
+    /* Bodoni's opsz axis does the work here: at this size the hairlines go
+       genuinely thin and the contrast is real, which is the thing their
+       current Playfair setting is reaching for and cannot reach. */
+    font-size: var(--step-6);
+    font-weight: var(--weight-display);
+    font-variation-settings: "opsz" 96;
+    line-height: var(--leading-display);
+    letter-spacing: var(--tracking-display);
+    color: var(--color-ink-strong);
+    text-wrap: balance;
+  }
+
+  .hero-roster__rule {
+    margin-block: var(--space-xl);
+  }
+
+  .hero-roster__lead {
+    margin: 0 auto;
+    /* 44ch, not 58ch. A centred lead under a 92px Didone wants a short
+       measure or the eye loses the return sweep — and narrowing it also lifts
+       the paragraph clear of the fixed concept badge at laptop widths, which
+       is the difference between a disclosure that floats over the page and one
+       that sits on the sentence you are reading. */
+    max-inline-size: var(--measure-narrow);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .hero-roster__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+    justify-content: center;
+    margin-block-start: var(--space-xl);
+  }
+
+  /* ---- the signature block ------------------------------------------- */
+
+  .hero-roster__signatures {
+    margin-block-start: var(--space-3xl);
+  }
+
+  .hero-roster__roster-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    margin: 0 0 var(--space-2xl);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+    text-align: center;
+  }
+
+  .hero-roster__label-mark {
+    --lotus-size: 2rem;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .sigs {
+    display: grid;
+    gap: var(--space-2xl) var(--space-xl);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 48em) {
+    .sigs {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .sig {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* The clipping frame for one signature. Sized by the script's own line box
+     so the cover never overhangs into the neighbouring row. */
+  .sig__inner {
+    position: relative;
+    display: block;
+    overflow: hidden;
+  }
+
+  .sig__name {
+    display: block;
+    font-family: var(--face-script);
+    font-size: var(--step-4);
+    /* Pinyon's descenders are deep and its ascenders tall; a line-height under
+       1 clips the y and the f, and anything over 1.15 opens a gap the rule has
+       to jump. 1.05 with a little bottom padding is the only setting that
+       holds both. */
+    line-height: 1.05;
+    padding-block-end: 0.08em;
+    letter-spacing: var(--tracking-script);
+    color: var(--color-brand);
+    white-space: nowrap;
+  }
+
+  /* Hidden by default: with JS off this element never becomes visible and the
+     name is simply there. The engine's own fail-safe rule — never hide content
+     in a stylesheet and rely on JS to reveal it. */
+  .sig__cover {
+    display: none;
+  }
+
+  :global(.js-motion) .sig__cover {
+    display: block;
+    position: absolute;
+    inset: 0;
+    /* Painted in the page's own ground, so it is invisible as a panel and
+       reads purely as the name not yet existing. */
+    background-color: var(--color-canvas);
+    /* The nib. The panel's leading edge, so it can never desynchronise from
+       the reveal it is causing. */
+    border-inline-start: 2px solid var(--color-brand);
+    transform: translateX(0);
+  }
+
+  :global(.js-motion) .is-signing .sig__cover {
+    animation: sign var(--sig-draw-duration) var(--sig-draw-ease) forwards;
+    animation-delay: calc(var(--sig-index) * var(--sig-draw-stagger));
+  }
+
+  @keyframes sign {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      /* 101% rather than 100%: the 2px nib is drawn on the panel's leading
+         edge and at exactly 100% it parks on the final glyph's last hairline. */
+      transform: translateX(101%);
+    }
+  }
+
+  /* The rule is ABSOLUTE, and that is load-bearing rather than cosmetic.
+     It has to be exactly as wide as the name above it, so it asks for 100% of
+     this box — while this box was sizing itself from its widest child. That is
+     circular, and browsers break the tie by falling back to the SVG's own
+     intrinsic 200px from its viewBox. The visible symptom was that all ten
+     signatures rendered at an identical 200px wide and the longer names were
+     clipped mid-glyph: a bug that looks like a font problem and is a sizing
+     problem. Taking the rule out of flow removes it from intrinsic sizing
+     entirely, so this box measures the name and nothing else, and the rule's
+     100% then resolves against a width that has already settled. */
+  .sig__mark {
+    position: relative;
+    display: inline-block;
+    max-inline-size: 100%;
+    padding-block-end: 1.15rem;
+  }
+
+  .sig__rule {
+    --wave-span: 100%;
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0.25rem;
+    display: block;
+  }
+
+  .sig__role {
+    font-size: var(--step-0);
+    font-weight: 600;
+    color: var(--color-ink-strong);
+  }
+
+  .sig__creds {
+    margin-block-start: 0.2em;
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-muted);
+  }
+
+  /* Long names in a formal script overflow a phone at --step-4. The script
+     steps down rather than wrapping: a signature that wraps stops reading as a
+     signature. */
+  @media (max-width: 30em) {
+    .sig__name {
+      font-size: var(--step-3);
+    }
+
+    /* One step down on phones. At --step-6 the headline ran to five lines and
+       occupied nearly two full screens before the reader reached a single
+       fact — conviction turning into an obstacle. --step-5 keeps the Didone
+       doing its job and gives back a screen. */
+    .hero-roster__heading {
+      font-size: var(--step-5);
+      font-variation-settings: "opsz" 72;
+    }
+  }
+</style>

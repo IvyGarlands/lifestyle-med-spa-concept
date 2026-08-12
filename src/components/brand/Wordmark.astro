@@ -1,0 +1,121 @@
+---
+/**
+ * Wordmark — "Lifestyle / Med Spa", redrawn.
+ *
+ * Their logotype is a brush script set at default tracking, in which the L
+ * swash collides with the dot of the i and "Med Spa" is set so small it fills
+ * in (input/brand.md §1). The GENRE is right and it is the most recognisable
+ * thing they own, so it is kept and the setting is fixed:
+ *
+ *   - Pinyon Script, a properly drawn formal copperplate, in place of the
+ *     brush face. Same era, same warmth, far better drawing.
+ *   - Positive tracking. A script at display size needs its letters to
+ *     breathe; theirs is set at 0 and the joins clog.
+ *   - "MED SPA" is no longer script-at-4px. It becomes small letterspaced
+ *     Bodoni caps, which is legible at any size and gives the lockup a second
+ *     texture instead of one texture at two sizes.
+ *   - The whole lockup is sized from a single custom property so the header,
+ *     the hero and the footer are one component at three scales.
+ *
+ * Live text, not an image: it is selectable, it scales, it costs no request,
+ * and it inherits the context's ink automatically on navy, gold or champagne.
+ */
+import Lotus from "./Lotus.astro";
+
+interface Props {
+  /** Stacked (mark above text) or inline (mark beside text). */
+  layout?: "stacked" | "inline";
+  /** Draw the ring around the lotus. */
+  ring?: boolean;
+  /** Render as an <h1>? Only the hero should. */
+  as?: "div" | "h1";
+  class?: string;
+}
+
+const {
+  layout = "inline",
+  ring = false,
+  as: Tag = "div",
+  class: className,
+} = Astro.props;
+---
+
+<Tag class:list={["wordmark", `wordmark--${layout}`, className]}>
+  <span class="wordmark__mark"><Lotus ring={ring} /></span>
+  <span class="wordmark__text">
+    <span class="wordmark__name">Lifestyle</span>
+    <span class="wordmark__sub">Med Spa</span>
+  </span>
+</Tag>
+
+<style>
+  /* NO `--wordmark-size` is declared here, deliberately. Declaring the default
+     on `.wordmark` means Astro compiles it to `.wordmark[data-astro-cid-…]`,
+     which out-specifies the host's plain `.brand--header` class — so every
+     attempt to size the mark from outside was silently ignored and the header
+     kept rendering at the component's own default. The fallback lives in each
+     var() instead, where nothing can beat it and anything can override it. */
+  .wordmark {
+    display: flex;
+    align-items: center;
+    gap: 0.55em;
+    margin: 0;
+    color: var(--color-brand);
+    line-height: 1;
+  }
+
+  .wordmark--stacked {
+    flex-direction: column;
+    gap: 0.4em;
+    text-align: center;
+  }
+
+  .wordmark__mark {
+    --lotus-size: calc(var(--wordmark-size, 1.5rem) * 1.65);
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .wordmark--stacked .wordmark__mark {
+    --lotus-size: calc(var(--wordmark-size, 1.5rem) * 2.4);
+  }
+
+  .wordmark__text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .wordmark--stacked .wordmark__text {
+    align-items: center;
+  }
+
+  .wordmark__name {
+    font-family: var(--face-script);
+    font-size: calc(var(--wordmark-size, 1.5rem) * 1.62);
+    /* Pinyon has a very large ascender and a deep descender on the y, so its
+       em box is mostly air. Pulling the line height under 1 and trimming the
+       block edges is what stops the lockup from having a hole in it. */
+    line-height: 0.86;
+    letter-spacing: var(--tracking-script);
+    /* The capital L's entry stroke starts well left of the glyph origin.
+       Without this the mark and the L look unevenly spaced at every size. */
+    margin-inline-start: -0.06em;
+  }
+
+  .wordmark__sub {
+    font-family: var(--face-display);
+    font-size: calc(var(--wordmark-size, 1.5rem) * 0.42);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    /* Optically aligned to the script's baseline mass rather than its box. */
+    margin-block-start: 0.35em;
+    margin-inline-start: 0.12em;
+    opacity: 0.92;
+  }
+
+  .wordmark--stacked .wordmark__sub {
+    margin-inline-start: 0;
+  }
+</style>

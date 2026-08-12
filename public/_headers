@@ -1,0 +1,14 @@
+# Cloudflare Pages / Netlify header rules.
+#
+# Lock 4 of 4 on findability. A <meta> robots tag is only read by a crawler
+# that renders HTML; X-Robots-Tag is a response header, so it also covers the
+# PDF, the image, the JSON-LD and anything else served from this origin, and
+# it survives a crawler that fetches without parsing.
+#
+# See public/robots.txt for the other three locks.
+
+/*
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN

@@ -26,7 +26,9 @@ const legalName = (SITE.legalName || SITE.name).replace(/\.$/, "");
   <div class="container container--xl">
     <div class="site-footer__grid">
       <div class="stack stack--s">
-        <p class="site-footer__brand">{SITE.name}</p>
+        <slot name="brand">
+          <p class="site-footer__brand">{SITE.name}</p>
+        </slot>
         {SITE.tagline && <p class="ink-muted measure--narrow">{SITE.tagline}</p>}
       </div>
 
@@ -133,6 +135,11 @@ const legalName = (SITE.legalName || SITE.name).replace(/\.$/, "");
   }
 
   .site-footer__link {
+    /* A stack of six links a thumb has to pick between, measured at 20-28px.
+       Same fix as LocationContact: grow the box, leave the type alone. */
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
     color: var(--color-ink);
     text-decoration: none;
   }

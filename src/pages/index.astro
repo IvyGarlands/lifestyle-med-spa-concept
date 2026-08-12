@@ -1,44 +1,186 @@
 ---
 /**
- * Homepage. Compose sections here; never lay out inside a page.
- * See docs/ambush-workflow.md for the per-vertical section recipe.
+ * Homepage — Lifestyle Med Spa, Agoura Hills CA. Concept redesign.
+ *
+ * THE ONE SENTENCE, which organises the colour, the type, the layout and the
+ * wayfinding rather than sitting in an about section:
+ *
+ *   Every GLP-1 seller within ten miles is either a website with a checkout or
+ *   a clinic selling a membership; Lifestyle is ten named people in one room
+ *   in Agoura Hills, started by a man who was its own first patient — so the
+ *   page is signed.
+ *
+ * How that idea shows up in each layer:
+ *   TYPE     the script from their own wordmark is promoted to a structural
+ *            face and used for exactly one thing: names. Nothing else on the
+ *            page is set in it, so a script word is always a person.
+ *   LAYOUT   the roster is not a bio section near the footer. It is the hero.
+ *            The order of the page is people -> origin -> what they do ->
+ *            terms -> what patients said -> how to reach them.
+ *   COLOUR   their own navy and gold, sampled. Gold marks a name or a brand
+ *            act; it is never decoration.
+ *   MOTION   the one signature moment is the roster writing itself on.
+ *   WAYFIND  the nav is the argument in miniature — The team, The clinic,
+ *            Treatments — team first.
+ *
+ * WHAT IS DELIBERATELY NOT HERE, and why (input/facts.txt §§5-8):
+ *   no star rating or review count   three sources, three different numbers
+ *   no LegitScript or HIPAA badge    the lookup is CAPTCHA-gated; unverified
+ *   no founding year                 not stated in any source
+ *   no prices                        none published anywhere, including Fresha
+ *   no pound figures or timeframes   FTC; including the founder's own
+ *   no photographs                   none authentic exists; theirs is stock
+ *   no before/after                  FTC, and unnecessary
  */
+import { getCollection } from "astro:content";
+
 import BaseLayout from "../layouts/BaseLayout.astro";
-import HeroSplit from "../components/sections/HeroSplit.astro";
-import CTABand from "../components/sections/CTABand.astro";
+import HeroRoster from "../components/sections/HeroRoster.astro";
+import FoundersNote from "../components/sections/FoundersNote.astro";
+import ServiceIndex from "../components/sections/ServiceIndex.astro";
+import SignedReviews from "../components/sections/SignedReviews.astro";
 import LocationContact from "../components/sections/LocationContact.astro";
+import CTABand from "../components/sections/CTABand.astro";
 
 import { SITE } from "../config/site";
-import { useTranslations, localeFromUrl } from "../i18n/ui";
-import heroImg from "../assets/images/fpo-hero-16x9.jpg";
+import { localeFromUrl } from "../i18n/ui";
 
 const locale = localeFromUrl(Astro.url);
-const t = useTranslations(locale);
 
-const navLinks = [{ label: "Visit", href: "#contact" }];
+const people = (await getCollection("people")).sort(
+  (a, b) => a.data.order - b.data.order
+);
+const treatments = (await getCollection("treatments")).sort(
+  (a, b) => a.data.order - b.data.order
+);
+const testimonials = (await getCollection("testimonials")).sort(
+  (a, b) => a.data.order - b.data.order
+);
+
+const navLinks = [
+  { label: "The team", href: "#team" },
+  { label: "The clinic", href: "#story" },
+  { label: "Treatments", href: "#treatments" },
+  { label: "Visit", href: "#contact" },
+];
+
+/**
+ * The form collects four fields and nothing else. ContactForm posts to a
+ * third-party relay with no business-associate agreement and this practice
+ * advertises HIPAA compliance, so a weight field, a goal-weight field, a
+ * current-medication field or a condition field would put PHI through an
+ * uncovered processor. That constraint is not negotiable; if it makes a
+ * section weaker, the section changes.
+ */
+const formFields = [
+  { name: "name", label: "Your name", required: true, autocomplete: "name" },
+  {
+    name: "phone",
+    label: "Phone",
+    type: "tel" as const,
+    required: true,
+    autocomplete: "tel",
+  },
+  {
+    name: "email",
+    label: "Email",
+    type: "email" as const,
+    required: true,
+    autocomplete: "email",
+  },
+  {
+    name: "preferred_time",
+    label: "Best time to reach you",
+    placeholder: "e.g. Tuesday morning",
+  },
+];
 ---
 
 <BaseLayout
-  title="TODO — page title"
-  description="TODO — 150 character meta description."
+  title="Ten people. One clinic on Canwood Street."
+  description="Physician-led medical weight loss and wellness in Agoura Hills. Free consultations, no contracts and no membership — and every person who treats you is named."
   path="/"
   navLinks={navLinks}
+  stickyCall={true}
 >
-  <HeroSplit
-    eyebrow="TODO"
-    heading="TODO — the one line that has to land."
-    body="TODO — two sentences in the owner's voice."
-    image={heroImg}
-    alt="TODO — describe this photo"
-    ctaLabel={`${t("cta.call")} ${SITE.phone}`}
-    ctaHref={`tel:${SITE.phoneHref}`}
+  <HeroRoster
+    id="team"
+    eyebrow="Agoura Hills, California"
+    heading="Medical weight loss from people who put their name to it."
+    lead="A small clinic on Canwood Street, open four days a week. The medicine is directed by a board-certified internist and prescribed by a nurse practitioner, and it was started by a man who had the treatment himself. They sign for it. You sign nothing — no contract, no membership, and the consultation is free."
+    rosterLabel="Everyone who works here"
+    people={people}
   />
 
-  <LocationContact locale={locale} id="contact" />
+  <FoundersNote
+    id="story"
+    tone="light"
+    eyebrow="How this started"
+    heading="The founder was the first patient."
+    body={[
+      "Kim B. Barrus took a GLP-1 himself, under supervision, before he had any intention of opening a clinic. What happened next is the only reason this practice exists: he decided other people in Ventura and Los Angeles counties should be able to get the same thing done properly.",
+      "He is not the doctor. He holds a PhD and runs operations, and he opened Lifestyle with Beth Barrus, RN — his co-founder, who had already spent more than fifty years in nursing, in critical care and surgical recovery, and who wrote the clinical protocols the practice still runs on.",
+      "The medicine is directed by Michael Rankin, MD, a diplomate of the American Board of Internal Medicine, and prescribed by Kristina Dino, NP, who is dual board-certified. Nobody is anonymous here, which in this particular corner of medicine is rarer than it should be.",
+    ]}
+    quote="When you step through our doors, you're not just a patient — you're family."
+    quoteAttribution="Lifestyle Med Spa, in their own words"
+    signature="Kim B. Barrus"
+    signatureRole="Founder · Chief of Operations · PhD"
+  />
 
+  <ServiceIndex
+    id="treatments"
+    tone="default"
+    eyebrow="What they do"
+    heading="Weight management first. Everything else grew around it."
+    body="Listed exactly as the practice lists them, and no further. Nothing here carries a price, because they publish none — the consultation that establishes what you actually need is free."
+    groups={treatments}
+    totalLabel="treatments and products, published by the practice."
+    note="Mounjaro, Ozempic, Wegovy and Zepbound are registered trademarks of their respective owners; listing a medication is not a claim of affiliation or endorsement. Prescription treatment is provided only where clinically appropriate, following evaluation by a licensed provider."
+  />
+
+  {/* The commercial model, in their own words, on a full gold band. One
+      sentence, one band, no ladder and no pricing table — the point is that
+      there is nothing to itemise. */}
   <CTABand
-    heading="TODO — the closing ask."
-    ctaLabel={`${t("cta.call")} ${SITE.phone}`}
+    tone="brand"
+    align="center"
+    eyebrow="No contracts · No membership · No hidden fees"
+    heading="Consultations are always free."
+    body="Pay for what you have, when you have it. CareCredit is accepted, and offers promotional financing on purchases of $200 or more. There is no plan to join and nothing to cancel."
+    ctaLabel={`Call ${SITE.phone}`}
     ctaHref={`tel:${SITE.phoneHref}`}
+    secondaryLabel={`Text ${SITE.textPhone}`}
+    secondaryHref={`sms:${SITE.textPhoneHref}`}
+    note="Open Monday to Thursday. The texting line is answered on the same days."
+  />
+
+  <SignedReviews
+    id="reviews"
+    tone="light"
+    eyebrow="What patients wrote"
+    heading="Both of them are about the staff."
+    testimonials={testimonials}
+    note="Two verbatim Google reviews, reproduced exactly as written, with surnames reduced. No star average and no review total appears on this page: three sources publish three different figures for this practice, so the number is left out rather than picked."
+  />
+
+  <LocationContact
+    locale={locale}
+    id="contact"
+    tone="default"
+    eyebrow="Visit"
+    heading="30497 Canwood Street, Suite 200"
+    body="Four days a week, in Agoura Hills. Telehealth is available to patients in California, Utah and Texas."
+    showMap={false}
+    showHours={true}
+    formFields={formFields}
+    formSubject="Consultation request — Lifestyle Med Spa"
+    formNotice="Please don't include medical details, medications, weights or health history in this form. It goes through an ordinary email service, not a clinical system. Send your name and a good time to reach you, and someone will call you to take the rest properly."
+    altContact={{
+      label: "Text",
+      value: SITE.textPhone,
+      href: `sms:${SITE.textPhoneHref}`,
+      note: "A separate line the practice publishes for texting — useful on the three days a week they are closed.",
+    }}
   />
 </BaseLayout>

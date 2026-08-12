@@ -33,7 +33,13 @@ const home = localizePath("/", locale);
 <header class="site-header" data-site-header>
   <div class="site-header__inner container container--xl">
     <a class="site-header__brand" href={home}>
-      <span class="site-header__name">{SITE.name}</span>
+      {/* A named slot with the plain business name as the fallback. Additive:
+          a project that ships no wordmark renders exactly what it did before.
+          The host sizes it by setting --wordmark-size on an ancestor, so there
+          is no prop and no :global() reaching into a child component. */}
+      <slot name="brand">
+        <span class="site-header__name">{SITE.name}</span>
+      </slot>
     </a>
 
     <nav class="site-header__nav" aria-label={t("nav.label")}>
@@ -107,6 +113,10 @@ const home = localizePath("/", locale);
   }
 
   .site-header__brand {
+    /* Measured at 39px against the >=44px rule. */
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
     font-family: var(--face-display);
     font-size: var(--step-2);
     font-weight: var(--weight-display);

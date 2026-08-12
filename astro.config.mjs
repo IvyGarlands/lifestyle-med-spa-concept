@@ -1,6 +1,5 @@
 // @ts-check
 import { defineConfig } from "astro/config";
-import sitemap from "@astrojs/sitemap";
 import { SITE } from "./src/config/site.ts";
 
 /**
@@ -29,15 +28,19 @@ export default defineConfig({
     },
   },
 
-  integrations: [
-    sitemap({
-      i18n: {
-        defaultLocale: SITE.defaultLocale,
-        locales: Object.fromEntries(SITE.locales.map((l) => [l, l])),
-      },
-      filter: (page) => !page.includes("/404"),
-    }),
-  ],
+  /**
+   * NO SITEMAP. Lock 2 of 4 on findability.
+   *
+   * The engine ships @astrojs/sitemap and every client build wants it. A
+   * concept redesign is the exact opposite case: a sitemap is an invitation,
+   * and `robots.txt: Disallow` plus a sitemap listing every URL is a mixed
+   * signal that some crawlers resolve in the wrong direction. The integration
+   * is removed rather than filtered, so there is no configuration state in
+   * which it can come back on by accident.
+   *
+   * See public/robots.txt for the other three locks.
+   */
+  integrations: [],
 
   image: {
     // AVIF first, WebP fallback, original as last resort — handled per-usage by

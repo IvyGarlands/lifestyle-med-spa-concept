@@ -34,7 +34,13 @@ const {
   image,
   path = "/",
   ogType = "website",
-  noindex = false,
+  /**
+   * DEFAULTS TO TRUE. The engine default was `false`, so every page had to
+   * remember to opt in and the only thing standing between a concept and
+   * Google was `SITE.isConcept`. Inverting the default makes indexing the
+   * thing you have to ask for.
+   */
+  noindex = true,
   faq = [],
   breadcrumb = [],
   priceRange,
@@ -48,6 +54,13 @@ const ogImage = new URL(image ?? SITE.ogImage, SITE.url).href;
 // Title: the homepage leads with the brand; inner pages lead with the page.
 const fullTitle =
   path === "/" ? `${SITE.name} — ${title}` : `${title} | ${SITE.name}`;
+
+/**
+ * The og:title carries the disclosure, because a forwarded link is the one
+ * place the concept badge cannot follow. Someone pasting this URL into a
+ * group chat sees "Concept redesign —" in the unfurl, before they click.
+ */
+const ogTitle = SITE.isConcept ? `Concept redesign — ${fullTitle}` : fullTitle;
 
 const blockIndex = noindex || SITE.isConcept;
 
@@ -68,32 +81,52 @@ const schemas = [
 
 {
   blockIndex ? (
-    <meta name="robots" content="noindex,nofollow" />
+    /* All six directives, not just the two. `noindex,nofollow` alone still
+       permits a cached copy, a snippet, an image preview and a translation
+       link — every one of which can surface a concept redesign under the real
+       business's name. Emitted for the generic crawler and again for Google,
+       which reads its own token. */
+    <>
+      <meta
+        name="robots"
+        content="noindex,nofollow,noarchive,nosnippet,noimageindex,notranslate"
+      />
+      <meta
+        name="googlebot"
+        content="noindex,nofollow,noarchive,nosnippet,noimageindex,notranslate"
+      />
+    </>
   ) : (
     <meta name="robots" content="index,follow,max-image-preview:large" />
   )
 }
 
-{/* hreflang — every locale, plus x-default pointing at the default locale. */}
+{/* hreflang — only emitted for a genuinely multilingual build. This one is
+    English-only, and a self-referential hreflang pair on a single-locale site
+    is noise at best. */}
 {
-  SITE.locales.map((l) => (
-    <link
-      rel="alternate"
-      hreflang={l}
-      href={new URL(localizePath(path, l as Locale), SITE.url).href}
-    />
-  ))
+  SITE.locales.length > 1 && (
+    <>
+      {SITE.locales.map((l) => (
+        <link
+          rel="alternate"
+          hreflang={l}
+          href={new URL(localizePath(path, l as Locale), SITE.url).href}
+        />
+      ))}
+      <link
+        rel="alternate"
+        hreflang="x-default"
+        href={new URL(localizePath(path, SITE.defaultLocale), SITE.url).href}
+      />
+    </>
+  )
 }
-<link
-  rel="alternate"
-  hreflang="x-default"
-  href={new URL(localizePath(path, SITE.defaultLocale), SITE.url).href}
-/>
 
 {/* Open Graph */}
 <meta property="og:type" content={ogType} />
 <meta property="og:site_name" content={SITE.name} />
-<meta property="og:title" content={fullTitle} />
+<meta property="og:title" content={ogTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
 <meta property="og:image" content={ogImage} />
@@ -103,7 +136,7 @@ const schemas = [
 
 {/* Twitter */}
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:title" content={ogTitle} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
 {SITE.twitterHandle && <meta name="twitter:site" content={SITE.twitterHandle} />}

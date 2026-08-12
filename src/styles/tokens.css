@@ -2,17 +2,35 @@
    TOKENS.CSS — THE ONLY FILE THAT DEFINES BRAND PERSONALITY
    ==========================================================================
 
+   PROJECT: Lifestyle Med Spa, Agoura Hills CA — concept redesign
+   FILED AS: "The Signature" (differentiation log 006)
+
+   THIS PALETTE IS NOT INVENTED. Every colour below was sampled out of the
+   business's own live site or the pixels of their own logo file. See
+   input/brand.md for the archaeology and the source of each value.
+
+     #1A2A40  their navy      — sampled, 316 occurrences in their computed CSS
+     #EECC7A  their gold      — sampled, 75 occurrences
+     #F6DD8C  their light gold— sampled
+     #FCCC6C  their logo gold — sampled from the logo PNG's own pixels
+     #FCF0B8  logo highlight  — sampled from the logo PNG's own pixels
+     #E8DCCB  their champagne — sampled
+     #D9CDBF  their taupe     — sampled
+     #C48F7F  their rose      — sampled
+
+   THIS IS A DARK-FIRST BUILD. :root IS THE DARK CONTEXT and .on-light holds
+   the light one — see CLAUDE.md §13. .on-light is registered in
+   scripts/check-contrast.mjs; a context outside that matrix is an unfound
+   contrast bug.
+
    CONTRACT
    --------
    1. This is the ONLY file a reskin touches. If you have to edit a component
       to change how a site LOOKS, the token system has a gap — fix the gap.
    2. Components consume SEMANTIC tokens only (--color-ink, --step-2, --space-l).
-      They must never reference a PRIMITIVE (--brand-700, --gray-050).
+      They must never reference a PRIMITIVE (--b-700, --n-050).
    3. Primitives are the raw palette. Semantics map primitives to jobs.
-      Reskinning = change primitives + remap a handful of semantics.
-   4. Every surface/ink pair below is annotated with its measured WCAG contrast
-      ratio. If you change a primitive, re-measure. AA = 4.5:1 body, 3:1 large
-      (>=24px, or >=18.66px bold) and non-text UI. We hold AA everywhere.
+   4. Every surface/ink pair is machine-checked by npm run check:contrast.
    5. Anything a component needs that is not here does not exist. Add it here.
 
    FILE MAP
@@ -25,189 +43,199 @@
    §6  Semantic — layout: containers, gutters, measure
    §7  Semantic — radius, border, shadow, z-index
    §8  Semantic — motion: duration, easing, distance, stagger
-   §8b Semantic — rule ticks (calibrated leaders)
+   §8b Semantic — rule ticks (inherited from the engine; UNUSED here, see note)
+   §8c Semantic — ORNAMENT: the lotus, the water line, the signature stroke
    §9  Semantic — image & texture treatment
-   §10 Context blocks — .on-dark / .on-brand inversion
+   §10 Context blocks — .on-light / .on-brand
    §11 prefers-reduced-motion / prefers-contrast overrides
    ========================================================================== */
 
 /* ==========================================================================
    §1  PRIMITIVES — PALETTE
    --------------------------------------------------------------------------
-   Ramp convention: 000 = lightest, 900 = darkest. Every brand needs:
-     - a NEUTRAL ramp   (paper -> ink; carries 90% of the page)
-     - a BRAND ramp     (the one colour people remember)
-     - an ACCENT ramp   (used at <5% coverage; CTAs, rules, small marks)
-   Replace the hex values per project. Do not rename the steps.
-   Default below = "Heritage Diner" recipe (see docs/design-recipes.md).
+   Ramp convention: 000 = lightest, 900 = darkest.
+   NEUTRAL is a navy: their ground at the dark end, their champagne and taupe
+   at the light end. One ramp, so the light sections are made of the same
+   material as the dark ones rather than being a different paper.
    ========================================================================== */
 :root {
-  /* Neutral — warm cream paper to near-black ink */
-  --n-000: #fffdf8;
-  --n-050: #faf5ea;
-  --n-100: #f2ebdc;
-  --n-200: #e4dac6;
-  --n-300: #cdc0a8;
-  --n-400: #8b8069;   /* >=3:1 on every light surface — safe for meaningful borders */
-  --n-500: #6b6250;
-  --n-600: #574f40;
-  --n-700: #3b352b;
-  --n-800: #26221b;
-  --n-900: #161310;
+  /* Neutral — champagne paper down to deep navy ground.
+     The warm end (000–200) is theirs; the cold end (700–900) is theirs.
+     The middle is the bridge between them and is the only invented part. */
+  --n-000: #fdfbf6;
+  --n-050: #f4efe4;
+  --n-100: #e8dccb;   /* SAMPLED — their champagne */
+  --n-200: #d9cdbf;   /* SAMPLED — their taupe */
+  --n-300: #9daabc;
+  --n-400: #74829a;   /* >=3:1 on the navy ground — safe for meaningful borders */
+  --n-500: #4e5d74;
+  --n-600: #33445c;
+  --n-700: #22344c;   /* raised surface on the dark ground */
+  --n-800: #1a2a40;   /* SAMPLED — their navy. The page. */
+  --n-900: #101e30;   /* sunken wells, footer, ink on gold */
 
-  /* Brand — deep diner red */
-  --b-050: #fdeceb;
-  --b-100: #f9cfcb;
-  --b-300: #d9736a;
-  --b-500: #b03a30;
-  --b-600: #97302a;
-  --b-700: #7a2621;   /* AA on --n-000 at body size */
-  --b-800: #5c1c19;
-  --b-900: #3d1210;
+  /* Brand — their gold. Flat, never a gradient: the bevel gradient in their
+     logo is the one purely clip-art thing in the identity (input/brand.md §1). */
+  --b-050: #fef8e7;
+  --b-100: #fcf0b8;   /* SAMPLED — logo highlight */
+  --b-200: #fce49c;   /* SAMPLED — logo mid */
+  --b-300: #f6dd8c;   /* SAMPLED — their light gold */
+  --b-400: #fcd070;   /* SAMPLED — logo core */
+  --b-500: #eecc7a;   /* SAMPLED — their site gold. THE brand colour on dark. */
+  --b-600: #c9a350;
+  --b-700: #8a6722;
+  --b-800: #6e521a;   /* AA as text on champagne paper — the .on-light brand */
+  --b-900: #46330f;
 
-  /* Accent — aged brass */
-  --a-100: #f6e6bd;
-  --a-300: #dcbc6a;
-  --a-500: #b8912f;
-  --a-700: #8a6a1c;   /* AA on --n-000 at body size */
-  --a-900: #4d3a0c;
+  /* Accent — their dusty rose. Under 5% coverage, as the contract requires.
+     They use it only in promotional material; here it marks exactly one
+     thing, the free consultation. */
+  --a-100: #f3ded7;
+  --a-300: #dcae9f;
+  --a-500: #c48f7f;   /* SAMPLED — their rose */
+  --a-700: #8a4e3d;   /* AA as text on champagne paper */
+  --a-900: #4e2a20;
 
-  /* Feedback — kept neutral-ish so they never fight the brand */
+  /* Feedback — TWO ends, because this build has two grounds.
+     The engine ships a single mid-tone set authored for paper. On a navy
+     canvas every one of them lands at about 2:1, which the contrast gate
+     caught: they are the only tokens in the engine that assume :root is
+     light. The 300s are for the dark page, the 700s for the .on-light bands,
+     and §10 remaps the semantics accordingly. Both ends are asserted. */
+  --ok-300: #7fd1a3;
+  --warn-300: #f2c879;
+  --err-300: #f0958c;
   --ok-500: #2f6b46;
   --warn-500: #8a5a12;
   --err-500: #9a2b23;
+  --ok-700: #245538;
+  --warn-700: #6e480e;
+  --err-700: #7c221c;
 }
 
 /* ==========================================================================
    §2  PRIMITIVES — TYPEFACE STACKS
    --------------------------------------------------------------------------
-   Families are self-hosted via Fontsource and imported in BaseLayout.astro.
-   NEVER add a runtime CDN font call. Swap the family name here, swap the
-   import there. The fallback stack must be metrically close so the FOUT is
-   not a layout shift.
+   THREE families, which exceeds the two-family default in CLAUDE.md §6. The
+   reason, per that rule's own escape clause:
+
+   The SCRIPT IS THE IDENTITY. This business's wordmark is a signature, and
+   the organising idea of the page is that the practice signs its own work.
+   The script is not a decorative third family — it carries the hero and the
+   roster, and nothing else on the page uses it. It is a 34 KB single weight,
+   latin subset, and it is the only face that is preloaded.
+
+   GENRE FIDELITY (input/brand.md §3) — each face replaces one of theirs in
+   the SAME genre, executed better. No category was switched:
+     Playfair Display  -> Bodoni Moda (opsz axis live: real optical sizing)
+     Montserrat/Gotham -> Plus Jakarta Sans (geometric-humanist, holds at 17px)
+     brush script      -> Pinyon Script (formal copperplate, properly drawn)
    ========================================================================== */
 :root {
-  --face-display: "Bitter Variable", "Bitter", Georgia, "Times New Roman", serif;
-  --face-body: "Karla Variable", "Karla", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  --face-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --face-display: "Bodoni Moda Variable", "Bodoni Moda", Didot, "Playfair Display",
+    "Times New Roman", serif;
+  --face-body: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --face-script: "Pinyon Script", "Snell Roundhand", "Apple Chancery", cursive;
+
+  /* Declared because the token contract names it. DELIBERATELY UNUSED — the
+     differentiation log's standing warning is that the studio keeps reaching
+     for a mono and a hairline. This build does neither. */
+  --face-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 /* ==========================================================================
-   §3  SEMANTIC — COLOR
-   --------------------------------------------------------------------------
-   TOKEN                     CONTROLS
-   --color-canvas            page background, the default surface
-   --color-surface           cards, panels, menu blocks sitting on canvas
-   --color-surface-sunken    wells, alternating section bands, form fields
-   --color-surface-inverse   dark sections (footer, CTA bands, dark heroes)
-   --color-ink               body copy on canvas/surface
-   --color-ink-strong        headings, display type
-   --color-ink-muted         captions, meta, labels  (AA at body size, verified)
-   --color-ink-inverse       copy on inverse surfaces
-   --color-ink-inverse-muted meta on inverse surfaces
-   --color-brand             the memorable colour: headings accents, links
-   --color-brand-strong      pressed/hover of brand, brand text on light
-   --color-brand-contrast    ink that sits ON a brand-filled area
-   --color-accent            small marks: rules, dot leaders, prices, icons
-   --color-accent-contrast   ink that sits ON an accent-filled area
-   --color-line              hairlines, table rules, dividers        (3:1)
-   --color-line-strong       input borders, focus-adjacent edges     (3:1)
-   --color-focus             focus ring — must clear 3:1 vs BOTH adjacent
-   --color-overlay-scrim     image darkening behind overlaid type
+   §3  SEMANTIC — COLOR  (dark context — this is the page)
    ========================================================================== */
 :root {
-  --color-canvas: var(--n-000);
-  --color-surface: #ffffff;
-  --color-surface-sunken: var(--n-050);
-  --color-surface-inverse: var(--n-900);
+  --color-canvas: var(--n-800);           /* their navy, at full page scale */
+  --color-surface: var(--n-700);          /* cards LIFT on this ground */
+  --color-surface-sunken: var(--n-900);
+  --color-surface-inverse: var(--n-050);  /* the champagne light bands */
 
-  --color-ink: var(--n-800);              /* 15.57:1 on canvas — AAA */
-  --color-ink-strong: var(--n-900);       /* 18.20:1 on canvas — AAA */
-  --color-ink-muted: var(--n-600);        /*  7.95:1 on canvas, 7.44:1 on sunken — AAA */
-  --color-ink-inverse: var(--n-050);      /* 17.02:1 on inverse — AAA */
-  --color-ink-inverse-muted: var(--n-300);/* 10.31:1 on inverse — AAA */
+  --color-ink: var(--n-050);
+  --color-ink-strong: var(--n-000);
+  --color-ink-muted: var(--n-200);        /* their taupe, doing captions */
+  --color-ink-inverse: var(--n-800);
+  --color-ink-inverse-muted: var(--n-600);
 
-  --color-brand: var(--b-700);            /*  9.71:1 on canvas, 9.08:1 on sunken — AAA */
-  --color-brand-strong: var(--b-800);
-  --color-brand-contrast: var(--n-000);   /*  9.71:1 on brand fill */
+  --color-brand: var(--b-500);            /* their gold, on their navy */
+  --color-brand-strong: var(--b-300);
+  --color-brand-contrast: var(--n-900);   /* ink ON a gold fill */
 
-  --color-accent: var(--a-700);           /*  4.97:1 on canvas, 4.64:1 on sunken — AA */
-  --color-accent-contrast: var(--n-000);  /*  4.97:1 on accent fill */
+  --color-accent: var(--a-300);
+  --color-accent-contrast: var(--n-900);
 
-  /* --color-line is DECORATIVE ONLY (1.36:1). WCAG 1.4.11 exempts purely
-     decorative dividers; structure must live in the markup, not the rule.
-     Any border that carries meaning — inputs, buttons, focusable edges,
-     selected states — MUST use --color-line-strong, which clears 3:1. */
-  --color-line: var(--n-200);
-  --color-line-strong: var(--n-400);      /*  3.83:1 canvas / 3.58:1 sunken — AA non-text */
-  --color-focus: var(--b-700);            /*  9.71:1 on canvas — AA non-text */
+  /* --color-line is DECORATIVE ONLY. Anything meaningful — inputs, buttons,
+     focusable edges, selected states — uses --color-line-strong. */
+  --color-line: rgb(238 204 122 / 0.18);  /* a gold hairline, not a grey one */
+  --color-line-strong: var(--n-400);
+  --color-focus: var(--b-500);
 
-  --color-ok: var(--ok-500);
-  --color-warn: var(--warn-500);
-  --color-err: var(--err-500);
+  --color-ok: var(--ok-300);
+  --color-warn: var(--warn-300);
+  --color-err: var(--err-300);
 
-  --color-overlay-scrim: 22 19 16;        /* RGB channels of --n-900, for rgb() a */
+  --color-overlay-scrim: 16 30 48;        /* RGB of --n-900 */
 }
 
 /* ==========================================================================
    §4  SEMANTIC — TYPOGRAPHY
    --------------------------------------------------------------------------
-   Fluid scale, clamp()-based, no JS. Ratio is set per project by editing the
-   min/max ends — the steps stay named the same so components never change.
-   Default: 1.200 minor-third at 360px  ->  1.333 perfect-fourth at 1440px.
-   Type-first recipes (Editorial Venue) push the top end harder; utilitarian
-   recipes (Precision Shop) flatten it. That is a tokens edit, not a rebuild.
+   The scale is SHIFTED AND THEN BROKEN.
 
-   STEP        TYPICAL USE
-   --step--1   captions, legal, table meta
-   --step-0    body copy — the anchor, do not fluidly shrink below 16px
-   --step-1    lead paragraph, large body
-   --step-2    h4 / section eyebrow-adjacent
-   --step-3    h3 / card titles
-   --step-4    h2 / section headings
-   --step-5    h1 on inner pages
-   --step-6    hero display
-   --step-7    oversized editorial display (use once per page, max)
+   Reading sizes are anchored high and step gently — body sits at 17px on a
+   phone and 19px on a desktop, and steps 0 to 2 move at about 1.20. This page
+   is read by people in their forties and up who are deciding about a
+   prescription, and 16px Montserrat Light (what their current site serves) is
+   the single most common reason they will not read it.
+
+   Then it breaks hard: steps 5 to 7 run at 1.36 to 1.44, because the roster
+   names have to be enormous and the gap between "a heading" and "a signature"
+   is the whole composition. Bodoni's optical-size axis is live, so the
+   contrast between thick and thin genuinely increases as the type grows —
+   which is what their Playfair headings are reaching for and never get.
    ========================================================================== */
 :root {
-  --step--1: clamp(0.833rem, 0.80rem + 0.16vw, 0.9375rem);
-  --step-0:  clamp(1rem, 0.96rem + 0.20vw, 1.125rem);
-  --step-1:  clamp(1.2rem, 1.14rem + 0.30vw, 1.5rem);
-  --step-2:  clamp(1.44rem, 1.34rem + 0.50vw, 2rem);
-  --step-3:  clamp(1.728rem, 1.56rem + 0.83vw, 2.666rem);
-  --step-4:  clamp(2.074rem, 1.80rem + 1.35vw, 3.55rem);
-  --step-5:  clamp(2.488rem, 2.06rem + 2.14vw, 4.73rem);
-  --step-6:  clamp(2.986rem, 2.32rem + 3.33vw, 6.31rem);
-  --step-7:  clamp(3.583rem, 2.57rem + 5.06vw, 8.41rem);
+  --step--1: clamp(0.875rem, 0.855rem + 0.09vw, 0.9375rem);   /* 14 -> 15 */
+  --step-0:  clamp(1.0625rem, 1.024rem + 0.17vw, 1.1875rem);  /* 17 -> 19 */
+  --step-1:  clamp(1.25rem, 1.179rem + 0.31vw, 1.5rem);       /* 20 -> 24 */
+  --step-2:  clamp(1.5rem, 1.375rem + 0.55vw, 1.9375rem);     /* 24 -> 31 */
+  --step-3:  clamp(1.8125rem, 1.598rem + 0.95vw, 2.5rem);     /* 29 -> 40 */
+  --step-4:  clamp(2.125rem, 1.804rem + 1.43vw, 3.25rem);     /* 34 -> 52 */
+  --step-5:  clamp(2.5625rem, 2.079rem + 2.14vw, 4.25rem);    /* 41 -> 68 */
+  --step-6:  clamp(3.0625rem, 2.455rem + 2.70vw, 5.75rem);    /* 49 -> 92 */
+  --step-7:  clamp(3.625rem, 2.804rem + 3.65vw, 8.25rem);     /* 58 -> 132 */
 
-  /* Weights — variable-font axis values. Non-variable faces snap to nearest. */
   --weight-body: 400;
   --weight-medium: 500;
   --weight-strong: 600;
-  --weight-display: 700;
+  --weight-display: 500;   /* Bodoni at 500 already has plenty of authority;
+                              700 closes its counters at display sizes */
 
-  /* Leading — display type must be tighter than body or it reads cheap. */
-  --leading-display: 0.95;
-  --leading-heading: 1.1;
-  --leading-snug: 1.35;
-  --leading-body: 1.6;
-  --leading-loose: 1.75;
+  --leading-display: 1.0;
+  --leading-heading: 1.12;
+  --leading-snug: 1.4;
+  --leading-body: 1.65;
+  --leading-loose: 1.8;
 
-  /* Tracking — the single fastest tell of amateur vs. designed type. */
-  --tracking-display: -0.02em;
-  --tracking-heading: -0.01em;
+  /* Bodoni's hairline serifs need AIR, not the negative tracking a grotesque
+     wants. Positive display tracking is the correct call for a Didone and it
+     is the opposite of what the engine's default recipe does. */
+  --tracking-display: 0.005em;
+  --tracking-heading: 0.01em;
   --tracking-body: 0em;
-  --tracking-label: 0.08em;   /* eyebrows / small caps labels */
-  --tracking-wide: 0.16em;
+  --tracking-label: 0.18em;   /* eyebrows — wide, small, gold */
+  --tracking-wide: 0.26em;
+  --tracking-script: 0.02em;  /* the script needs a hair of separation at size */
 }
 
 /* ==========================================================================
    §5  SEMANTIC — SPACE
    --------------------------------------------------------------------------
-   One scale for everything: gaps, padding, stack rhythm. Fluid so mobile
-   isn't cramped and desktop isn't tight.
-   --section-y is the vertical rhythm of the page and is the #1 lever on
-   "does this feel expensive". Generous = expensive.
+   Generous. --section-y is the single biggest lever on "does this feel
+   expensive", and a page whose argument is "we take our time with you" cannot
+   be tightly packed.
    ========================================================================== */
 :root {
   --space-3xs: clamp(0.25rem, 0.24rem + 0.05vw, 0.3125rem);
@@ -215,69 +243,73 @@
   --space-xs:  clamp(0.75rem, 0.72rem + 0.15vw, 0.9375rem);
   --space-s:   clamp(1rem, 0.96rem + 0.20vw, 1.25rem);
   --space-m:   clamp(1.5rem, 1.44rem + 0.30vw, 1.875rem);
-  --space-l:   clamp(2rem, 1.92rem + 0.40vw, 2.5rem);
-  --space-xl:  clamp(3rem, 2.88rem + 0.60vw, 3.75rem);
-  --space-2xl: clamp(4rem, 3.84rem + 0.80vw, 5rem);
-  --space-3xl: clamp(6rem, 5.76rem + 1.20vw, 7.5rem);
-  --space-4xl: clamp(8rem, 7.68rem + 1.60vw, 10rem);
+  --space-l:   clamp(2rem, 1.90rem + 0.48vw, 2.75rem);
+  --space-xl:  clamp(3rem, 2.79rem + 0.95vw, 4.25rem);
+  --space-2xl: clamp(4.5rem, 4.07rem + 1.90vw, 6.5rem);
+  --space-3xl: clamp(6.5rem, 5.86rem + 2.86vw, 9.5rem);
+  --space-4xl: clamp(9rem, 8.14rem + 3.81vw, 13rem);
 
-  --section-y: clamp(4rem, 2.86rem + 5.71vw, 8rem);
-  --section-y-tight: clamp(2.5rem, 1.93rem + 2.86vw, 4.5rem);
-  --section-y-loose: clamp(6rem, 4.29rem + 8.57vw, 12rem);
+  --section-y: clamp(5rem, 3.57rem + 7.14vw, 10rem);
+  --section-y-tight: clamp(3rem, 2.29rem + 3.57vw, 5.5rem);
+  --section-y-loose: clamp(7rem, 4.86rem + 10.71vw, 14rem);
 
-  --stack-gap: var(--space-m);   /* default flow spacing inside prose */
+  --stack-gap: var(--space-m);
 }
 
 /* ==========================================================================
    §6  SEMANTIC — LAYOUT
-   --------------------------------------------------------------------------
-   --container-*    max widths for the shared .container primitive
-   --gutter         page edge padding, never less than 20px on mobile
-   --measure        optimal line length for prose (65ch is the target)
    ========================================================================== */
 :root {
   --container-xs: 34rem;
-  --container-s: 48rem;
-  --container-m: 68rem;
-  --container-l: 82rem;
-  --container-xl: 96rem;
+  --container-s: 46rem;
+  --container-m: 66rem;
+  --container-l: 80rem;
+  --container-xl: 94rem;
   --container: var(--container-l);
 
-  --gutter: clamp(1.25rem, 0.96rem + 1.43vw, 3rem);
-  --measure: 65ch;
-  --measure-narrow: 48ch;
+  --gutter: clamp(1.25rem, 0.96rem + 1.43vw, 3.5rem);
 
-  --header-h: 4.5rem;
-  --header-h-scrolled: 3.75rem;
+  /* 58ch, not 65ch. Body sits at 19px here rather than 16px, so 65ch is a
+     physically longer line than the rule was written for. */
+  --measure: 58ch;
+  --measure-narrow: 44ch;
+
+  --header-h: 5rem;
+  --header-h-scrolled: 4rem;
 }
 
 /* ==========================================================================
    §7  SEMANTIC — RADIUS / BORDER / SHADOW / Z-INDEX
    --------------------------------------------------------------------------
-   Radius is a strong personality signal. Heritage/Editorial = 0 or 2px.
-   Bakery/Studio = 12-20px. Set it once here; never hardcode a radius.
-   Shadows are LOW-CONTRAST and LARGE. Tight dark shadows read as Bootstrap.
+   FIRST NON-ZERO-RADIUS BUILD SINCE 001. 002, 003 and 004 were all radius 0 or
+   near it, which is a large part of why they read as one studio's signature
+   (differentiation log, "studio-level tics"). This identity is a circle, a
+   flower and a curve — a square corner would be arguing with the mark.
    ========================================================================== */
 :root {
   --radius-none: 0;
-  --radius-s: 2px;
-  --radius-m: 4px;
-  --radius-l: 8px;
+  --radius-s: 6px;
+  --radius-m: 12px;
+  --radius-l: 22px;
   --radius-pill: 999px;
-  --radius-image: var(--radius-s);
-  --radius-control: var(--radius-s);
-  --radius-card: var(--radius-m);
+  --radius-image: var(--radius-l);
+  --radius-control: var(--radius-pill);   /* every button is a lozenge */
+  --radius-card: var(--radius-l);
 
   --border-hair: 1px;
   --border-thick: 2px;
-  --border-rule: 3px;      /* editorial section rules */
+  --border-rule: 3px;
 
-  --shadow-s: 0 1px 2px rgb(var(--color-overlay-scrim) / 0.06),
-              0 2px 6px rgb(var(--color-overlay-scrim) / 0.04);
-  --shadow-m: 0 2px 6px rgb(var(--color-overlay-scrim) / 0.05),
-              0 12px 28px rgb(var(--color-overlay-scrim) / 0.08);
-  --shadow-l: 0 4px 12px rgb(var(--color-overlay-scrim) / 0.06),
-              0 28px 64px rgb(var(--color-overlay-scrim) / 0.12);
+  /* Shadows on a navy ground have to be BLACK and LARGE, not "the scrim at
+     6%" — a near-black shadow on a near-black canvas is invisible. Depth here
+     is carried by the surface lift plus a gold hairline; the shadow only
+     seats an element. */
+  --shadow-s: 0 2px 8px rgb(0 0 0 / 0.20);
+  --shadow-m: 0 6px 20px rgb(0 0 0 / 0.28), 0 1px 3px rgb(0 0 0 / 0.20);
+  --shadow-l: 0 18px 56px rgb(0 0 0 / 0.38), 0 3px 10px rgb(0 0 0 / 0.22);
+
+  /* The gold glow. Used on the lotus and nowhere else. */
+  --glow-brand: 0 0 40px rgb(238 204 122 / 0.16);
 
   --z-base: 0;
   --z-raised: 10;
@@ -285,111 +317,130 @@
   --z-header: 200;
   --z-mobilenav: 300;
   --z-lightbox: 400;
-  --z-badge: 500;      /* ambush "concept redesign" badge sits above all */
+  --z-badge: 500;
 }
 
 /* ==========================================================================
    §8  SEMANTIC — MOTION
    --------------------------------------------------------------------------
-   HOUSE RULES (enforced, see CLAUDE.md):
-     - Reveal durations 0.5s–0.8s. Micro-interactions 0.15s–0.25s.
-     - ease-out only for entrances. Never bounce, never spin.
-     - Reveal distance <= 24px. Parallax <= 15%.
-     - Stagger 0.06s–0.12s. Generous, never machine-gun.
-   Change --duration-reveal and --motion-distance to retune a whole site's
-   motion personality: "Studio Light" is fast+far, "Editorial Venue" is
-   slow+near.
+   Slower and nearer than the engine default. This is a calm brand and a
+   nervous purchase; motion that hurries reads as a sales funnel.
    ========================================================================== */
 :root {
   --duration-instant: 120ms;
-  --duration-fast: 180ms;
-  --duration-base: 240ms;
-  --duration-slow: 400ms;
-  --duration-reveal: 700ms;
-  --duration-hero: 900ms;
+  --duration-fast: 200ms;
+  --duration-base: 280ms;
+  --duration-slow: 460ms;
+  --duration-reveal: 800ms;
+  --duration-hero: 1000ms;
 
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);      /* the house entrance curve */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-out-soft: cubic-bezier(0.33, 1, 0.68, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-linear: linear;
 
-  --motion-distance: 24px;        /* reveal travel */
-  --motion-distance-s: 12px;
-  --motion-stagger: 0.08s;
-  --motion-parallax: 0.12;        /* unitless fraction, hard cap 0.15 */
+  --motion-distance: 20px;
+  --motion-distance-s: 10px;
+  --motion-stagger: 0.10s;
+  --motion-parallax: 0.10;
   --motion-hero-delay: 0.15s;
 
   /* ---- SIGNATURE TIER -------------------------------------------------
-     Everything above is AMBIENT motion: it must never be noticed. These are
-     for the ONE signature moment per page (CLAUDE.md §4a) — the thing a
-     person would screenshot. Deliberately permitted to break the ambient
-     ceiling, and deliberately scarce: if a second element on the page uses
-     these, the first one stops being special.
-
-     --sig-parallax        layered-depth parallax; up to 0.45 because layers
-                           read as depth, not as the whole page sliding
-     --sig-duration        long enough to feel authored, not laggy
-     --sig-stagger-char    per-word / per-line type reveals
-     --sig-mask-*          the wipe used for masked type and image reveals
-     --sig-magnet          cursor-attraction radius/strength for reactive bits
-     --sig-tilt            hover tilt on cards, in degrees                  */
+     ONE moment per page (CLAUDE.md §4a). Here it is the roster signing
+     itself: ten names drawn on in script, one after another.
+     --sig-draw-duration  how long one name takes to write
+     --sig-draw-stagger   the gap between one name finishing and the next
+                          starting. Generous on purpose — a signature is a
+                          deliberate act and ten of them at 0.05s reads as a
+                          loading spinner.                                  */
   --sig-duration: 1100ms;
   --sig-duration-long: 1600ms;
   --sig-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --sig-ease-drama: cubic-bezier(0.65, 0, 0.15, 1);
-  --sig-parallax: 0.32;
+  --sig-parallax: 0.22;
   --sig-parallax-max: 0.45;
   --sig-stagger-char: 0.055s;
   --sig-mask-duration: 900ms;
   --sig-mask-ease: cubic-bezier(0.77, 0, 0.18, 1);
   --sig-magnet-radius: 90px;
-  --sig-magnet-strength: 0.28;
-  --sig-tilt: 6deg;
+  --sig-magnet-strength: 0.24;
+  --sig-tilt: 0deg;                /* no tilt on this build — see §7 note */
   --sig-marquee-duration: 38s;
+
+  --sig-draw-duration: 1400ms;
+  --sig-draw-stagger: 0.34s;
+  --sig-draw-ease: cubic-bezier(0.45, 0.05, 0.25, 1);   /* a hand accelerating
+                                                           into a stroke and
+                                                           easing out of it */
 }
 
 /* ==========================================================================
-   §8b  SEMANTIC — RULE TICKS
+   §8b  SEMANTIC — RULE TICKS  (inherited, UNUSED)
    --------------------------------------------------------------------------
-   A hairline rule with tick marks, drawn as a repeating-linear-gradient: no
-   SVG, no image, no request, and it reflows to any width for free. Used as a
-   calibrated leader between a label and its value.
-
-   Generalised out of the Setiba Medical Spa build (§9), where the tick rule is
-   the brand's supporting mark and appears at four sizes. It earns its place in
-   the engine because it is the best menu-leader we have for a list that is
-   long enough to need one — a dot leader reads fussy at this density.
-
-   Recipes retune it like anything else: raise --tick-gap to make it sparse and
-   editorial, drop it to make it dense and instrumental.
+   Kept so shared engine components that reference them do not break. NOT USED
+   ANYWHERE on this build, deliberately: the differentiation log's standing
+   warning after 002 and 003 is that the hairline-and-tick register had become
+   a studio signature. This build's ornament is curved (§8c) — petals, water
+   lines and a signature stroke. If you find yourself reaching for a tick here,
+   read the log first.
    ========================================================================== */
 :root {
-  --tick-gap: 12px;
+  --tick-gap: 14px;
   --tick-w: 1px;
-  --tick-h: 9px;
-  --tick-h-major: 18px;
-  --tick-color: rgb(var(--color-overlay-scrim) / 0.28);
-  --tick-color-major: rgb(var(--color-overlay-scrim) / 0.55);
+  --tick-h: 8px;
+  --tick-h-major: 16px;
+  --tick-color: rgb(238 204 122 / 0.24);
+  --tick-color-major: rgb(238 204 122 / 0.48);
+}
+
+/* ==========================================================================
+   §8c  SEMANTIC — ORNAMENT
+   --------------------------------------------------------------------------
+   Their identity has exactly four ornamental elements and every one of them
+   is rebuilt here as a real system element rather than being trapped inside a
+   40px logo (input/brand.md §4):
+
+     the ring            --ornament-ring-*     the circle around the mark
+     the lotus           drawn in Lotus.astro, sized by --lotus-size
+     the water lines     --wave-*              two crossing shallow arcs
+     the signature       --sig-stroke-*        the exit stroke off a name
+
+   These are the biggest single quality jump available on this project: in the
+   original they are a stock gradient PNG, and redrawn with intent they carry
+   the entire page.
+   ========================================================================== */
+:root {
+  --lotus-size: 2.75rem;
+  --ornament-ring-w: 1px;
+  --ornament-ring-color: var(--color-brand);
+  --ornament-ring-inset: 0.55em;
+
+  --wave-w: 1.25px;
+  --wave-color: var(--color-brand);
+  --wave-opacity: 0.55;
+  --wave-span: 9rem;      /* the divider's drawn width */
+  --wave-rise: 0.55rem;   /* how far the arcs bow away from each other */
+
+  --sig-stroke-w: 1.5px;
+  --sig-stroke-color: var(--color-brand);
 }
 
 /* ==========================================================================
    §9  SEMANTIC — IMAGE & TEXTURE TREATMENT
    --------------------------------------------------------------------------
-   Photography treatment is a recipe-level decision and lives here so a whole
-   site's photo mood changes in one edit.
-   --image-filter        applied to editorial/gallery imagery
-   --image-filter-hero   hero-only treatment (usually a touch more contrast)
-   --scrim-*             gradient overlays that guarantee text contrast over
-                         photos. NEVER overlay type on a photo without one.
-   --grain-*             optional film grain overlay (Heritage/Nightlife)
-   --ratio-*             locked aspect ratios to prevent layout shift
+   NO PHOTOGRAPH APPEARS ON THIS BUILD. Not a stylistic preference: no
+   authentic photograph of this business exists in any reachable source, and
+   all four large images on their current homepage are commercial stock
+   licensed to them rather than to us (input/facts.txt §8). These tokens are
+   kept intact and correct so that the moment the practice supplies real
+   photography of their room and their ten people, it drops in already toned.
    ========================================================================== */
 :root {
-  --image-filter: saturate(0.92) contrast(1.04);
-  --image-filter-hero: saturate(0.88) contrast(1.08) brightness(0.96);
-  --image-hover-scale: 1.04;
+  --image-filter: saturate(0.95) contrast(1.02);
+  --image-filter-hero: saturate(0.92) contrast(1.05) brightness(0.97);
+  --image-hover-scale: 1.03;
 
-  --scrim-strength: 0.62;
+  --scrim-strength: 0.66;
   --scrim-bottom: linear-gradient(
     to top,
     rgb(var(--color-overlay-scrim) / var(--scrim-strength)) 0%,
@@ -407,8 +458,8 @@
     rgb(var(--color-overlay-scrim) / 0) 65%
   );
 
-  --grain-opacity: 0.035;
-  --grain-blend: multiply;
+  --grain-opacity: 0.03;
+  --grain-blend: soft-light;
 
   --ratio-hero: 16 / 9;
   --ratio-hero-tall: 4 / 5;
@@ -421,61 +472,96 @@
 /* ==========================================================================
    §10  CONTEXT BLOCKS
    --------------------------------------------------------------------------
-   Any component placed inside .on-dark or .on-brand automatically re-points
-   its ink/line/focus tokens. This is how one component serves a cream section
-   and a near-black footer with zero variant props and zero contrast bugs.
+   :root above IS the dark context. .on-light is the champagne paper band.
+   Both are registered in scripts/check-contrast.mjs.
+
+   .on-dark is aliased to :root's own values so that any shared engine
+   component wrapped in .on-dark on this build renders identically to the page
+   it is already sitting on, instead of silently re-inverting itself.
    ========================================================================== */
+.on-light {
+  --color-canvas: var(--n-050);
+  --color-surface: var(--n-000);
+  --color-surface-sunken: var(--n-100);
+  --color-ink: var(--n-800);
+  --color-ink-strong: var(--n-900);
+  --color-ink-muted: var(--n-600);
+
+  /* The gold does NOT survive as text on paper — this is the one contrast
+     failure in their current site, where gold links sit on white. On light
+     ground the brand becomes its deep antique end and the bright gold is
+     reserved for the navy, where it belongs. */
+  --color-brand: var(--b-800);
+  --color-brand-strong: var(--b-900);
+  --color-brand-contrast: var(--n-000);
+
+  --color-accent: var(--a-700);
+  --color-accent-contrast: var(--n-000);
+
+  --color-ok: var(--ok-700);
+  --color-warn: var(--warn-700);
+  --color-err: var(--err-700);
+
+  --color-line: rgb(26 42 64 / 0.14);
+  --color-line-strong: var(--n-500);
+  --color-focus: var(--b-800);
+
+  --wave-color: var(--color-brand);
+  --tick-color: rgb(26 42 64 / 0.22);
+  --tick-color-major: rgb(26 42 64 / 0.45);
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+}
+
 .on-dark {
-  --color-canvas: var(--color-surface-inverse);
-  --color-surface: var(--n-800);
-  --color-surface-sunken: var(--n-800);
-  --color-ink: var(--color-ink-inverse);
+  --color-canvas: var(--n-800);
+  --color-surface: var(--n-700);
+  --color-surface-sunken: var(--n-900);
+  --color-ink: var(--n-050);
   --color-ink-strong: var(--n-000);
-  --color-ink-muted: var(--color-ink-inverse-muted);
-  --color-brand: var(--b-300);            /* 5.83:1 on --n-900 — AA */
-  --color-brand-strong: var(--b-100);
-  --color-brand-contrast: var(--n-900);   /* 5.83:1 on b-300 fill */
-  --color-accent: var(--a-300);           /* 10.09:1 on --n-900 — AAA */
+  --color-ink-muted: var(--n-200);
+  --color-brand: var(--b-500);
+  --color-brand-strong: var(--b-300);
+  --color-brand-contrast: var(--n-900);
+  --color-accent: var(--a-300);
   --color-accent-contrast: var(--n-900);
-  --color-line: rgb(255 255 255 / 0.14);       /* decorative only */
-  --color-line-strong: rgb(255 255 255 / 0.42);/* 3.96:1 on n-800 — AA non-text */
-  --color-focus: var(--a-300);                 /* 8.62:1 on n-800 — AA non-text */
-  --tick-color: rgb(255 255 255 / 0.30);
-  --tick-color-major: rgb(255 255 255 / 0.55);
+  --color-line: rgb(238 204 122 / 0.18);
+  --color-line-strong: var(--n-400);
+  --color-focus: var(--b-500);
+  --wave-color: var(--color-brand);
+  --tick-color: rgb(238 204 122 / 0.24);
+  --tick-color-major: rgb(238 204 122 / 0.48);
   color: var(--color-ink);
   background-color: var(--color-canvas);
 }
 
 .on-brand {
-  /* Cards RECEDE on a brand band — they do not lift. A surface lighter than
-     its canvas costs every ink on it 1-2 points of contrast, which is exactly
-     how the first draft of this block shipped four broken recipes. Depth here
-     comes from --color-line and shadow, not from a lighter fill. */
-  --color-canvas: var(--b-800);
-  --color-surface: var(--b-900);
-  --color-surface-sunken: var(--b-900);
-  --color-ink: var(--n-050);              /* 11.81:1 on --b-800, 9.08:1 on --b-700 — AAA */
-  --color-ink-strong: var(--n-000);
-  --color-ink-muted: var(--b-100);        /*  9.06:1 on --b-800 — AAA */
-  --color-brand: var(--a-300);
-  --color-brand-strong: var(--a-100);
-  --color-brand-contrast: var(--b-900);
-  --color-accent: var(--a-300);
-  --color-accent-contrast: var(--b-900);
-  --color-line: rgb(255 255 255 / 0.18);       /* decorative only */
-  --color-line-strong: rgb(255 255 255 / 0.46);/* 3.29:1 on b-700 — AA non-text */
-  --color-focus: var(--a-100);                 /* 7.98:1 on b-700 — AA non-text */
-  --tick-color: rgb(255 255 255 / 0.32);
-  --tick-color-major: rgb(255 255 255 / 0.58);
+  /* A full gold band. Cards RECEDE on it — a surface lighter than its canvas
+     costs every ink on it contrast, which is how the engine once shipped four
+     broken recipes. Used exactly once on this page. */
+  --color-canvas: var(--b-500);
+  --color-surface: var(--b-600);
+  --color-surface-sunken: var(--b-600);
+  --color-ink: var(--n-900);
+  --color-ink-strong: var(--n-900);
+  --color-ink-muted: var(--n-700);
+  --color-brand: var(--n-900);
+  --color-brand-strong: var(--n-800);
+  --color-brand-contrast: var(--b-500);
+  --color-accent: var(--a-900);
+  --color-accent-contrast: var(--b-100);
+  --color-line: rgb(16 30 48 / 0.22);
+  --color-line-strong: var(--n-600);
+  --color-focus: var(--n-900);
+  --wave-color: var(--n-900);
+  --tick-color: rgb(16 30 48 / 0.28);
+  --tick-color-major: rgb(16 30 48 / 0.5);
   color: var(--color-ink);
   background-color: var(--color-canvas);
 }
 
 /* ==========================================================================
    §11  USER PREFERENCE OVERRIDES
-   --------------------------------------------------------------------------
-   Reduced motion is handled at the token level so it applies everywhere at
-   once — CSS transitions, GSAP (which reads these), and scroll behaviour.
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   :root {
@@ -492,10 +578,9 @@
     --motion-hero-delay: 0s;
     --image-hover-scale: 1;
 
-    /* The signature tier collapses too. A screenshot moment that ignores a
-       vestibular-disorder setting is not a screenshot moment, it is a
-       liability — every signature component has a static composition that
-       still reads as designed with all of this at zero. */
+    /* The signature tier collapses to zero. Every signature name is present,
+       fully drawn, in the static composition — the animation only controls
+       WHEN it is revealed, never WHETHER. */
     --sig-duration: 0.01ms;
     --sig-duration-long: 0.01ms;
     --sig-parallax: 0;
@@ -505,14 +590,23 @@
     --sig-magnet-strength: 0;
     --sig-tilt: 0deg;
     --sig-marquee-duration: 0s;
+    --sig-draw-duration: 0.01ms;
+    --sig-draw-stagger: 0s;
   }
 }
 
 @media (prefers-contrast: more) {
   :root {
-    --color-ink-muted: var(--n-700);
-    --color-line: var(--n-400);
+    --color-ink-muted: var(--n-100);
+    --color-line: rgb(238 204 122 / 0.4);
+    --color-line-strong: var(--n-300);
+    --scrim-strength: 0.8;
+    --wave-opacity: 1;
+  }
+
+  .on-light {
+    --color-ink-muted: var(--n-800);
+    --color-line: rgb(26 42 64 / 0.3);
     --color-line-strong: var(--n-600);
-    --scrim-strength: 0.78;
   }
 }

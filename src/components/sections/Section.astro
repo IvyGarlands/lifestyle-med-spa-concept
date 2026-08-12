@@ -10,7 +10,15 @@
  */
 export interface SectionProps {
   id?: string;
-  tone?: "default" | "sunken" | "dark" | "brand";
+  /**
+   * "light" is new on this project and it is the counterpart of "dark" on a
+   * DARK-FIRST build. Here `:root` is the navy page, so "dark" is a no-op and
+   * the band that actually contrasts is the champagne one. Without this there
+   * is no mechanism for a light section at all, and a page author would reach
+   * for a class on the section — which is exactly what the tokens contract
+   * forbids. Registered in scripts/check-contrast.mjs in the same commit.
+   */
+  tone?: "default" | "sunken" | "dark" | "light" | "brand";
   spacing?: "tight" | "default" | "loose" | "none";
   width?: "xs" | "s" | "m" | "l" | "xl";
   /** Drop the container entirely — for full-bleed sections that manage their own. */
@@ -48,6 +56,7 @@ const {
     spacing === "none" && "section--none",
     tone === "sunken" && "surface--sunken",
     tone === "dark" && "on-dark",
+    tone === "light" && "on-light",
     tone === "brand" && "on-brand",
     className,
   ]}

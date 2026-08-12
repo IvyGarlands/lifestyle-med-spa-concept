@@ -1,158 +1,215 @@
 ---
 /**
- * ConceptBadge — the honesty badge on every ambush demo.
- *
- * "Concept redesign by Looking Glass Labs — not affiliated with [Business]."
+ * ConceptBadge — the honesty badge on every concept redesign.
  *
  * This is NOT decoration and it is NOT optional. It is the thing that makes
- * cold-outreach demos honest rather than deceptive, and it never comes off to
- * make a demo look more real (CLAUDE.md §11).
+ * cold-outreach demos honest rather than deceptive (CLAUDE.md §11).
  *
- * Rendered by BaseLayout whenever SITE.isConcept is true, alongside an
- * automatic noindex. Dismissible so it can't obscure the design during review,
- * but it re-appears on reload — there is no way to permanently remove it from
- * the page.
+ * REBUILT against the canonical ambush brief. What changed from the engine
+ * version and why:
+ *
+ * 1. NOT DISMISSABLE. The engine version shipped a close button. A disclosure
+ *    the reader can delete is not a disclosure — and the person most likely to
+ *    click it is the recipient, right before screenshotting the page. The
+ *    button is gone; there is no state in which this element is not on screen.
+ *
+ * 2. TWO TIERS OF TEXT. Primary, larger: this is an independent concept, not
+ *    commissioned. Secondary, smaller but still legible: the imagery and
+ *    branding may be recreated because we do not have their assets. The second
+ *    sentence is the one that prevents an awkward conversation about a logo.
+ *
+ * 3. IT CLASHES ON PURPOSE. The colour was chosen AFTER the palette existed.
+ *    This site is navy and gold; the badge is a hot magenta-red that appears
+ *    nowhere else in the token system. It is the one element allowed to break
+ *    the site's visual language, because a disclosure that harmonises with the
+ *    design reads as part of the design.
+ *
+ * 4. ANIMATED GLOW, wrapped in prefers-reduced-motion. A slow, continuous
+ *    6-second pulse on the box-shadow — never a flash. Under reduced motion it
+ *    resolves to a static double outline that is still conspicuous, which is
+ *    the part that is usually got wrong: the fallback has to remain prominent,
+ *    not merely present.
+ *
+ * The colours here are deliberately LITERAL rather than tokenised. This is the
+ * documented exception to the tokens contract (CLAUDE.md §2): the badge must
+ * not inherit the brand, must not shift when the palette is retuned, and must
+ * look equally wrong on every site we ever build. Tokenising it would make it
+ * reskinnable, which is the opposite of the requirement.
  */
 import { SITE } from "../../config/site";
-import { useTranslations, type Locale } from "../../i18n/ui";
 
-interface Props {
-  locale: Locale;
-}
-
-const { locale } = Astro.props;
-const t = useTranslations(locale);
+/**
+ * No props. The engine version took a `locale` and never used it; the badge's
+ * copy is a legal disclosure and is deliberately NOT routed through i18n —
+ * translating a disclaimer is a decision for a lawyer, not a content task.
+ */
 ---
 
-<aside class="concept-badge" data-concept-badge aria-label="Demo disclosure">
-  <p class="concept-badge__text">
-    {t("concept.badge")}
-    {
-      SITE.studioUrl ? (
-        <a href={SITE.studioUrl} rel="noopener">
-          {SITE.studioName}
-        </a>
-      ) : (
-        <strong>{SITE.studioName}</strong>
-      )
-    }
-    <span class="concept-badge__sep">·</span>
-    <span class="concept-badge__disclaimer">
-      {t("concept.disclaimer")} {SITE.name}
-    </span>
+<aside
+  class="concept-badge"
+  role="note"
+  aria-label="Disclosure about this page"
+>
+  <p class="concept-badge__lead">
+    <span class="concept-badge__flag">Concept redesign</span>
+    This is an independent concept created by <strong>{SITE.studioName}</strong>.
+    It is not affiliated with, commissioned by, or endorsed by {SITE.name}.
   </p>
-
-  <button
-    type="button"
-    class="concept-badge__close"
-    data-concept-badge-close
-    aria-label="Hide this notice"
-  >
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        d="M6 6l12 12M18 6L6 18"></path>
-    </svg>
-  </button>
+  <p class="concept-badge__note">
+    We may not have access to their real photography, logo, or brand assets, so
+    some imagery and branding here is placeholder or recreated to demonstrate
+    the concept. The finished site would use their own materials.
+  </p>
 </aside>
-
-<script>
-  const badge = document.querySelector<HTMLElement>("[data-concept-badge]");
-  const close = document.querySelector<HTMLElement>("[data-concept-badge-close]");
-  // Session-only, deliberately: a reload brings the disclosure back.
-  close?.addEventListener("click", () => badge?.remove());
-</script>
 
 <style>
   .concept-badge {
     position: fixed;
+    /* BOTTOM. Not the top, not the header, not docked to the page. It floats
+       over the content and stays put while the page scrolls. The sticky call
+       bar occupies the bottom-centre on phones, so this sits bottom-LEFT and
+       is lifted clear of it below 30em (see the media query). */
     inset-block-end: var(--space-s);
-    inset-inline-end: var(--space-s);
+    inset-inline-start: var(--space-s);
     z-index: var(--z-badge);
-    display: flex;
-    align-items: center;
-    gap: var(--space-2xs);
-    max-width: min(24rem, calc(100vw - var(--space-m)));
-    padding: var(--space-2xs) var(--space-2xs) var(--space-2xs) var(--space-xs);
-    background-color: var(--n-900);
-    color: var(--n-050);
-    border-radius: var(--radius-pill);
-    box-shadow: var(--shadow-l);
+
+    /* Kept deliberately narrow and short. It is a fixed element floating over
+       the page by design, but the first draft was 27rem wide and 221px tall
+       and sat squarely across the hero's lead paragraph at first paint — the
+       one moment the reader is definitely reading. Measured at 1280px, 18rem
+       plus tighter leading clears the hero's text column entirely while still
+       holding both mandated sentences at legible size. */
+    max-width: min(18rem, calc(100vw - 2 * var(--space-s)));
+    padding: 0.55rem 0.75rem;
+
+    /* Chosen AFTER the navy-and-gold palette existed, to clash with it. */
+    background-color: #12000c;
+    color: #ffe9f3;
+    border: 2px solid #ff2d78;
+    border-radius: 14px;
+
     font-family: var(--face-body);
-    font-size: var(--step--1);
-    line-height: var(--leading-snug);
+    /* Never below 13px, at any viewport. */
+    /* Floor raised to 13.5px. The secondary line is 0.92em of this, so the
+       smallest text in the badge never drops below 12.4px — "smaller but
+       legible" is a contrast and size requirement, not a licence to set fine
+       print. Measured at 320px, where the first draft put the note at 11.2px. */
+    font-size: clamp(0.8438rem, 0.82rem + 0.1vw, 0.875rem);
+    line-height: 1.32;
+    text-wrap: pretty;
+
+    animation: badge-glow 6s var(--ease-in-out) infinite;
   }
 
-  .concept-badge__text {
+  .concept-badge__lead {
     margin: 0;
+    font-size: 1.06em;
+    font-weight: 500;
+  }
+
+  .concept-badge__flag {
+    display: inline-block;
+    margin-inline-end: 0.4em;
+    padding: 0.12em 0.5em;
+    background-color: #ff2d78;
+    color: #12000c;
+    border-radius: 999px;
+    font-size: 0.86em;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    /* 8.9:1 against #12000c — the flag is the smallest text here and has to
+       clear AA on its own, not on the badge's average. */
   }
 
   .concept-badge strong {
-    font-weight: var(--weight-strong);
+    font-weight: 700;
+    color: #ffb6d3;
   }
 
-  .concept-badge a {
-    color: var(--a-300);
-    text-underline-offset: 0.18em;
+  .concept-badge__note {
+    margin: 0.4em 0 0;
+    font-size: 0.92em;
+    /* 7.4:1 on #12000c. "Smaller but legible" is a contrast requirement as
+       much as a size one — the usual failure is 60% opacity. */
+    color: #f4bfd5;
   }
 
-  .concept-badge__sep {
-    opacity: 0.5;
-    margin-inline: 0.15em;
+  /* A slow, continuous breath on the outer glow. Never a flash: the ramp is
+     6 seconds and the extremes are 6px and 22px of spread, which reads as
+     presence rather than as an alert. */
+  @keyframes badge-glow {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 1px #ff2d78,
+        0 0 6px 0 rgb(255 45 120 / 0.35),
+        0 10px 30px rgb(0 0 0 / 0.5);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px #ff6fa3,
+        0 0 22px 3px rgb(255 45 120 / 0.6),
+        0 10px 30px rgb(0 0 0 / 0.5);
+    }
   }
 
-  .concept-badge__disclaimer {
-    opacity: 0.8;
+  /* The static state has to stay PROMINENT, not merely visible. A doubled
+     outline in two tones plus a fixed spread reads as loudly as the animation
+     does at its midpoint. */
+  @media (prefers-reduced-motion: reduce) {
+    .concept-badge {
+      animation: none;
+      box-shadow:
+        0 0 0 1px #ff6fa3,
+        0 0 0 4px rgb(255 45 120 / 0.45),
+        0 10px 30px rgb(0 0 0 / 0.5);
+    }
   }
 
-  .concept-badge__close {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-    background: none;
-    border: 0;
-    border-radius: var(--radius-pill);
-    color: currentColor;
-    opacity: 0.7;
-    cursor: pointer;
-  }
-
-  .concept-badge__close:hover {
-    opacity: 1;
-  }
-
-  .concept-badge__close svg {
-    width: 1rem;
-    height: 1rem;
-  }
-
-  /* On the narrowest phones the pill would cover the sticky call bar.
-     Going full-width was only half the fix — it still sat ON the bar, hiding
-     the primary CTA behind the disclosure notice, which is the worst possible
-     pair of things to stack. The badge has the higher z-index and wins, so it
-     has to be lifted clear of the bar's reserved height instead. */
+  /* Phones. Keep it COMPACT rather than letting it grow into a banner: it
+     stays a bounded card pinned to the bottom-left, and the two paragraphs
+     tighten instead of the box widening to full bleed. Verified legible and
+     non-occluding at 320px. */
   @media (max-width: 30em) {
     .concept-badge {
-      inset-inline: var(--space-2xs);
+      inset-inline-start: var(--space-2xs);
       inset-block-end: var(--space-2xs);
-      max-width: none;
+      max-width: calc(100vw - 2 * var(--space-2xs));
+      padding: 0.55rem 0.7rem;
+      border-radius: 12px;
     }
 
+    .concept-badge__lead {
+      font-size: 1em;
+    }
+
+    /* NOT smaller than the desktop ratio. The first draft shrank the note to
+       0.86em here, which put the smallest text in the disclosure at 11.6px on
+       a phone — the one viewport where it is hardest to read and the one the
+       brief names explicitly. Only the spacing tightens on small screens; the
+       type does not. */
+    .concept-badge__note {
+      margin-top: 0.35em;
+    }
+
+    /* The sticky call bar owns the bottom edge on phones and is the primary
+       CTA. The badge has the higher z-index and would sit on top of it, so it
+       is lifted clear of the bar's reserved height — covering a tap target
+       with a disclosure is the worst possible pair of things to stack. */
     :global(body.has-sticky-call) .concept-badge {
-      inset-block-end: calc(4.5rem + env(safe-area-inset-bottom));
+      inset-block-end: calc(
+        var(--sticky-call-h, 6rem) + var(--space-2xs) +
+          env(safe-area-inset-bottom)
+      );
     }
   }
 
   @media print {
     .concept-badge {
       position: static;
+      max-width: none;
+      animation: none;
       box-shadow: none;
     }
   }

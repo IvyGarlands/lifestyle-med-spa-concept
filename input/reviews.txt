@@ -1,0 +1,108 @@
+LIFESTYLE MED SPA — REVIEWS, VERBATIM
+Gathered 2026-08-12. First names only, surnames reduced to an initial.
+Nothing here is edited except the surname. No review is composited, trimmed
+for flattery, or reworded.
+
+SOURCE for all five below:
+https://reviews.birdeye.com/lifestyle-med-spa-agoura-hills-health-services-weight-loss-iv-therapy-hydrafacial-169807455448088
+(Birdeye aggregates the practice's Google reviews. Cross-checked against the
+second Birdeye listing for the same business — same five reviews, same order:
+https://reviews.birdeye.com/lifestyle-health-services-and-medical-spa-169807455448088)
+
+--------------------------------------------------------------------------------
+1. Robert C. — 4 stars — approx. 4 months before 2026-08-12
+
+"Wonderful staff great results lost 15 lbs with GLP to achieve my ideal weight
+and blood labs have improved dramatically too so very happy"
+
+NOTE: the two fetches of this review returned slightly different endings — one
+ends "...improved dramatically too so very happy", the other stops at
+"...improved dramatically too". CONFLICT LOGGED. This review is NOT USED on the
+page: I cannot establish the exact ending, and it also contains a pound figure
+(15 lbs), which the FTC constraint keeps off the page regardless.
+
+--------------------------------------------------------------------------------
+2. Tonya R. — 5 stars — approx. 8 months before 2026-08-12
+
+"I'm 35 lbs down and look and feel better than I have in 10+ years. Nicole,
+Kristina and Erica are the absolute BEST!!!"
+
+NOTE: identical in both fetches. NOT USED as a published quote — it leads with
+a pound figure, and republishing a weight-loss result on a page we built is the
+FTC exposure the build is designed to avoid. Recorded here because it is
+evidence for the organising idea: this patient thanks THREE STAFF MEMBERS BY
+NAME. It also names "Erica", who does not appear on their team page.
+
+--------------------------------------------------------------------------------
+3. fabiana c. — 5 stars — approx. 8 months before 2026-08-12
+
+"These are the nicest, most professional, most caring people and most
+knowledgeable!!!"
+
+USED ON THE PAGE. Identical in both fetches. No result claim, no figure.
+Rendered as "Fabiana C." — Birdeye renders the name lowercase; capitalising a
+proper noun is not an edit to the review.
+
+--------------------------------------------------------------------------------
+4. Ryan M. — 5 stars — approx. 8 months before 2026-08-12
+
+Fetch A: "I have been visiting here for several months getting help with weight
+loss. The service has been truly amazing, and the results speak for
+themselves."
+
+Fetch B: "The service has been truly amazing, and the results speak for
+themselves. If you're looking to partner with a business...I could not
+recommend anybody more strongly!"
+
+CONFLICT LOGGED — the two reads return different spans of the same review, and
+fetch B contains an ellipsis I cannot attribute to the reviewer rather than the
+aggregator. NOT USED. Only the sentence common to both fetches is verifiable,
+and "the results speak for themselves" is a results claim I would not publish
+in this vertical anyway.
+
+--------------------------------------------------------------------------------
+5. Kyla G. — 5 stars — approx. 11 months before 2026-08-12
+
+"Absolutely love the staff and all the services they offer- you won't regret
+becoming a client!!"
+
+USED ON THE PAGE. Identical in both fetches, including the missing space after
+"offer-", which is preserved exactly as written.
+
+--------------------------------------------------------------------------------
+6. Jessica S. — 5 stars — date not established
+
+SOURCE: https://trustanalytica.org/us/ca/agoura-hills/reviews/lifestyle-health-services
+Name and rating only; the review text was not retrievable, and the date field
+rendered as "Just now", which is an artefact of that site rather than a date.
+NOT USED — a name with no text is not a review.
+
+================================================================================
+WHAT SURVIVED
+================================================================================
+
+TWO reviews are published on the page: Fabiana C. and Kyla G.
+
+That is a deliberately small number and it is the honest one. Of five reviews
+recoverable in full, two contained pound figures, one could not be pinned to a
+single verbatim text, and both of the remaining two are about the STAFF rather
+than about results — which is the whole argument of the redesign.
+
+No aggregate rating and no review count appear anywhere on the page: three
+sources give three different figures (4.8/53, 4.8/18, 5.0/10). See facts.txt §5.
+
+================================================================================
+THE VOICE, FOR COPY
+================================================================================
+
+Words that recur in reviews and in their own bios, in their frequency order:
+  staff · caring · knowledgeable · professional · amazing · supported ·
+  compassionate · welcoming · warm · personalized
+
+Every single recoverable review is about PEOPLE, not about equipment,
+technology, price, or the room. Two of the five thank staff members by name.
+Their own copy says "you're not just a patient — you're family". Their team
+page lists ten people and their bios use "compassionate" or "warm" seven times.
+
+The business's own language and its customers' language agree completely, and
+they agree on the same thing: this place is its people. That is the headline.

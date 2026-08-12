@@ -1,0 +1,76 @@
+---
+/**
+ * WaterRule — the section divider.
+ *
+ * This is the payoff of the brand archaeology. Their identity contains two
+ * shallow arcs crossing beneath the lotus (input/brand.md §4) and in the
+ * original they exist only as a ~6px detail inside a 40px logo. They are the
+ * most distinctive, least generic shape the business owns, and nothing on
+ * their current site uses them.
+ *
+ * Promoted here to the page's primary rule: it separates every section, sits
+ * under the hero headline, and underlines each name in the roster.
+ *
+ * Explicitly NOT a hairline and NOT a tick rule. The differentiation log's
+ * standing warning after builds 002 and 003 is that the drafted register —
+ * hairlines, ticks, leaders — had become the studio's signature. This is a
+ * curve, drawn from the client's own mark, and §8b's tick tokens go unused on
+ * this build.
+ */
+interface Props {
+  /** Rendered width, in the ornament token's terms. */
+  size?: "s" | "m" | "l";
+  /** Centre it in its container. */
+  center?: boolean;
+  class?: string;
+}
+
+const { size = "m", center = true, class: className } = Astro.props;
+---
+
+<svg
+  class:list={["water-rule", `water-rule--${size}`, center && "is-centered", className]}
+  viewBox="0 0 200 20"
+  preserveAspectRatio="none"
+  role="presentation"
+  aria-hidden="true"
+  focusable="false"
+>
+  <g
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.2"
+    stroke-linecap="round"
+    vector-effect="non-scaling-stroke"
+  >
+    <path d="M4 7 C 50 17, 150 3, 196 13"></path>
+    <path d="M4 13 C 50 3, 150 17, 196 7"></path>
+  </g>
+</svg>
+
+<style>
+  .water-rule {
+    display: block;
+    block-size: 1.25rem;
+    color: var(--wave-color);
+    opacity: var(--wave-opacity);
+  }
+
+  .water-rule.is-centered {
+    margin-inline: auto;
+  }
+
+  .water-rule--s {
+    inline-size: calc(var(--wave-span) * 0.55);
+    block-size: 0.8rem;
+  }
+
+  .water-rule--m {
+    inline-size: var(--wave-span);
+  }
+
+  .water-rule--l {
+    inline-size: calc(var(--wave-span) * 2);
+    block-size: 1.6rem;
+  }
+</style>

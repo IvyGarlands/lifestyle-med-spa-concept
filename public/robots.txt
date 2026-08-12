@@ -1,0 +1,38 @@
+# This is an unsolicited concept redesign by Looking Glass Labs.
+# It is not affiliated with, commissioned by, or endorsed by the business it
+# depicts, and it must never be indexed under that business's name.
+#
+# Lock 1 of 4. The others are:
+#   - no sitemap is generated (the @astrojs/sitemap integration is removed)
+#   - <meta name="robots"> with all six directives, noindex by default
+#   - X-Robots-Tag headers in public/_headers and public/vercel.json
+#
+# Do not relax any of them to "see how it ranks".
+
+User-agent: *
+Disallow: /
+
+# Named explicitly as well as by wildcard: a few crawlers have historically
+# honoured only their own user-agent block.
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Googlebot-Image
+Disallow: /
+
+User-agent: Bingbot
+Disallow: /
+
+User-agent: DuckDuckBot
+Disallow: /
+
+User-agent: Applebot
+Disallow: /
+
+User-agent: Yandex
+Disallow: /
+
+User-agent: Baiduspider
+Disallow: /
+
+# Deliberately no Sitemap: directive. There is no sitemap.

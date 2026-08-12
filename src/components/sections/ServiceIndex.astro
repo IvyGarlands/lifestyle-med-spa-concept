@@ -55,6 +55,7 @@ const {
   ctaLabel,
   ctaHref,
   id = "treatments",
+  tone,
   spacing,
   class: className,
   ...rest
@@ -64,11 +65,19 @@ const ordered = [...groups].sort((a, b) => a.data.order - b.data.order);
 const total = ordered.reduce((n, g) => n + g.data.items.length, 0);
 ---
 
+{/* `tone` is forwarded, not overridden. This component previously pinned
+    class="on-light" onto its own Section — a leftover from the first
+    dark-first build, which needed a light band here and took the shortcut.
+    It meant the section ignored `tone` entirely and silently rendered light on
+    every project, which is precisely the "fix it in the component" failure the
+    tokens contract exists to prevent (CLAUDE.md §3: tone is the ONLY mechanism
+    for changing a section's colour context). */}
 <Section
   id={id}
+  tone={tone}
   spacing={spacing}
   width="xl"
-  class={["on-light", className].filter(Boolean).join(" ")}
+  class={className}
   labelledBy={`${id}-heading`}
   {...rest}
 >

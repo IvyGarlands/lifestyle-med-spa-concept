@@ -30,20 +30,42 @@ const TOKENS = resolve(here, "../src/styles/tokens.css");
 
 const base = baseLayer(readFileSync(TOKENS, "utf8"));
 const root = parseBlocks(base, ":root");
+const onLight = { ...root, ...parseBlocks(base, ".on-light") };
 const onDark = { ...root, ...parseBlocks(base, ".on-dark") };
 const onBrand = { ...root, ...parseBlocks(base, ".on-brand") };
 
+/**
+ * THIS PROJECT IS DARK-FIRST: `:root` is the DARK context and `.on-light`
+ * holds the light one (CLAUDE.md §13). `.on-light` is registered here in the
+ * same commit that introduced it — a context outside this matrix is an
+ * unfound contrast bug, not an absent one.
+ *
+ * The feedback colours and `--color-surface-inverse` are asserted against
+ * `:root` because that is where they are defined; on this build the "inverse"
+ * surface is the light champagne band, so that pairing is checked against
+ * `--color-ink-inverse` exactly as before, just in the other direction.
+ */
 const CONTEXTS = [
   {
-    name: ":root (light)",
+    name: ":root (DARK — the page)",
     scope: root,
-    // Feedback colours and the inverse surface only exist in the light context.
     extraInks: [
       ["--color-ok", AA_TEXT],
       ["--color-warn", AA_TEXT],
       ["--color-err", AA_TEXT],
     ],
     extraFills: [["--color-surface-inverse", "--color-ink-inverse", AA_TEXT]],
+  },
+  {
+    name: ".on-light",
+    scope: onLight,
+    // The feedback set is remapped to its dark end here, so it is asserted
+    // in BOTH contexts rather than only in the one that happens to be :root.
+    extraInks: [
+      ["--color-ok", AA_TEXT],
+      ["--color-warn", AA_TEXT],
+      ["--color-err", AA_TEXT],
+    ],
   },
   { name: ".on-dark", scope: onDark },
   { name: ".on-brand", scope: onBrand },

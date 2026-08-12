@@ -143,3 +143,46 @@ curl -s <staging-url> | grep -o 'name="robots"[^>]*'   # must be noindex
 
 Then by eye: **headline, phone number, review text, one real phone.** Those four
 are what the recipient actually looks at.
+
+---
+
+## Project notes — Lifestyle Med Spa (006)
+
+Recorded at build time so the next person does not re-derive them.
+
+**Verified in this build**
+- `npm run verify` clean: 0 type errors, 0 warnings, no invisible/homoglyph
+  characters, **112 contrast checks pass** across `:root` (dark), `.on-light`,
+  `.on-dark` and `.on-brand`.
+- Client JS **45.5 KB gzipped** against the 48 KB budget. The signature moment
+  adds ~0.8 KB and no library — one IntersectionObserver.
+- Inlined CSS 14 KB gz (the decisions log says revisit above ~20 KB).
+- All four findability locks confirmed in `dist/`: six-directive `robots`
+  + `googlebot` meta, `robots.txt` Disallow, `X-Robots-Tag` in both
+  `_headers` and `vercel.json`, and **no sitemap emitted**.
+- Zero occurrences of the string "ambush" in the built HTML.
+- JSON-LD: `MedicalBusiness`, no `geo` (deliberately null), no
+  `aggregateRating`, hours emitted from the same source as the page.
+- Concept badge: not dismissable, bottom-left, clears the sticky call bar and
+  every tap target at 320 / 372 / 390 / 1280 / 1440. Smallest text 12.4px.
+
+**Still outstanding — cannot be done from here**
+- [ ] Lighthouse ≥95 ×4 on the deployed URL. No project can run this locally
+      (§7); it needs the live host.
+- [ ] Real phone check. Devtools viewports were measured, a physical device
+      was not.
+- [ ] Form submitted end-to-end. `FORM_ENDPOINT` is empty by design, so
+      `ContactForm` renders its disabled state rather than posting into the
+      void. **Before any real send, confirm the endpoint's processor is
+      acceptable — this practice advertises HIPAA compliance and the form is
+      deliberately limited to name/phone/email/preferred-time for that reason.**
+- [ ] `prefers-reduced-motion` checked with the OS setting actually on. The
+      tokens and the badge's static outline are written for it and were read in
+      the stylesheet, not observed live.
+- [ ] Keyboard-only pass through the mobile menu.
+
+**Known residual, accepted**
+- Between roughly 1024px and 1366px the fixed concept badge overlaps the left
+  edge of the hero's lead paragraph by a few dozen pixels. It clears entirely
+  at 1366px and above, and it blocks no tap target at any width. The badge is
+  specified to float over the content; this is the least-bad position for it.

@@ -1,0 +1,136 @@
+---
+/**
+ * Lotus — their mark, REDRAWN.
+ *
+ * Not a new logo. Their existing mark is a gold lotus with a detached bindu,
+ * floating on two crossing water lines, inside a thin ring (input/brand.md §1).
+ * Every one of those elements is kept. What is fixed is the execution:
+ *
+ *   THEIRS                            HERE
+ *   linear bevel gradient on every    flat gold, one value. The bevel is the
+ *   petal                             single most reliable clip-art tell, and
+ *                                     it dies at favicon size and on any dark
+ *                                     ground — which is most of this page.
+ *   five identical mirrored petals    three drawn widths. The centre petal is
+ *                                     narrow and tall, the mid pair fuller,
+ *                                     the outer pair widest and shortest, so
+ *                                     the flower has weight distribution
+ *                                     instead of being one shape stamped five
+ *                                     times.
+ *   flower centred in the ring by     optically centred: the group sits 2
+ *   maths, so it reads high           units below true centre, because the
+ *                                     water lines carry visual weight low and
+ *                                     the eye reads the petal mass as the
+ *                                     subject.
+ *   raster PNG, 18 KB, 481px          inline SVG, ~1.1 KB, resolution-free,
+ *                                     and it inherits currentColor so it works
+ *                                     on navy, on gold and on champagne
+ *                                     without three files.
+ *
+ * Every petal is one path reused through <use> + rotate, so adjusting the
+ * drawing is one edit rather than five.
+ */
+interface Props {
+  /** Draw the containing ring. Off for inline/footer use. */
+  ring?: boolean;
+  /** Accessible name. Empty (default) marks it decorative — correct wherever
+   *  the wordmark's text sits next to it, which is everywhere but the favicon. */
+  title?: string;
+  class?: string;
+}
+
+const { ring = true, title = "", class: className } = Astro.props;
+---
+
+<svg
+  class:list={["lotus", className]}
+  viewBox="0 0 100 100"
+  role={title ? "img" : "presentation"}
+  aria-label={title || undefined}
+  aria-hidden={title ? undefined : "true"}
+  focusable="false"
+>
+  <defs>
+    {/* One petal, drawn once. Base at the origin, tip at -1 on the y axis, so
+        every instance is a rotate() plus a scale() and nothing else. */}
+    {/* A pointed ogive: narrow through the base, fullest at 40% of its
+        length, and drawn to a point at the tip. The first draft used control
+        points at 0.62 of the width and the flower read as a fan or a crown at
+        header size — the petals have to be NARROW and separated by visible
+        ground or the silhouette collapses into a mass. */}
+    <path
+      id="lotus-petal"
+      d="M0 0 C 0.46 -0.34, 0.40 -0.76, 0 -1 C -0.40 -0.76, -0.46 -0.34, 0 0 Z"
+    ></path>
+  </defs>
+
+  {
+    ring && (
+      <circle
+        cx="50"
+        cy="50"
+        r="46.5"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.1"
+        opacity="0.85"
+      />
+    )
+  }
+
+  {/* The flower. Translated to (50, 62) — the base of the petals sits on the
+      waterline, which is what makes it read as floating rather than hovering. */}
+  <g transform="translate(50 64)" fill="currentColor">
+    {/* Outer pair — shortest, swept wide, but only to 66°. At their original's
+        near-horizontal sweep the two outer petals merge with the mid pair into
+        a single flat shape. */}
+    <use href="#lotus-petal" transform="rotate(-66) scale(12.5 27)"></use>
+    <use href="#lotus-petal" transform="rotate(66) scale(12.5 27)"></use>
+    {/* Mid pair — fuller through the shoulder, and the widest of the three. */}
+    <use href="#lotus-petal" transform="rotate(-34) scale(13.5 32)"></use>
+    <use href="#lotus-petal" transform="rotate(34) scale(13.5 32)"></use>
+    {/* Centre — narrowest and tallest. It is the petal read as a silhouette
+        against the ring, so it carries the flower's whole proportion. */}
+    <use href="#lotus-petal" transform="scale(11 39)"></use>
+  </g>
+
+  {/* The bindu. Detached, as theirs is — it never touches the centre petal. */}
+  <circle cx="50" cy="17.5" r="3.4" fill="currentColor"></circle>
+
+  {/* The water. Two shallow arcs crossing once at the centre and meeting at
+      the tips. This is the most distinctive and least generic thing in their
+      identity and in the original it is a 6px detail inside a 40px logo. Here
+      it is also the page's section divider — see WaterRule.astro. */}
+  <g
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+  >
+    <path d="M17 68 C 32 75, 68 62, 83 69"></path>
+    <path d="M17 69 C 32 62, 68 75, 83 68"></path>
+  </g>
+</svg>
+
+<style>
+  .lotus {
+    display: block;
+    inline-size: var(--lotus-size);
+    block-size: var(--lotus-size);
+    color: var(--color-brand);
+    /* A soft gold bloom, and the ONLY glow anywhere on the page. The original
+       reaches for this effect with a gradient inside the artwork, which is
+       exactly the thing that makes it look cheap; putting it in the light
+       instead of in the ink is the difference. */
+    filter: drop-shadow(0 0 12px rgb(238 204 122 / 0.22));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lotus {
+      /* Not motion, but the same family of concern: a bloom on a filter is
+         expensive to composite and buys nothing for a reader who has asked
+         the interface to calm down. */
+      filter: none;
+    }
+  }
+</style>

@@ -25,6 +25,10 @@ interface Props extends SectionProps {
   showHours?: boolean;
   formFields?: FormField[];
   formSubject?: string;
+  /** Standing notice rendered inside the <form>. See ContactForm. */
+  formNotice?: string;
+  /** A second contact channel shown beside the phone, e.g. a texting line. */
+  altContact?: { label: string; value: string; href: string; note?: string };
 }
 
 const {
@@ -37,6 +41,8 @@ const {
   showHours = true,
   formFields,
   formSubject,
+  formNotice,
+  altContact,
   id = "contact",
   tone,
   spacing,
@@ -63,6 +69,18 @@ const t = useTranslations(locale);
           {SITE.phone}
         </a>
       </div>
+
+      {
+        altContact && (
+          <div class="loc__call" data-reveal>
+            <p class="loc__call-label">{altContact.label}</p>
+            <a class="loc__call-number" href={altContact.href}>
+              {altContact.value}
+            </a>
+            {altContact.note && <p class="loc__alt-note">{altContact.note}</p>}
+          </div>
+        )
+      }
 
       <div class="loc__block" data-reveal>
         <p class="loc__label">{t("location.address")}</p>
@@ -102,6 +120,7 @@ const t = useTranslations(locale);
               locale={locale}
               fields={formFields}
               subject={formSubject}
+              notice={formNotice}
             />
           </div>
         )
@@ -127,14 +146,31 @@ const t = useTranslations(locale);
   }
 
   .loc__call-number {
-    display: inline-block;
+    /* inline-flex + min-height rather than inline-block: this is the primary
+       call CTA on the section people scroll to in order to tap it, and at
+       --step-4 the glyph box alone measured 36px against the engine's own
+       >=44px rule (§5). This grows the hit area without moving the type. */
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 3rem;
     font-family: var(--face-display);
     font-size: var(--step-4);
     font-weight: var(--weight-display);
+    font-variation-settings: "opsz" 40;
     line-height: var(--leading-heading);
     letter-spacing: var(--tracking-heading);
     color: var(--color-brand);
     text-decoration: none;
+  }
+
+  /* The texting line's clarifier. Small, but it is doing real work: a second
+     published number with no explanation reads as a mistake. */
+  .loc__alt-note {
+    margin-block-start: var(--space-3xs);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-muted);
+    max-inline-size: var(--measure-narrow);
   }
 
   .loc__call-number:hover {
@@ -149,6 +185,12 @@ const t = useTranslations(locale);
   }
 
   .loc__link {
+    /* 20px of glyph is not a tap target. inline-flex + min-height grows the
+       hit area to the engine's own >=44px floor without changing the type or
+       the layout (§5). */
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
     font-weight: var(--weight-medium);
     text-underline-offset: 0.18em;
   }

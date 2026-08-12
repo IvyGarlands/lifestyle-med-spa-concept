@@ -56,7 +56,23 @@ export function businessSchema(opts: BusinessSchemaOptions) {
     "@context": "https://schema.org",
     "@type": type,
     "@id": `${SITE.url}/#business`,
-    name: SITE.legalName || SITE.name,
+    /**
+     * `name` is the TRADING name and `legalName` is the registered one — they
+     * are two different schema.org properties and the engine was collapsing
+     * them, emitting the legal entity as the business's name. It matters here:
+     * this practice trades as "Lifestyle Med Spa" on its own wordmark, page
+     * title and every line of its own copy, while the domain and its Yelp
+     * record say "Lifestyle Health Services". A knowledge panel built from
+     * this markup should show the name on the door.
+     */
+    name: SITE.name,
+    /* Widened to string on purpose: SITE is `as const`, so both sides are
+       literal types and TS reports the comparison as impossible for whichever
+       project happens to have them equal. The check is a runtime one. */
+    ...((SITE.legalName as string) &&
+    (SITE.legalName as string) !== (SITE.name as string)
+      ? { legalName: SITE.legalName }
+      : {}),
     url: SITE.url,
     telephone: SITE.phone,
     address: {
