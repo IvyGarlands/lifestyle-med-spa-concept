@@ -51,6 +51,17 @@ const { ring = true, title = "", class: className } = Astro.props;
   focusable="false"
 >
   <defs>
+    {/* Their logo's own gold sweep, restored. The first pass flattened this to
+        a single value because the original is a BEVEL — a baked-in fake light
+        source, which is the clip-art tell. A gradient across the petals is not
+        the same thing, and throwing it out threw out something real about the
+        mark. Stops are semantic tokens, so the same drawing re-points itself
+        on a champagne band where bright gold would vanish. */}
+    <linearGradient id="lotus-gold" x1="0" y1="0" x2="0.85" y2="1">
+      <stop offset="0%" stop-color="var(--color-mark-1)"></stop>
+      <stop offset="52%" stop-color="var(--color-mark-2)"></stop>
+      <stop offset="100%" stop-color="var(--color-mark-3)"></stop>
+    </linearGradient>
     {/* One petal, drawn once. Base at the origin, tip at -1 on the y axis, so
         every instance is a rotate() plus a scale() and nothing else. */}
     {/* A pointed ogive: narrow through the base, fullest at 40% of its
@@ -80,7 +91,7 @@ const { ring = true, title = "", class: className } = Astro.props;
 
   {/* The flower. Translated to (50, 62) — the base of the petals sits on the
       waterline, which is what makes it read as floating rather than hovering. */}
-  <g transform="translate(50 64)" fill="currentColor">
+  <g transform="translate(50 64)" fill="url(#lotus-gold)">
     {/* Outer pair — shortest, swept wide, but only to 66°. At their original's
         near-horizontal sweep the two outer petals merge with the mid pair into
         a single flat shape. */}
@@ -95,7 +106,7 @@ const { ring = true, title = "", class: className } = Astro.props;
   </g>
 
   {/* The bindu. Detached, as theirs is — it never touches the centre petal. */}
-  <circle cx="50" cy="17.5" r="3.4" fill="currentColor"></circle>
+  <circle cx="50" cy="17.5" r="3.4" fill="url(#lotus-gold)"></circle>
 
   {/* The water. Two shallow arcs crossing once at the centre and meeting at
       the tips. This is the most distinctive and least generic thing in their

@@ -1,0 +1,99 @@
+---
+/**
+ * Divider — the decorative rule between sections.
+ *
+ * A gradient hairline that fades out at both ends, with the client's own
+ * crossing water arcs (or the lotus) set into the middle. Their identity has
+ * exactly one repeatable ornament and this is it; using it between sections is
+ * what stops the page reading as a stack of unrelated blocks.
+ *
+ * Fades rather than butting into the gutter, because a full-width hairline
+ * that stops dead at the container edge is the single most common way a
+ * divider announces itself as a `<hr>`.
+ */
+import Lotus from "./Lotus.astro";
+
+interface Props {
+  /** "wave" is the default ornament; "lotus" is for a major break. */
+  mark?: "wave" | "lotus" | "none";
+  /** Vertical breathing room around it. */
+  space?: "tight" | "default" | "loose";
+  class?: string;
+}
+
+const { mark = "wave", space = "default", class: className } = Astro.props;
+---
+
+<div
+  class:list={["divider", `divider--${space}`, className]}
+  role="presentation"
+  aria-hidden="true"
+>
+  <span class="divider__line"></span>
+
+  {
+    mark === "wave" && (
+      <svg class="divider__mark" viewBox="0 0 64 16" focusable="false">
+        <g
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        >
+          <path d="M4 6 C 18 13, 46 3, 60 10" />
+          <path d="M4 10 C 18 3, 46 13, 60 6" />
+        </g>
+      </svg>
+    )
+  }
+
+  {
+    mark === "lotus" && (
+      <span class="divider__lotus">
+        <Lotus ring={false} />
+      </span>
+    )
+  }
+
+  <span class="divider__line"></span>
+</div>
+
+<style>
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    inline-size: min(100%, var(--container-m));
+    margin-inline: auto;
+    color: var(--color-brand);
+  }
+
+  .divider--tight {
+    margin-block: var(--space-l);
+  }
+  .divider--default {
+    margin-block: var(--space-xl);
+  }
+  .divider--loose {
+    margin-block: var(--space-2xl);
+  }
+
+  .divider__line {
+    flex: 1;
+    block-size: 1px;
+    background-image: var(--grad-rule);
+  }
+
+  .divider__mark {
+    flex-shrink: 0;
+    inline-size: 4rem;
+    block-size: 1rem;
+    opacity: 0.9;
+  }
+
+  .divider__lotus {
+    --lotus-size: 1.75rem;
+    flex-shrink: 0;
+    display: block;
+  }
+</style>

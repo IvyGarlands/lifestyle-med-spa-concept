@@ -1,0 +1,242 @@
+---
+/**
+ * MediaSplit — image one side, copy the other, alternating down the page.
+ *
+ * The workhorse for every inner page. It exists mainly to solve the blank-space
+ * problem: a prose block on its own leaves a dead column at desktop widths, and
+ * this pairs every claim with a photograph so no band is ever half empty.
+ *
+ * `flip` alternates the side. The photo is framed with a gold hairline and sits
+ * on a soft gold bloom, so a portrait-shaped image on a wide band still fills
+ * its half rather than floating in it.
+ */
+import { Picture } from "astro:assets";
+import Section from "./Section.astro";
+import SectionIntro from "./SectionIntro.astro";
+import type { SectionProps } from "./Section.astro";
+import type { ImageMetadata } from "astro";
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  accent?: string;
+  /** Paragraphs, in order. */
+  body: string[];
+  image: ImageMetadata;
+  alt: string;
+  /** Image on the right instead of the left. */
+  flip?: boolean;
+  /** Bulleted points under the prose. */
+  points?: string[];
+  ctaLabel?: string;
+  ctaHref?: string;
+  /** Small print under the CTA — hours, a caveat, a disclaimer. */
+  note?: string;
+  /** 4/5 portrait by default; "wide" for 3/2 landscape material. */
+  ratio?: "portrait" | "wide" | "square";
+}
+
+const {
+  eyebrow,
+  heading,
+  accent,
+  body,
+  image,
+  alt,
+  flip = false,
+  points,
+  ctaLabel,
+  ctaHref,
+  note,
+  ratio = "portrait",
+  id,
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+
+const headingId = id ? `${id}-heading` : undefined;
+---
+
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width="xl"
+  labelledBy={headingId}
+  {...rest}
+>
+  <div class:list={["split", flip && "split--flip"]}>
+    <div class="split__media" data-reveal={flip ? "right" : "left"}>
+      <div class:list={["split__frame", `split__frame--${ratio}`]}>
+        <Picture
+          src={image}
+          alt={alt}
+          widths={[480, 760, 1040, 1320]}
+          sizes="(min-width: 60em) 44vw, 92vw"
+          formats={["avif", "webp"]}
+          layout="none"
+          loading="lazy"
+          class="split__img"
+        />
+      </div>
+    </div>
+
+    <div class="split__copy" data-reveal-stagger>
+      <div data-reveal>
+        <SectionIntro
+          eyebrow={eyebrow}
+          heading={heading}
+          accent={accent}
+          headingId={headingId}
+        />
+      </div>
+
+      <div class="split__prose" data-reveal>
+        {body.map((p) => <p>{p}</p>)}
+      </div>
+
+      {
+        points && points.length > 0 && (
+          <ul class="split__points" data-reveal>
+            {points.map((pt) => (
+              <li>{pt}</li>
+            ))}
+          </ul>
+        )
+      }
+
+      {
+        ctaLabel && ctaHref && (
+          <p class="split__actions" data-reveal>
+            <a class="btn btn--primary" href={ctaHref}>
+              {ctaLabel}
+            </a>
+          </p>
+        )
+      }
+
+      {note && <p class="split__note" data-reveal>{note}</p>}
+    </div>
+  </div>
+</Section>
+
+<style>
+  .split {
+    display: grid;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  @media (min-width: 60em) {
+    .split {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: var(--space-2xl);
+    }
+
+    /* Order, not direction: reversing with `direction` would flip the text. */
+    .split--flip .split__media {
+      order: 2;
+    }
+  }
+
+  .split__media {
+    position: relative;
+  }
+
+  /* The bloom behind the photo. Without it a portrait on a dark band has a
+     visible rectangle of dead navy around it. */
+  .split__media::before {
+    content: "";
+    position: absolute;
+    inset: -12% -8%;
+    background-image: var(--grad-glow);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .split__frame {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    border-radius: var(--radius-image);
+    border: var(--border-hair) solid var(--color-line);
+    box-shadow: var(--shadow-l);
+    background-image: var(--grad-ink-soft);
+  }
+
+  .split__frame--portrait {
+    aspect-ratio: var(--ratio-portrait);
+  }
+  .split__frame--wide {
+    aspect-ratio: var(--ratio-landscape);
+  }
+  .split__frame--square {
+    aspect-ratio: var(--ratio-square);
+  }
+
+  .split__img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    filter: var(--image-filter);
+  }
+
+  .split__prose {
+    margin-block-start: var(--space-m);
+    max-inline-size: var(--measure);
+  }
+
+  .split__prose p {
+    margin: 0 0 var(--space-s);
+    font-size: var(--step-0);
+    line-height: var(--leading-body);
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .split__prose p:last-child {
+    margin-block-end: 0;
+  }
+
+  .split__points {
+    margin: var(--space-m) 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-2xs);
+    max-inline-size: var(--measure);
+  }
+
+  .split__points li {
+    position: relative;
+    padding-inline-start: 1.5rem;
+    font-size: var(--step-0);
+    line-height: var(--leading-snug);
+    color: var(--color-ink);
+  }
+
+  /* The bindu from the mark, doing duty as a bullet. */
+  .split__points li::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 0.52em;
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    border-radius: 50%;
+    background-image: var(--grad-gold);
+  }
+
+  .split__actions {
+    margin: var(--space-l) 0 0;
+  }
+
+  .split__note {
+    margin: var(--space-s) 0 0;
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-muted);
+    max-inline-size: var(--measure);
+  }
+</style>

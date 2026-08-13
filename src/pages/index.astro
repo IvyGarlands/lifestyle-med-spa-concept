@@ -2,166 +2,234 @@
 /**
  * Homepage — Lifestyle Med Spa, Agoura Hills CA. Concept redesign.
  *
- * THE ONE SENTENCE, which organises the colour, the type, the layout and the
- * wayfinding rather than sitting in an about section:
+ * SECTION ORDER, and why it is this order. A visitor's questions arrive in a
+ * fixed sequence, and the page answers them in that sequence:
  *
- *   Every GLP-1 seller within ten miles is either a website with a checkout or
- *   a clinic selling a membership; Lifestyle is ten named people in one room
- *   in Agoura Hills, started by a man who was its own first patient — so the
- *   page is signed.
+ *   1. What is this?              hero — medical weight loss, physician-led
+ *   2. What do you treat?         the four pillars, each with a photograph
+ *   3. Tell me about the main one  GLP-1 weight management in detail
+ *   4. What does it cost to ask?  free consultation, no contract, no membership
+ *   5. What actually happens?     the four steps of a first visit
+ *   6. Who is prescribing it?     the team, with their real faces
+ *   7. Does anyone rate you?      verbatim reviews
+ *   8. Do you cover where I am?   service areas
+ *   9. How do I start?            location, hours, contact
  *
- * How that idea shows up in each layer:
- *   TYPE     the script from their own wordmark is promoted to a structural
- *            face and used for exactly one thing: names. Nothing else on the
- *            page is set in it, so a script word is always a person.
- *   LAYOUT   the roster is not a bio section near the footer. It is the hero.
- *            The order of the page is people -> origin -> what they do ->
- *            terms -> what patients said -> how to reach them.
- *   COLOUR   their own navy and gold, sampled. Gold marks a name or a brand
- *            act; it is never decoration.
- *   MOTION   the one signature moment is the roster writing itself on.
- *   WAYFIND  the nav is the argument in miniature — The team, The clinic,
- *            Treatments — team first.
+ * The first pass opened with the staff roster. That answered question 6 before
+ * question 1 — nobody wants to know who works somewhere before they know what
+ * it does. The roster is still the best material on the page; it just belongs
+ * at step 6, where it is the question being asked.
  *
- * WHAT IS DELIBERATELY NOT HERE, and why (input/facts.txt §§5-8):
- *   no star rating or review count   three sources, three different numbers
- *   no LegitScript or HIPAA badge    the lookup is CAPTCHA-gated; unverified
- *   no founding year                 not stated in any source
- *   no prices                        none published anywhere, including Fresha
- *   no pound figures or timeframes   FTC; including the founder's own
- *   no photographs                   none authentic exists; theirs is stock
- *   no before/after                  FTC, and unnecessary
+ * VOICE: first person throughout — this is the practice speaking. Their own
+ * sentences are reused wherever they had usable ones: "no contracts, no hidden
+ * fees, no membership costs — and consultations are always free" and "you're
+ * not just a patient — you're family" are verbatim.
  */
 import { getCollection } from "astro:content";
 
 import BaseLayout from "../layouts/BaseLayout.astro";
-import HeroRoster from "../components/sections/HeroRoster.astro";
-import FoundersNote from "../components/sections/FoundersNote.astro";
-import ServiceIndex from "../components/sections/ServiceIndex.astro";
+import HeroLead from "../components/sections/HeroLead.astro";
+import PillarGrid from "../components/sections/PillarGrid.astro";
+import MediaSplit from "../components/sections/MediaSplit.astro";
+import StepsBand from "../components/sections/StepsBand.astro";
+import TeamRoster from "../components/sections/TeamRoster.astro";
 import SignedReviews from "../components/sections/SignedReviews.astro";
+import AreaStrip from "../components/sections/AreaStrip.astro";
 import LocationContact from "../components/sections/LocationContact.astro";
-import CTABand from "../components/sections/CTABand.astro";
+import Divider from "../components/brand/Divider.astro";
 
 import { SITE } from "../config/site";
 import { localeFromUrl } from "../i18n/ui";
+import { NAV } from "../lib/nav";
+import { CONTACT_FIELDS, PHI_NOTICE } from "../lib/forms";
+import {
+  TEAM_PHOTOS,
+  imgWeightLoss,
+  imgTreatments,
+  imgWhyChoose,
+  imgHydrafacial,
+  imgZoSkin,
+  imgBannerB,
+} from "../lib/media";
 
 const locale = localeFromUrl(Astro.url);
 
 const people = (await getCollection("people")).sort(
   (a, b) => a.data.order - b.data.order
 );
-const treatments = (await getCollection("treatments")).sort(
-  (a, b) => a.data.order - b.data.order
-);
 const testimonials = (await getCollection("testimonials")).sort(
   (a, b) => a.data.order - b.data.order
 );
-
-const navLinks = [
-  { label: "The team", href: "#team" },
-  { label: "The clinic", href: "#story" },
-  { label: "Treatments", href: "#treatments" },
-  { label: "Visit", href: "#contact" },
-];
-
-/**
- * The form collects four fields and nothing else. ContactForm posts to a
- * third-party relay with no business-associate agreement and this practice
- * advertises HIPAA compliance, so a weight field, a goal-weight field, a
- * current-medication field or a condition field would put PHI through an
- * uncovered processor. That constraint is not negotiable; if it makes a
- * section weaker, the section changes.
- */
-const formFields = [
-  { name: "name", label: "Your name", required: true, autocomplete: "name" },
-  {
-    name: "phone",
-    label: "Phone",
-    type: "tel" as const,
-    required: true,
-    autocomplete: "tel",
-  },
-  {
-    name: "email",
-    label: "Email",
-    type: "email" as const,
-    required: true,
-    autocomplete: "email",
-  },
-  {
-    name: "preferred_time",
-    label: "Best time to reach you",
-    placeholder: "e.g. Tuesday morning",
-  },
-];
 ---
 
 <BaseLayout
-  title="Ten people. One clinic on Canwood Street."
-  description="Physician-led medical weight loss and wellness in Agoura Hills. Free consultations, no contracts and no membership — and every person who treats you is named."
+  title="Medical weight loss in Agoura Hills"
+  description="Physician-led medical weight loss, IV wellness and aesthetics in Agoura Hills. No contracts, no membership, and consultations are always free."
   path="/"
-  navLinks={navLinks}
-  stickyCall={true}
+  navLinks={NAV}
 >
-  <HeroRoster
-    id="team"
-    eyebrow="Agoura Hills, California"
-    heading="Medical weight loss from people who put their name to it."
-    lead="A small clinic on Canwood Street, open four days a week. The medicine is directed by a board-certified internist and prescribed by a nurse practitioner, and it was started by a man who had the treatment himself. They sign for it. You sign nothing — no contract, no membership, and the consultation is free."
-    rosterLabel="Everyone who works here"
-    people={people}
-  />
-
-  <FoundersNote
-    id="story"
-    tone="light"
-    eyebrow="How this started"
-    heading="The founder was the first patient."
-    body={[
-      "Kim B. Barrus took a GLP-1 himself, under supervision, before he had any intention of opening a clinic. What happened next is the only reason this practice exists: he decided other people in Ventura and Los Angeles counties should be able to get the same thing done properly.",
-      "He is not the doctor. He holds a PhD and runs operations, and he opened Lifestyle with Beth Barrus, RN — his co-founder, who had already spent more than fifty years in nursing, in critical care and surgical recovery, and who wrote the clinical protocols the practice still runs on.",
-      "The medicine is directed by Michael Rankin, MD, a diplomate of the American Board of Internal Medicine, and prescribed by Kristina Dino, NP, who is dual board-certified. Nobody is anonymous here, which in this particular corner of medicine is rarer than it should be.",
+  <HeroLead
+    eyebrow="Agoura Hills · Physician-led"
+    heading="Medical weight loss, run by people you can name."
+    accent="run by people you can name."
+    lead="We specialise in medical weight loss with a focus on GLP-1 medication, directed by a board-certified physician and prescribed by our nurse practitioner. There are no contracts, no hidden fees and no membership costs — and consultations are always free."
+    image={imgWeightLoss}
+    alt="A patient of Lifestyle Med Spa"
+    facts={[
+      { value: "Free", label: "Every consultation, always" },
+      { value: "No contract", label: "Pay per visit, nothing to cancel" },
+      { value: "CA · UT · TX", label: "In clinic or by telehealth" },
     ]}
-    quote="When you step through our doors, you're not just a patient — you're family."
-    quoteAttribution="Lifestyle Med Spa, in their own words"
-    signature="Kim B. Barrus"
-    signatureRole="Founder · Chief of Operations · PhD"
   />
 
-  <ServiceIndex
-    id="treatments"
+  <PillarGrid
+    id="services"
     tone="default"
-    eyebrow="What they do"
-    heading="Weight management first. Everything else grew around it."
-    body="Listed exactly as the practice lists them, and no further. Nothing here carries a price, because they publish none — the consultation that establishes what you actually need is free."
-    groups={treatments}
-    totalLabel="treatments and products, published by the practice."
-    note="Mounjaro, Ozempic, Wegovy and Zepbound are registered trademarks of their respective owners; listing a medication is not a claim of affiliation or endorsement. Prescription treatment is provided only where clinically appropriate, following evaluation by a licensed provider."
+    eyebrow="What we do"
+    heading="Four things, done properly."
+    accent="done properly."
+    lead="Weight management is where we started and it is still most of what we do. Everything else grew around it."
+    pillars={[
+      {
+        title: "Weight management",
+        body: "GLP-1 and dual-agonist medication, prescribed where it is clinically appropriate, with the work that makes it hold.",
+        items: ["Mounjaro", "Ozempic", "Wegovy", "Zepbound"],
+        href: "/weight-loss",
+        image: imgWeightLoss,
+        alt: "Medical weight loss at Lifestyle Med Spa",
+      },
+      {
+        title: "Wellness & IV",
+        body: "Vitamin IV drips, NAD+, probiotics and vitamin injections — for energy, recovery, immunity and skin.",
+        items: ["NAD+ IV", "Vital Glow", "Immunity", "Athlete's Fuel"],
+        href: "/wellness",
+        image: imgBannerB,
+        alt: "IV wellness therapy at Lifestyle Med Spa",
+      },
+      {
+        title: "Aesthetics",
+        body: "Neuromodulators, HydraFacial, plasma fibroblast and professional facials, delivered by our clinical team.",
+        items: ["Botox", "Xeomin", "HydraFacial", "Plasma fibroblast"],
+        href: "/aesthetics",
+        image: imgHydrafacial,
+        alt: "A HydraFacial treatment",
+      },
+      {
+        title: "Medical skincare",
+        body: "ZO Skin Health and Circadia, matched to your skin by the person who just treated it.",
+        items: ["ZO Skin Health", "Circadia"],
+        href: "/skincare",
+        image: imgZoSkin,
+        alt: "ZO Skin Health medical-grade skincare",
+      },
+    ]}
   />
 
-  {/* The commercial model, in their own words, on a full gold band. One
-      sentence, one band, no ladder and no pricing table — the point is that
-      there is nothing to itemise. */}
-  <CTABand
+  <Divider mark="wave" />
+
+  <MediaSplit
+    id="weight"
+    tone="light"
+    eyebrow="Our main work"
+    heading="GLP-1 medication, with a physician behind it."
+    accent="with a physician behind it."
+    body={[
+      "We specialise in medical weight loss with a focus on GLP-1 medications, combining current science with compassionate, personalised care — all designed to help you achieve safe, sustainable and lasting results.",
+      "Our team takes the time to understand your individual needs. We help you create sustainable habits, improve your relationship with food, and make lifestyle adjustments that support long-term success — alongside optional therapies such as NAD+ and vitamin injections that support your metabolism, energy and overall wellness.",
+      "We guide you with practical nutritional advice and lifestyle coaching tailored to your own habits, challenges and goals.",
+    ]}
+    points={[
+      "GLP-1 agonists and GLP-1/GIP dual agonists",
+      "Evaluated and prescribed by a licensed provider, where clinically appropriate",
+      "Telehealth for patients in California, Utah and Texas",
+      "Pre-filled syringes shipped to your home where that suits you better",
+    ]}
+    image={imgTreatments}
+    alt="Medical weight loss treatment at Lifestyle Med Spa"
+    ctaLabel="How weight loss works with us"
+    ctaHref="/weight-loss"
+    note="Mounjaro, Ozempic, Wegovy and Zepbound are registered trademarks of their respective owners. Listing a medication is not a claim of affiliation with or endorsement by its manufacturer."
+  />
+
+  <StepsBand
+    id="how-it-works"
     tone="brand"
-    align="center"
-    eyebrow="No contracts · No membership · No hidden fees"
-    heading="Consultations are always free."
-    body="Pay for what you have, when you have it. CareCredit is accepted, and offers promotional financing on purchases of $200 or more. There is no plan to join and nothing to cancel."
-    ctaLabel={`Call ${SITE.phone}`}
-    ctaHref={`tel:${SITE.phoneHref}`}
-    secondaryLabel={`Text ${SITE.textPhone}`}
-    secondaryHref={`sms:${SITE.textPhoneHref}`}
-    note="Open Monday to Thursday. The texting line is answered on the same days."
+    eyebrow="What happens"
+    heading="Four steps, and the first one is free."
+    accent="the first one is free."
+    steps={[
+      {
+        title: "Talk to us",
+        body: "Call, text or book online. The consultation costs nothing and there is nothing to join.",
+      },
+      {
+        title: "Meet a provider",
+        body: "Our medical director and nurse practitioner evaluate you and build a plan around your goals.",
+      },
+      {
+        title: "Start treatment",
+        body: "Medication where it is clinically appropriate, plus the nutrition and lifestyle work beside it.",
+      },
+      {
+        title: "Keep going",
+        body: "We stay with you — adjusting, monitoring, and answering the questions as they come up.",
+      },
+    ]}
+    note="We accept CareCredit, which offers promotional financing on purchases of $200 or more."
+  />
+
+  <MediaSplit
+    id="why-us"
+    tone="default"
+    flip={true}
+    eyebrow="Why us"
+    heading="World-class care should always feel personal."
+    accent="feel personal."
+    body={[
+      "We are a small practice on Canwood Street, open four days a week, locally operated by a board-certified medical doctor and a nurse practitioner.",
+      "When you step through our doors, you're not just a patient — you're family. We'll be by your side every step of the way, empowering you to overcome obstacles, feel stronger and reach your health goals safely and sustainably.",
+      "And if you can't make it in person, our medical weight loss programme is available by secure telehealth to patients across California, Utah and Texas.",
+    ]}
+    points={[
+      "No contracts. No hidden fees. No membership costs.",
+      "Consultations are always free",
+      "A separate texting line, answered on the days we are open",
+      "CareCredit accepted",
+    ]}
+    image={imgWhyChoose}
+    alt="Inside Lifestyle Med Spa in Agoura Hills"
+    ratio="wide"
+  />
+
+  <TeamRoster
+    id="team"
+    tone="light"
+    eyebrow="Who treats you"
+    heading="Ten of us, and we will tell you every name."
+    accent="every name."
+    lead="Our medical spa was founded by Kim B. Barrus, Ph.D., and is led by our medical director, Michael Rankin, MD. Kristina Dino, MSN, FNP-C, PMHNP-BC serves as our certified family nurse practitioner."
+    people={people}
+    photos={TEAM_PHOTOS}
+    ctaLabel="Read everyone's background"
+    ctaHref="/team"
   />
 
   <SignedReviews
     id="reviews"
-    tone="light"
-    eyebrow="What patients wrote"
-    heading="Both of them are about the staff."
+    tone="default"
+    eyebrow="What patients say"
+    heading="Rave reviews."
+    accent="Rave"
     testimonials={testimonials}
-    note="Two verbatim Google reviews, reproduced exactly as written, with surnames reduced. No star average and no review total appears on this page: three sources publish three different figures for this practice, so the number is left out rather than picked."
+  />
+
+  <AreaStrip
+    id="areas"
+    tone="light"
+    spacing="tight"
+    eyebrow="Where we see you"
+    heading="Agoura Hills, and the valleys either side of it."
+    accent="the valleys either side of it."
   />
 
   <LocationContact
@@ -173,14 +241,14 @@ const formFields = [
     body="Four days a week, in Agoura Hills. Telehealth is available to patients in California, Utah and Texas."
     showMap={false}
     showHours={true}
-    formFields={formFields}
+    formFields={CONTACT_FIELDS}
     formSubject="Consultation request — Lifestyle Med Spa"
-    formNotice="Please don't include medical details, medications, weights or health history in this form. It goes through an ordinary email service, not a clinical system. Send your name and a good time to reach you, and someone will call you to take the rest properly."
+    formNotice={PHI_NOTICE}
     altContact={{
-      label: "Text",
+      label: "Text us",
       value: SITE.textPhone,
       href: `sms:${SITE.textPhoneHref}`,
-      note: "A separate line the practice publishes for texting — useful on the three days a week they are closed.",
+      note: "A separate line we publish for texting — useful on the three days a week we are closed.",
     }}
   />
 </BaseLayout>

@@ -116,31 +116,36 @@
 /* ==========================================================================
    §2  PRIMITIVES — TYPEFACE STACKS
    --------------------------------------------------------------------------
-   THREE families, which exceeds the two-family default in CLAUDE.md §6. The
-   reason, per that rule's own escape clause:
+   REVISED. The first pass set every heading in Bodoni Moda — a true Didone,
+   correct on genre grounds (their site runs Playfair Display) and wrong in
+   practice. At the sizes a scannable page actually uses, a Didone's hairlines
+   thin out to nothing and the headline stops being readable at a glance,
+   which is the one job a heading has on a page someone is skimming to find
+   out what the business does.
 
-   The SCRIPT IS THE IDENTITY. This business's wordmark is a signature, and
-   the organising idea of the page is that the practice signs its own work.
-   The script is not a decorative third family — it carries the hero and the
-   roster, and nothing else on the page uses it. It is a 34 KB single weight,
-   latin subset, and it is the only face that is preloaded.
+   So: BOLD SANS carries every heading now, and the personality that Bodoni
+   was providing is carried instead by the gold gradient (§3b), the lotus, the
+   ornament and the script. That is the right division of labour — colour and
+   ornament can be lavish because they are not load-bearing for comprehension.
 
-   GENRE FIDELITY (input/brand.md §3) — each face replaces one of theirs in
-   the SAME genre, executed better. No category was switched:
-     Playfair Display  -> Bodoni Moda (opsz axis live: real optical sizing)
-     Montserrat/Gotham -> Plus Jakarta Sans (geometric-humanist, holds at 17px)
-     brush script      -> Pinyon Script (formal copperplate, properly drawn)
+   TWO families, plus the script:
+     display  Plus Jakarta Sans 700/800 — geometric-humanist, wide apertures,
+              holds up at 15px and at 56px. Honours their Montserrat/Gotham
+              genre and fixes its weak text sizes.
+     body     the same family at 400/500. One family in two roles is
+              deliberate: it halves the font payload and keeps the page fast.
+     script   Pinyon Script, the wordmark and signed names ONLY. It is the
+              single most recognisable thing they own and it is never used for
+              anything a reader has to parse quickly.
    ========================================================================== */
 :root {
-  --face-display: "Bodoni Moda Variable", "Bodoni Moda", Didot, "Playfair Display",
-    "Times New Roman", serif;
+  --face-display: "Plus Jakarta Sans Variable", "Plus Jakarta Sans",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --face-body: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", -apple-system,
     BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --face-script: "Pinyon Script", "Snell Roundhand", "Apple Chancery", cursive;
 
-  /* Declared because the token contract names it. DELIBERATELY UNUSED — the
-     differentiation log's standing warning is that the studio keeps reaching
-     for a mono and a hairline. This build does neither. */
+  /* Declared because the token contract names it. DELIBERATELY UNUSED. */
   --face-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
@@ -180,54 +185,146 @@
 }
 
 /* ==========================================================================
-   §4  SEMANTIC — TYPOGRAPHY
+   §3b  SEMANTIC — GRADIENTS
    --------------------------------------------------------------------------
-   The scale is SHIFTED AND THEN BROKEN.
+   THE GOLD GRADIENT IS THEIRS. Their logo's petals run a light-to-dark gold
+   sweep — I called it clip-art in the first pass and flattened it, which threw
+   out something real. The bevel was the problem, not the gradient: a bevel is
+   a fake light source baked into artwork, whereas a gradient across a large
+   field or a headline is just colour with direction.
 
-   Reading sizes are anchored high and step gently — body sits at 17px on a
-   phone and 19px on a desktop, and steps 0 to 2 move at about 1.20. This page
-   is read by people in their forties and up who are deciding about a
-   prescription, and 16px Montserrat Light (what their current site serves) is
-   the single most common reason they will not read it.
+   So the gradient comes back, executed properly and sampled from their own
+   pixels: #fcf0b8 highlight -> #fcd070 core -> #c9a350 shadow.
 
-   Then it breaks hard: steps 5 to 7 run at 1.36 to 1.44, because the roster
-   names have to be enormous and the gap between "a heading" and "a signature"
-   is the whole composition. Bodoni's optical-size axis is live, so the
-   contrast between thick and thin genuinely increases as the type grows —
-   which is what their Playfair headings are reaching for and never get.
+   Four jobs, four tokens. Anything else is decoration for its own sake:
+     --grad-gold        headline text and the lotus. Their logo's own sweep.
+     --grad-ink         section grounds. A navy that is not flat, so a
+                        full-bleed band has some depth in it.
+     --grad-glow        a soft radial bloom placed behind a focal element to
+                        stop large dark areas reading as empty.
+     --grad-rule        the divider: a hairline that fades in and out rather
+                        than butting into the gutter.
    ========================================================================== */
 :root {
-  --step--1: clamp(0.875rem, 0.855rem + 0.09vw, 0.9375rem);   /* 14 -> 15 */
-  --step-0:  clamp(1.0625rem, 1.024rem + 0.17vw, 1.1875rem);  /* 17 -> 19 */
-  --step-1:  clamp(1.25rem, 1.179rem + 0.31vw, 1.5rem);       /* 20 -> 24 */
-  --step-2:  clamp(1.5rem, 1.375rem + 0.55vw, 1.9375rem);     /* 24 -> 31 */
-  --step-3:  clamp(1.8125rem, 1.598rem + 0.95vw, 2.5rem);     /* 29 -> 40 */
-  --step-4:  clamp(2.125rem, 1.804rem + 1.43vw, 3.25rem);     /* 34 -> 52 */
-  --step-5:  clamp(2.5625rem, 2.079rem + 2.14vw, 4.25rem);    /* 41 -> 68 */
-  --step-6:  clamp(3.0625rem, 2.455rem + 2.70vw, 5.75rem);    /* 49 -> 92 */
-  --step-7:  clamp(3.625rem, 2.804rem + 3.65vw, 8.25rem);     /* 58 -> 132 */
+  --grad-gold: linear-gradient(
+    100deg,
+    var(--b-100) 0%,
+    var(--b-500) 34%,
+    var(--b-400) 58%,
+    var(--b-600) 100%
+  );
+  --grad-gold-soft: linear-gradient(
+    120deg,
+    var(--b-300) 0%,
+    var(--b-500) 55%,
+    var(--b-600) 100%
+  );
 
+  /* The page ground. Lighter at the top-left, settling to the sunken navy —
+     the same move a photographer makes to keep a dark set from going dead. */
+  --grad-ink: linear-gradient(168deg, var(--n-700) 0%, var(--n-800) 42%, var(--n-900) 100%);
+  --grad-ink-soft: linear-gradient(180deg, var(--n-800) 0%, var(--n-900) 100%);
+
+  /* Champagne paper, warmed toward the top so a light band is not a flat slab. */
+  --grad-paper: linear-gradient(170deg, var(--n-000) 0%, var(--n-050) 55%, var(--n-100) 100%);
+
+  /* The gold band. */
+  --grad-brand-band: linear-gradient(115deg, var(--b-300) 0%, var(--b-500) 45%, var(--b-600) 100%);
+
+  --grad-glow: radial-gradient(
+    60% 60% at 50% 40%,
+    rgb(238 204 122 / 0.16) 0%,
+    rgb(238 204 122 / 0.05) 45%,
+    rgb(238 204 122 / 0) 78%
+  );
+  --grad-glow-strong: radial-gradient(
+    55% 55% at 50% 45%,
+    rgb(238 204 122 / 0.3) 0%,
+    rgb(238 204 122 / 0.08) 50%,
+    rgb(238 204 122 / 0) 80%
+  );
+
+  --grad-rule: linear-gradient(
+    90deg,
+    rgb(238 204 122 / 0) 0%,
+    rgb(238 204 122 / 0.55) 22%,
+    rgb(238 204 122 / 0.55) 78%,
+    rgb(238 204 122 / 0) 100%
+  );
+
+  /* Scrim for type over photography. Directional, so a portrait keeps its
+     face and the caption still clears AA. */
+  /* The mark's three gradient stops, as SEMANTIC tokens so the lotus can be
+     drawn once and still re-point itself on a champagne band, where the bright
+     gold would disappear. SVG <stop stop-color> resolves var() natively, so
+     this needs no second file and no JS. */
+  --color-mark-1: var(--b-100);
+  --color-mark-2: var(--b-400);
+  --color-mark-3: var(--b-600);
+
+  --grad-photo-scrim: linear-gradient(
+    to top,
+    rgb(16 30 48 / 0.92) 0%,
+    rgb(16 30 48 / 0.55) 38%,
+    rgb(16 30 48 / 0.08) 72%,
+    rgb(16 30 48 / 0) 100%
+  );
+}
+
+/* ==========================================================================
+   §4  SEMANTIC — TYPOGRAPHY
+   --------------------------------------------------------------------------
+   REVISED, AND SUBSTANTIALLY SMALLER.
+
+   The first pass ran the hero at 92px and h2s at 52px, on a rhythm generous
+   enough that a visitor scrolled three screens before learning what the
+   business sells. That is the failure mode of "expensive-looking" defaults:
+   the page reads as a poster rather than as a service someone is trying to
+   assess. Every step below is cut, the top of the scale hardest:
+
+     step-6   92px -> 56px      step-4   52px -> 38px
+     step-5   68px -> 46px      step-3   40px -> 30px
+
+   Body still anchors high — 16px on a phone, 17px on a desktop — because the
+   people reading this are deciding about a prescription and small body copy
+   is the actual accessibility problem. The change is at the display end only:
+   headings come DOWN toward the body, which is what makes a page scannable.
+
+   Ratio: ~1.16 through reading sizes, ~1.22 at display. A tight, even scale.
+   ========================================================================== */
+:root {
+  --step--1: clamp(0.8125rem, 0.80rem + 0.06vw, 0.875rem);   /* 13 -> 14 */
+  --step-0:  clamp(1rem, 0.985rem + 0.07vw, 1.0625rem);      /* 16 -> 17 */
+  --step-1:  clamp(1.125rem, 1.09rem + 0.16vw, 1.25rem);     /* 18 -> 20 */
+  --step-2:  clamp(1.3125rem, 1.24rem + 0.33vw, 1.5rem);     /* 21 -> 24 */
+  --step-3:  clamp(1.5625rem, 1.42rem + 0.63vw, 1.875rem);   /* 25 -> 30 */
+  --step-4:  clamp(1.875rem, 1.66rem + 0.95vw, 2.375rem);    /* 30 -> 38 */
+  --step-5:  clamp(2.25rem, 1.96rem + 1.27vw, 2.875rem);     /* 36 -> 46 */
+  --step-6:  clamp(2.625rem, 2.19rem + 1.90vw, 3.5rem);      /* 42 -> 56 */
+  --step-7:  clamp(3.125rem, 2.55rem + 2.54vw, 4.25rem);     /* 50 -> 68 */
+
+  /* A bold sans needs real weight to read as display. 800 is the heading
+     voice; 700 is for smaller headings where 800 would clog. */
   --weight-body: 400;
   --weight-medium: 500;
   --weight-strong: 600;
-  --weight-display: 500;   /* Bodoni at 500 already has plenty of authority;
-                              700 closes its counters at display sizes */
+  --weight-display: 800;
 
-  --leading-display: 1.0;
-  --leading-heading: 1.12;
+  --leading-display: 1.04;
+  --leading-heading: 1.14;
   --leading-snug: 1.4;
-  --leading-body: 1.65;
-  --leading-loose: 1.8;
+  --leading-body: 1.6;
+  --leading-loose: 1.72;
 
-  /* Bodoni's hairline serifs need AIR, not the negative tracking a grotesque
-     wants. Positive display tracking is the correct call for a Didone and it
-     is the opposite of what the engine's default recipe does. */
-  --tracking-display: 0.005em;
-  --tracking-heading: 0.01em;
+  /* NEGATIVE display tracking now — the opposite of what the Didone wanted.
+     A geometric sans set large opens up badly at default tracking; pulling it
+     in is most of what separates a designed headline from a default one. */
+  --tracking-display: -0.028em;
+  --tracking-heading: -0.018em;
   --tracking-body: 0em;
-  --tracking-label: 0.18em;   /* eyebrows — wide, small, gold */
-  --tracking-wide: 0.26em;
-  --tracking-script: 0.02em;  /* the script needs a hair of separation at size */
+  --tracking-label: 0.14em;
+  --tracking-wide: 0.2em;
+  --tracking-script: 0.02em;
 }
 
 /* ==========================================================================
@@ -243,15 +340,19 @@
   --space-xs:  clamp(0.75rem, 0.72rem + 0.15vw, 0.9375rem);
   --space-s:   clamp(1rem, 0.96rem + 0.20vw, 1.25rem);
   --space-m:   clamp(1.5rem, 1.44rem + 0.30vw, 1.875rem);
-  --space-l:   clamp(2rem, 1.90rem + 0.48vw, 2.75rem);
-  --space-xl:  clamp(3rem, 2.79rem + 0.95vw, 4.25rem);
-  --space-2xl: clamp(4.5rem, 4.07rem + 1.90vw, 6.5rem);
-  --space-3xl: clamp(6.5rem, 5.86rem + 2.86vw, 9.5rem);
-  --space-4xl: clamp(9rem, 8.14rem + 3.81vw, 13rem);
+  --space-l:   clamp(1.75rem, 1.68rem + 0.36vw, 2.25rem);
+  --space-xl:  clamp(2.25rem, 2.11rem + 0.60vw, 3rem);
+  --space-2xl: clamp(3rem, 2.71rem + 1.43vw, 4rem);
+  --space-3xl: clamp(4.5rem, 4.07rem + 1.90vw, 6rem);
+  --space-4xl: clamp(6rem, 5.43rem + 2.38vw, 8rem);
 
-  --section-y: clamp(5rem, 3.57rem + 7.14vw, 10rem);
-  --section-y-tight: clamp(3rem, 2.29rem + 3.57vw, 5.5rem);
-  --section-y-loose: clamp(7rem, 4.86rem + 10.71vw, 14rem);
+  /* CUT HARD from the first pass (5-10rem). --section-y is the single biggest
+     lever on how much a visitor has to scroll to understand the business, and
+     10rem of air between bands turned a six-section page into a nine-screen
+     one. 3.5-5.5rem still reads generous at these type sizes. */
+  --section-y: clamp(3.5rem, 2.79rem + 3.57vw, 5.5rem);
+  --section-y-tight: clamp(2.25rem, 1.89rem + 1.79vw, 3.25rem);
+  --section-y-loose: clamp(4.5rem, 3.43rem + 5.36vw, 7.5rem);
 
   --stack-gap: var(--space-m);
 }
@@ -271,11 +372,11 @@
 
   /* 58ch, not 65ch. Body sits at 19px here rather than 16px, so 65ch is a
      physically longer line than the rule was written for. */
-  --measure: 58ch;
+  --measure: 62ch;
   --measure-narrow: 44ch;
 
-  --header-h: 5rem;
-  --header-h-scrolled: 4rem;
+  --header-h: 4.5rem;
+  --header-h-scrolled: 3.75rem;
 }
 
 /* ==========================================================================
@@ -507,6 +608,38 @@
   --color-focus: var(--b-800);
 
   --wave-color: var(--color-brand);
+  --color-mark-1: var(--b-600);
+  --color-mark-2: var(--b-700);
+  --color-mark-3: var(--b-800);
+
+  /* The gradient follows the context, exactly as --color-brand does.
+     --grad-gold is authored for a navy ground; on champagne paper it lands at
+     roughly 1.5:1 and the accent run in a heading disappears. Re-pointed to
+     the antique end of the same ramp. */
+  --grad-gold: linear-gradient(
+    100deg,
+    var(--b-700) 0%,
+    var(--b-800) 45%,
+    var(--b-900) 100%
+  );
+  --grad-gold-soft: linear-gradient(
+    120deg,
+    var(--b-700) 0%,
+    var(--b-800) 60%,
+    var(--b-900) 100%
+  );
+  --grad-rule: linear-gradient(
+    90deg,
+    rgb(26 42 64 / 0) 0%,
+    rgb(26 42 64 / 0.28) 22%,
+    rgb(26 42 64 / 0.28) 78%,
+    rgb(26 42 64 / 0) 100%
+  );
+  --grad-glow: radial-gradient(
+    60% 60% at 50% 40%,
+    rgb(196 143 127 / 0.16) 0%,
+    rgb(196 143 127 / 0) 75%
+  );
   --tick-color: rgb(26 42 64 / 0.22);
   --tick-color-major: rgb(26 42 64 / 0.45);
   color: var(--color-ink);
@@ -554,6 +687,35 @@
   --color-line-strong: var(--n-600);
   --color-focus: var(--n-900);
   --wave-color: var(--n-900);
+  --color-mark-1: var(--n-700);
+  --color-mark-2: var(--n-800);
+  --color-mark-3: var(--n-900);
+
+  /* THE BUG THIS FIXES: a heading's accent run inside the gold band was
+     painting --grad-gold onto a gold canvas, so the accented words rendered
+     gold-on-gold and effectively vanished. --color-brand was already
+     re-pointed to navy for this context; the gradient was not, because it was
+     added later and the context blocks were not revisited. Both must move
+     together — any future gradient token needs an entry in all three
+     contexts or it will do exactly this again. */
+  --grad-gold: linear-gradient(
+    100deg,
+    var(--n-700) 0%,
+    var(--n-800) 40%,
+    var(--n-900) 100%
+  );
+  --grad-gold-soft: linear-gradient(
+    120deg,
+    var(--n-700) 0%,
+    var(--n-900) 100%
+  );
+  --grad-rule: linear-gradient(
+    90deg,
+    rgb(16 30 48 / 0) 0%,
+    rgb(16 30 48 / 0.35) 22%,
+    rgb(16 30 48 / 0.35) 78%,
+    rgb(16 30 48 / 0) 100%
+  );
   --tick-color: rgb(16 30 48 / 0.28);
   --tick-color-major: rgb(16 30 48 / 0.5);
   color: var(--color-ink);

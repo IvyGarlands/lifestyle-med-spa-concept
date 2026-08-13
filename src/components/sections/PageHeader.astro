@@ -1,0 +1,251 @@
+---
+/**
+ * PageHeader — the compact banner every inner page opens with.
+ *
+ * Deliberately shorter than the homepage hero: an inner page has already been
+ * chosen, so its job is to confirm where you are and get out of the way. One
+ * screen of banner on a service page is a screen the visitor did not ask for.
+ *
+ * Carries a photograph behind a gradient scrim rather than sitting on flat
+ * navy, so no page opens with an empty coloured slab.
+ */
+import { Picture } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import { SITE } from "../../config/site";
+
+interface Props {
+  eyebrow?: string;
+  heading: string;
+  /** The run inside `heading` that takes the gold gradient. */
+  accent?: string;
+  lead?: string;
+  image: ImageMetadata;
+  alt: string;
+  /** Breadcrumb-ish trail, rendered as plain links. */
+  crumbs?: { label: string; href: string }[];
+  showActions?: boolean;
+}
+
+const {
+  eyebrow,
+  heading,
+  accent,
+  lead,
+  image,
+  alt,
+  crumbs,
+  showActions = true,
+} = Astro.props;
+
+const idx = accent ? heading.indexOf(accent) : -1;
+const before = idx >= 0 ? heading.slice(0, idx) : heading;
+const mid = idx >= 0 ? accent : "";
+const after = idx >= 0 ? heading.slice(idx + (accent?.length ?? 0)) : "";
+---
+
+<section class="ph">
+  <div class="ph__bg" aria-hidden="true">
+    <Picture
+      src={image}
+      alt=""
+      widths={[760, 1200, 1600]}
+      sizes="100vw"
+      formats={["avif", "webp"]}
+          layout="none"
+      loading="eager"
+      fetchpriority="high"
+      class="ph__img"
+    />
+  </div>
+
+  <div class="ph__inner container container--xl">
+    {
+      crumbs && crumbs.length > 0 && (
+        <nav class="ph__crumbs" aria-label="Breadcrumb">
+          {crumbs.map((c, i) => (
+            <>
+              {i > 0 && <span class="ph__sep">/</span>}
+              <a href={c.href}>{c.label}</a>
+            </>
+          ))}
+        </nav>
+      )
+    }
+
+    {eyebrow && <p class="ph__eyebrow">{eyebrow}</p>}
+
+    <h1 class="ph__heading">
+      {before}{mid && <span class="ph__accent">{mid}</span>}{after}
+    </h1>
+
+    {lead && <p class="ph__lead">{lead}</p>}
+
+    {
+      showActions && (
+        <p class="ph__actions">
+          <a class="btn btn--primary" href="/contact">
+            Book a free consultation
+          </a>
+          <a class="btn btn--ghost" href={`tel:${SITE.phoneHref}`}>
+            Call {SITE.phone}
+          </a>
+        </p>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .ph {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: var(--space-xl) var(--space-l);
+    background-image: var(--grad-ink);
+  }
+
+  .ph__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+  }
+
+  .ph__img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    opacity: 0.42;
+    filter: saturate(0.7) contrast(1.02);
+  }
+
+  /* Two scrims: one to guarantee type contrast from the left, one to seat the
+     band into the section below it. Without the first, the headline's contrast
+     depends on whatever happens to be in the photograph. */
+  .ph::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(
+        to right,
+        rgb(16 30 48 / 0.94) 0%,
+        rgb(16 30 48 / 0.82) 45%,
+        rgb(16 30 48 / 0.55) 100%
+      ),
+      linear-gradient(to top, rgb(16 30 48 / 0.9) 0%, rgb(16 30 48 / 0) 60%);
+  }
+
+  .ph__inner {
+    position: relative;
+    max-inline-size: var(--container-m);
+    margin-inline: 0;
+    padding-inline: var(--gutter);
+  }
+
+  @media (min-width: 90em) {
+    .ph__inner {
+      margin-inline: auto;
+      max-inline-size: var(--container-xl);
+    }
+  }
+
+  .ph__crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4em;
+    margin-block-end: var(--space-s);
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+
+  .ph__crumbs a {
+    color: inherit;
+    text-decoration: none;
+    min-block-size: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .ph__crumbs a:hover {
+    color: var(--color-brand);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .ph__sep {
+    opacity: 0.5;
+  }
+
+  .ph__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.55em;
+    margin: 0 0 var(--space-2xs);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-brand);
+  }
+
+  .ph__eyebrow::before {
+    content: "";
+    inline-size: 1.5rem;
+    block-size: 2px;
+    border-radius: 2px;
+    background-image: var(--grad-gold);
+    flex-shrink: 0;
+  }
+
+  .ph__heading {
+    margin: 0;
+    max-inline-size: 20ch;
+    font-family: var(--face-display);
+    font-size: var(--step-5);
+    font-weight: var(--weight-display);
+    line-height: var(--leading-display);
+    letter-spacing: var(--tracking-display);
+    color: var(--color-ink-strong);
+    text-wrap: balance;
+  }
+
+  .ph__accent {
+    color: var(--color-brand);
+    background-image: var(--grad-gold);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  @supports not ((background-clip: text) or (-webkit-background-clip: text)) {
+    .ph__accent {
+      -webkit-text-fill-color: currentColor;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .ph__accent {
+      -webkit-text-fill-color: currentColor;
+      background-image: none;
+    }
+  }
+
+  .ph__lead {
+    margin: var(--space-s) 0 0;
+    max-inline-size: 52ch;
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .ph__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin: var(--space-l) 0 0;
+  }
+</style>

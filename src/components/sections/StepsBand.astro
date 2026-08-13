@@ -1,0 +1,141 @@
+---
+/**
+ * StepsBand — what actually happens, in order.
+ *
+ * Answers the question a nervous first-time GLP-1 patient has and that almost
+ * no clinic in this category answers: what does the first visit involve, and
+ * at what point does anyone ask me for money.
+ *
+ * Numbered, on a gold gradient band so it reads as the page's turning point.
+ * Every step is written in first person and drawn only from what their own site
+ * states — free consultation, provider evaluation, prescription only where
+ * clinically appropriate, pay per service, no membership.
+ */
+import Section from "./Section.astro";
+import SectionIntro from "./SectionIntro.astro";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  accent?: string;
+  lead?: string;
+  steps: { title: string; body: string }[];
+  note?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  accent,
+  lead,
+  steps,
+  note,
+  id = "how-it-works",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+---
+
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width="xl"
+  labelledBy={`${id}-heading`}
+  {...rest}
+>
+  <SectionIntro
+    eyebrow={eyebrow}
+    heading={heading}
+    accent={accent}
+    lead={lead}
+    align="center"
+    headingId={`${id}-heading`}
+  />
+
+  <ol class="steps" data-reveal-stagger>
+    {
+      steps.map((s, i) => (
+        <li class="step" data-reveal>
+          <span class="step__num">{String(i + 1).padStart(2, "0")}</span>
+          <span class="step__title">{s.title}</span>
+          <span class="step__body">{s.body}</span>
+        </li>
+      ))
+    }
+  </ol>
+
+  {note && <p class="steps__note">{note}</p>}
+</Section>
+
+<style>
+  .steps {
+    display: grid;
+    gap: var(--space-m);
+    margin: var(--space-xl) 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: none;
+  }
+
+  @media (min-width: 40em) {
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64em) {
+    .steps {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .step {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    padding: var(--space-m);
+    border-radius: var(--radius-card);
+    background-color: var(--color-surface);
+    border: var(--border-hair) solid var(--color-line);
+  }
+
+  .step__num {
+    font-family: var(--face-display);
+    font-size: var(--step-1);
+    font-weight: var(--weight-display);
+    line-height: 1;
+    letter-spacing: var(--tracking-heading);
+    color: var(--color-brand);
+    opacity: 0.85;
+  }
+
+  .step__title {
+    margin-block-start: var(--space-2xs);
+    font-family: var(--face-display);
+    font-size: var(--step-2);
+    font-weight: var(--weight-display);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-heading);
+    color: var(--color-ink-strong);
+  }
+
+  .step__body {
+    font-size: var(--step-0);
+    line-height: var(--leading-snug);
+    color: var(--color-ink);
+  }
+
+  .steps__note {
+    margin: var(--space-l) auto 0;
+    max-inline-size: var(--measure);
+    text-align: center;
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-muted);
+    text-wrap: pretty;
+  }
+</style>

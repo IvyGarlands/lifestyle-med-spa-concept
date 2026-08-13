@@ -1,0 +1,176 @@
+---
+/**
+ * AreaStrip — the communities we serve, as photographs.
+ *
+ * Replaces roughly 190 near-identical "treatment in city" pages with one honest
+ * band. Their own site already owns a photograph of every one of these places
+ * — it uses them on those doorway pages — so the material is theirs and it is
+ * good. Putting it in one strip means the service area is answered in a glance
+ * instead of in a sitemap.
+ *
+ * Also does real work against blank space: a list of eleven town names is a
+ * column of text; eleven photographs is a texture.
+ */
+import { Picture } from "astro:assets";
+import Section from "./Section.astro";
+import SectionIntro from "./SectionIntro.astro";
+import type { SectionProps } from "./Section.astro";
+import { AREAS } from "../../lib/nav";
+import { CITY_PHOTOS } from "../../lib/media";
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  accent?: string;
+  lead?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  accent,
+  lead,
+  id = "areas",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+---
+
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width="xl"
+  labelledBy={`${id}-heading`}
+  {...rest}
+>
+  <SectionIntro
+    eyebrow={eyebrow}
+    heading={heading}
+    accent={accent}
+    lead={lead}
+    align="center"
+    headingId={`${id}-heading`}
+  />
+
+  <ul class="areas" data-reveal-stagger>
+    {
+      AREAS.map((a) => {
+        const photo = CITY_PHOTOS[a.slug];
+        return (
+          <li class:list={["area", a.note && "area--home"]} data-reveal="fade">
+            {photo && (
+              <Picture
+                src={photo}
+                alt={`${a.name}, California`}
+                widths={[260, 420, 640]}
+                sizes="(min-width: 64em) 15vw, (min-width: 40em) 30vw, 46vw"
+                formats={["avif", "webp"]}
+          layout="none"
+                loading="lazy"
+                class="area__img"
+              />
+            )}
+            <span class="area__label">
+              <span class="area__name">{a.name}</span>
+              {a.note && <span class="area__note">{a.note}</span>}
+            </span>
+          </li>
+        );
+      })
+    }
+  </ul>
+
+  <p class="areas__note">
+    In clinic in Agoura Hills, and by secure telehealth to patients across
+    California, Utah and Texas.
+  </p>
+</Section>
+
+<style>
+  .areas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2xs);
+    margin: var(--space-l) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 40em) {
+    .areas {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64em) {
+    .areas {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+
+  .area {
+    position: relative;
+    aspect-ratio: 5 / 4;
+    overflow: hidden;
+    border-radius: var(--radius-m);
+    background-image: var(--grad-ink-soft);
+  }
+
+  /* Our own town gets the wide cell — a service-area list that gives equal
+     weight to the clinic's actual location and to a town an hour away is
+     telling the reader nothing. */
+  .area--home {
+    grid-column: span 2;
+    aspect-ratio: auto;
+  }
+
+  .area__img {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    filter: var(--image-filter) saturate(0.8);
+  }
+
+  .area__label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.1em;
+    padding: var(--space-xs);
+    background-image: var(--grad-photo-scrim);
+  }
+
+  .area__name {
+    font-family: var(--face-display);
+    font-size: var(--step-0);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: var(--tracking-heading);
+    /* Fixed light ink, not --color-ink: this label always sits on a scrimmed
+       photograph, so it must not follow the band's context. */
+    color: #fdfbf6;
+  }
+
+  .area__note {
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--b-300);
+  }
+
+  .areas__note {
+    margin: var(--space-m) auto 0;
+    max-inline-size: var(--measure);
+    text-align: center;
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-muted);
+  }
+</style>

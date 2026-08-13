@@ -66,11 +66,15 @@ import { SITE } from "../../config/site";
   .concept-badge {
     position: fixed;
     /* BOTTOM. Not the top, not the header, not docked to the page. It floats
-       over the content and stays put while the page scrolls. The sticky call
-       bar occupies the bottom-centre on phones, so this sits bottom-LEFT and
-       is lifted clear of it below 30em (see the media query). */
+       over the content and stays put while the page scrolls.
+       BOTTOM-RIGHT, moved from the left: the page's copy column is now
+       left-aligned, so the left corner is exactly where the hero's primary CTA
+       lands. The brief allows either bottom corner and the rule is that the
+       badge must never sit on a tap target — so it goes to the side the
+       content does not use. Verified against every interactive element at
+       320 / 390 / 768 / 1280 / 1440. */
     inset-block-end: var(--space-s);
-    inset-inline-start: var(--space-s);
+    inset-inline-end: var(--space-s);
     z-index: var(--z-badge);
 
     /* Kept deliberately narrow and short. It is a fixed element floating over
@@ -173,7 +177,8 @@ import { SITE } from "../../config/site";
      non-occluding at 320px. */
   @media (max-width: 30em) {
     .concept-badge {
-      inset-inline-start: var(--space-2xs);
+      inset-inline-end: var(--space-2xs);
+      inset-inline-start: auto;
       inset-block-end: var(--space-2xs);
       max-width: calc(100vw - 2 * var(--space-2xs));
       padding: 0.55rem 0.7rem;

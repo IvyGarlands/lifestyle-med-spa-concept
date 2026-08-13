@@ -1,0 +1,305 @@
+---
+/**
+ * TeamRoster — our team, with their real photographs.
+ *
+ * TWO CORRECTIONS FROM THE FIRST PASS, both worth recording.
+ *
+ * 1. POSITION. This used to be the hero. It is good material and it was in the
+ *    wrong place — a visitor's first question is what we treat, not who we
+ *    are. It now sits after the treatments and the terms, where "who is
+ *    actually prescribing this" is the live question.
+ *
+ * 2. PHOTOGRAPHY. The first pass concluded no staff photography existed and
+ *    said so in the build notes. That was wrong. The portraits are on their
+ *    /team/ page, lazy-loaded, and the DOM read that produced the conclusion
+ *    ran before they resolved and filtered on naturalWidth. All ten exist,
+ *    they are shot in their own clinic, and they are here now.
+ *
+ * The signature device survives the move: each name is still set in the script
+ * from their own wordmark and still writes itself on. It now sits under a face
+ * instead of standing alone, which is better — a signature under a portrait is
+ * a person, a signature on its own is a graphic.
+ */
+import type { CollectionEntry } from "astro:content";
+import { Picture } from "astro:assets";
+import Section from "./Section.astro";
+import SectionIntro from "./SectionIntro.astro";
+import type { SectionProps } from "./Section.astro";
+import type { ImageMetadata } from "astro";
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  accent?: string;
+  lead?: string;
+  people: CollectionEntry<"people">[];
+  /** slug -> imported portrait. Keyed off the entry id. */
+  photos: Record<string, ImageMetadata>;
+  /** Cap the grid; the full list lives on /team. */
+  limit?: number;
+  ctaLabel?: string;
+  ctaHref?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  accent,
+  lead,
+  people,
+  photos,
+  limit,
+  ctaLabel,
+  ctaHref,
+  id = "team",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+
+const shown = limit ? people.slice(0, limit) : people;
+---
+
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width="xl"
+  labelledBy={`${id}-heading`}
+  {...rest}
+>
+  <SectionIntro
+    eyebrow={eyebrow}
+    heading={heading}
+    accent={accent}
+    lead={lead}
+    align="center"
+    headingId={`${id}-heading`}
+  />
+
+  <ul class="team" data-signing>
+    {
+      shown.map((p, i) => {
+        const photo = photos[p.id];
+        return (
+          <li class="member" style={`--sig-index:${i}`}>
+            <div class="member__media">
+              {photo ? (
+                <Picture
+                  src={photo}
+                  alt={`${p.data.name}, ${p.data.role} at ${"Lifestyle Med Spa"}`}
+                  widths={[280, 420, 560, 760]}
+                  sizes="(min-width: 64em) 20vw, (min-width: 40em) 40vw, 80vw"
+                  formats={["avif", "webp"]}
+          layout="none"
+                  loading="lazy"
+                  class="member__img"
+                />
+              ) : (
+                /* No portrait supplied for this person. A monogram, not a
+                   stock face: inventing a likeness for a named clinician is
+                   not a placeholder, it is a fabrication. */
+                <span class="member__monogram" aria-hidden="true">
+                  {p.data.name.charAt(0)}
+                </span>
+              )}
+            </div>
+
+            <div class="member__body">
+              <span class="member__sig">
+                <span class="member__name">{p.data.name}</span>
+                <span class="member__cover" aria-hidden="true" />
+              </span>
+              <span class="member__role">{p.data.role}</span>
+              {p.data.credentials.length > 0 && (
+                <span class="member__creds">
+                  {p.data.credentials.join(" · ")}
+                </span>
+              )}
+            </div>
+          </li>
+        );
+      })
+    }
+  </ul>
+
+  {
+    ctaLabel && ctaHref && (
+      <p class="team__cta">
+        <a class="btn btn--ghost" href={ctaHref}>
+          {ctaLabel}
+        </a>
+      </p>
+    )
+  }
+</Section>
+
+<script>
+  /* One observer, one class, then it disconnects. Every name is already in the
+     DOM and legible; this only ever ADDS the write-on. */
+  const block = document.querySelector<HTMLElement>("[data-signing]");
+  if (block && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add("is-signing");
+            io.disconnect();
+          }
+        }
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+    );
+    io.observe(block);
+  }
+</script>
+
+<style>
+  .team {
+    display: grid;
+    gap: var(--space-m);
+    margin: var(--space-xl) 0 0;
+    padding: 0;
+    list-style: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 40em) {
+    .team {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64em) {
+    .team {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  .member {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .member__media {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    border: var(--border-hair) solid var(--color-line);
+    background-image: var(--grad-ink-soft);
+    display: grid;
+    place-items: center;
+  }
+
+  /* A gold wash across the bottom of every portrait. It unifies ten headshots
+     that were taken on different days against different walls — the single
+     cheapest way to make a supplied set look like one shoot. */
+  .member__media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      to top,
+      rgb(238 204 122 / 0.22) 0%,
+      rgb(238 204 122 / 0) 45%
+    );
+    pointer-events: none;
+  }
+
+  .member__img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: center 18%;
+    filter: var(--image-filter);
+  }
+
+  .member__monogram {
+    font-family: var(--face-script);
+    font-size: var(--step-5);
+    line-height: 1;
+    color: var(--color-brand);
+    opacity: 0.75;
+  }
+
+  .member__body {
+    display: flex;
+    flex-direction: column;
+    padding-block-start: var(--space-xs);
+  }
+
+  .member__sig {
+    position: relative;
+    display: inline-block;
+    max-inline-size: 100%;
+    overflow: hidden;
+  }
+
+  .member__name {
+    display: block;
+    font-family: var(--face-script);
+    font-size: var(--step-3);
+    line-height: 1.15;
+    padding-block-end: 0.06em;
+    letter-spacing: var(--tracking-script);
+    color: var(--color-brand);
+    white-space: nowrap;
+  }
+
+  /* Hidden unless JS is alive — content is never withheld by a stylesheet. */
+  .member__cover {
+    display: none;
+  }
+
+  :global(.js-motion) .member__cover {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-canvas);
+    border-inline-start: 2px solid var(--color-brand);
+    transform: translateX(0);
+  }
+
+  :global(.js-motion) .is-signing .member__cover {
+    animation: sign var(--sig-draw-duration) var(--sig-draw-ease) forwards;
+    animation-delay: calc(var(--sig-index) * var(--sig-draw-stagger));
+  }
+
+  @keyframes sign {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(101%);
+    }
+  }
+
+  .member__role {
+    margin-block-start: 0.1em;
+    font-size: var(--step--1);
+    font-weight: 700;
+    line-height: var(--leading-snug);
+    color: var(--color-ink-strong);
+  }
+
+  .member__creds {
+    margin-block-start: 0.15em;
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-muted);
+  }
+
+  .team__cta {
+    margin: var(--space-xl) 0 0;
+    text-align: center;
+  }
+
+  /* The script needs a step down before the columns get narrow, or a long
+     name clips. A signature that wraps stops reading as a signature. */
+  @media (max-width: 64em) {
+    .member__name {
+      font-size: var(--step-2);
+    }
+  }
+</style>

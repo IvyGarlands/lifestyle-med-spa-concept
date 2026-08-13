@@ -22,20 +22,24 @@
 import type { CollectionEntry } from "astro:content";
 import Section from "./Section.astro";
 import Stars from "../core/Stars.astro";
-import WaterRule from "../brand/WaterRule.astro";
+import SectionIntro from "./SectionIntro.astro";
 import type { SectionProps } from "./Section.astro";
 
 interface Props extends SectionProps {
   eyebrow: string;
   heading: string;
+  /** The run inside `heading` that takes the gold gradient. */
+  accent?: string;
   testimonials: CollectionEntry<"testimonials">[];
-  /** Sourcing line. Says where these came from and what is missing, plainly. */
+  /** Optional sourcing line. Off by default — the sourcing discipline lives in
+   *  input/reviews.txt and in the handoff notes, not in the reader's face. */
   note?: string;
 }
 
 const {
   eyebrow,
   heading,
+  accent,
   testimonials,
   note,
   id = "reviews",
@@ -54,9 +58,13 @@ const {
   {...rest}
 >
   <div class="revs__head">
-    <p class="revs__eyebrow">{eyebrow}</p>
-    <h2 class="revs__heading" id={`${id}-heading`}>{heading}</h2>
-    <WaterRule size="m" />
+    <SectionIntro
+      eyebrow={eyebrow}
+      heading={heading}
+      accent={accent}
+      align="center"
+      headingId={`${id}-heading`}
+    />
   </div>
 
   <ul class="revs" data-reveal-stagger>
@@ -89,27 +97,6 @@ const {
   .revs__head {
     text-align: center;
     margin-block-end: var(--space-2xl);
-  }
-
-  .revs__eyebrow {
-    margin: 0 0 var(--space-s);
-    font-size: var(--step--1);
-    font-weight: 600;
-    letter-spacing: var(--tracking-wide);
-    text-transform: uppercase;
-    color: var(--color-brand);
-  }
-
-  .revs__heading {
-    margin: 0 0 var(--space-m);
-    font-family: var(--face-display);
-    font-size: var(--step-4);
-    font-weight: var(--weight-display);
-    font-variation-settings: "opsz" 40;
-    line-height: var(--leading-heading);
-    letter-spacing: var(--tracking-heading);
-    color: var(--color-ink-strong);
-    text-wrap: balance;
   }
 
   .revs {
@@ -151,7 +138,6 @@ const {
     margin: 0;
     font-family: var(--face-display);
     font-size: var(--step-2);
-    font-variation-settings: "opsz" 28;
     line-height: var(--leading-snug);
     color: var(--color-ink-strong);
     text-wrap: pretty;

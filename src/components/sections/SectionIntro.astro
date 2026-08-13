@@ -1,0 +1,141 @@
+---
+/**
+ * SectionIntro — the eyebrow + heading + lead that opens most sections.
+ *
+ * One component so every section on the site has an identical opening rhythm,
+ * and so the gold gradient headline treatment is defined in exactly one place.
+ *
+ * The gradient text is `background-clip: text`, with the flat brand colour as
+ * the declared `color` underneath. Anything that cannot do background-clip —
+ * or that strips backgrounds, like forced-colours mode — falls back to solid
+ * gold rather than to transparent text, which is the failure this technique is
+ * famous for.
+ */
+interface Props {
+  eyebrow?: string;
+  heading: string;
+  /** The word(s) inside `heading` to run the gold gradient across. */
+  accent?: string;
+  lead?: string;
+  align?: "start" | "center";
+  headingId?: string;
+  /** h2 by default; the hero passes h1. */
+  as?: "h1" | "h2" | "h3";
+  class?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  accent,
+  lead,
+  align = "start",
+  headingId,
+  as: Tag = "h2",
+  class: className,
+} = Astro.props;
+
+/* Split the heading around the accent so only that run takes the gradient.
+   Done here rather than by asking the page for pre-split markup, so a page
+   author cannot accidentally ship an unbalanced <span>. */
+const idx = accent ? heading.indexOf(accent) : -1;
+const before = idx >= 0 ? heading.slice(0, idx) : heading;
+const mid = idx >= 0 ? accent : "";
+const after = idx >= 0 ? heading.slice(idx + (accent?.length ?? 0)) : "";
+---
+
+<div class:list={["intro", `intro--${align}`, className]}>
+  {eyebrow && <p class="intro__eyebrow">{eyebrow}</p>}
+
+  <Tag class="intro__heading" id={headingId}>
+    {before}{mid && <span class="intro__accent">{mid}</span>}{after}
+  </Tag>
+
+  {lead && <p class="intro__lead">{lead}</p>}
+</div>
+
+<style>
+  .intro {
+    max-inline-size: var(--measure);
+  }
+
+  .intro--center {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .intro__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.55em;
+    margin: 0 0 var(--space-2xs);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-brand);
+  }
+
+  /* A short gold dash before the eyebrow — the smallest possible piece of the
+     water rule, so even the label carries the ornament. */
+  .intro__eyebrow::before {
+    content: "";
+    inline-size: 1.5rem;
+    block-size: 2px;
+    border-radius: 2px;
+    background-image: var(--grad-gold);
+    flex-shrink: 0;
+  }
+
+  .intro--center .intro__eyebrow {
+    justify-content: center;
+  }
+
+  .intro__heading {
+    margin: 0;
+    font-family: var(--face-display);
+    font-size: var(--step-4);
+    font-weight: var(--weight-display);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-heading);
+    color: var(--color-ink-strong);
+    text-wrap: balance;
+  }
+
+  /* The gradient run. `color` is set FIRST and is a real colour, so a browser
+     that ignores background-clip renders solid gold instead of nothing. */
+  .intro__accent {
+    color: var(--color-brand);
+    background-image: var(--grad-gold);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  @supports not ((background-clip: text) or (-webkit-background-clip: text)) {
+    .intro__accent {
+      -webkit-text-fill-color: currentColor;
+    }
+  }
+
+  /* Forced-colours mode drops background images entirely; without this the
+     accent run would render as invisible text. */
+  @media (forced-colors: active) {
+    .intro__accent {
+      -webkit-text-fill-color: currentColor;
+      background-image: none;
+    }
+  }
+
+  .intro__lead {
+    margin: var(--space-s) 0 0;
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-muted);
+    text-wrap: pretty;
+  }
+
+  .intro--center .intro__lead {
+    margin-inline: auto;
+  }
+</style>

@@ -12,8 +12,8 @@
  *   - Positive tracking. A script at display size needs its letters to
  *     breathe; theirs is set at 0 and the joins clog.
  *   - "MED SPA" is no longer script-at-4px. It becomes small letterspaced
- *     Bodoni caps, which is legible at any size and gives the lockup a second
- *     texture instead of one texture at two sizes.
+ *     bold sans caps, which is legible at any size and gives the lockup a
+ *     second texture instead of one texture at two sizes.
  *   - The whole lockup is sized from a single custom property so the header,
  *     the hero and the footer are one component at three scales.
  *
@@ -105,8 +105,8 @@ const {
 
   .wordmark__sub {
     font-family: var(--face-display);
-    font-size: calc(var(--wordmark-size, 1.5rem) * 0.42);
-    font-weight: 500;
+    font-size: calc(var(--wordmark-size, 1.5rem) * 0.40);
+    font-weight: 700;
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
     /* Optically aligned to the script's baseline mass rather than its box. */

@@ -1,0 +1,276 @@
+---
+/**
+ * HeroLead — the hero, rebuilt product-first.
+ *
+ * The previous hero put the staff roster above the fold. Wrong order: the
+ * first question a visitor has is "what does this place do and can it help
+ * me", not "who works here". The roster is excellent material and it now sits
+ * further down, where it answers the SECOND question — "can I trust them".
+ *
+ * So this is: what we do, who it is for, what it costs to start, and a
+ * photograph. Four facts and an image, above the fold, at sizes a person can
+ * take in at a glance.
+ *
+ * Copy is first person throughout and reuses their own words wherever they had
+ * usable ones ("no contracts, no hidden fees, no membership costs — and
+ * consultations are always free" is verbatim).
+ */
+import { Picture } from "astro:assets";
+import { SITE } from "../../config/site";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  eyebrow: string;
+  heading: string;
+  /** The run inside `heading` that takes the gold gradient. */
+  accent: string;
+  lead: string;
+  image: ImageMetadata;
+  alt: string;
+  /** Short proof points along the bottom of the hero. */
+  facts: { label: string; value: string }[];
+  id?: string;
+}
+
+const { eyebrow, heading, accent, lead, image, alt, facts, id } = Astro.props;
+
+const idx = heading.indexOf(accent);
+const before = idx >= 0 ? heading.slice(0, idx) : heading;
+const mid = idx >= 0 ? accent : "";
+const after = idx >= 0 ? heading.slice(idx + accent.length) : "";
+---
+
+<section class="hero" id={id}>
+  {/* Ambient gold bloom behind the copy column. Purely decorative and behind
+      everything, so it can never intercept a pointer. */}
+  <div class="hero__glow" aria-hidden="true"></div>
+
+  <div class="hero__inner container container--xl">
+    <div class="hero__copy">
+      <p class="hero__eyebrow" data-hero-settle>{eyebrow}</p>
+
+      {/* LCP element — painted immediately, no reveal, no mask. */}
+      <h1 class="hero__heading" data-hero-settle>
+        {before}{mid && <span class="hero__accent">{mid}</span>}{after}
+      </h1>
+
+      <p class="hero__lead" data-hero-settle>{lead}</p>
+
+      <div class="hero__actions" data-hero-settle>
+        <a class="btn btn--primary" href="#contact">Book a free consultation</a>
+        <a class="btn btn--ghost" href={`tel:${SITE.phoneHref}`}>
+          Call {SITE.phone}
+        </a>
+      </div>
+
+      <ul class="hero__facts" data-hero-settle>
+        {
+          facts.map((f) => (
+            <li class="fact">
+              <span class="fact__value">{f.value}</span>
+              <span class="fact__label">{f.label}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="hero__media">
+      <div class="hero__frame">
+        {/* Candidates up to 1300w. The slot is ~520 CSS px on a laptop, which a
+            2x display renders at ~1040 real pixels — the previous 980w ceiling
+            meant every retina visitor was served an upscale, which is the
+            softness that got flagged. `layout="none"` is load-bearing too:
+            astro.config sets image.layout to "constrained" globally, and that
+            makes Astro synthesise its own srcset and silently ignore the
+            widths and sizes set here. */}
+        <Picture
+          src={image}
+          alt={alt}
+          widths={[520, 780, 1040, 1300]}
+          sizes="(min-width: 60em) 42vw, 92vw"
+          formats={["avif", "webp"]}
+          layout="none"
+          loading="eager"
+          fetchpriority="high"
+          class="hero__img"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: var(--space-xl) var(--space-2xl);
+    background-image: var(--grad-ink);
+  }
+
+  .hero__glow {
+    position: absolute;
+    inset-block-start: -20%;
+    inset-inline-start: -10%;
+    inline-size: 70%;
+    block-size: 120%;
+    background-image: var(--grad-glow);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .hero__inner {
+    display: grid;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  @media (min-width: 60em) {
+    .hero__inner {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      gap: var(--space-2xl);
+    }
+  }
+
+  .hero__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.55em;
+    margin: 0 0 var(--space-xs);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-brand);
+  }
+
+  .hero__eyebrow::before {
+    content: "";
+    inline-size: 1.75rem;
+    block-size: 2px;
+    border-radius: 2px;
+    background-image: var(--grad-gold);
+    flex-shrink: 0;
+  }
+
+  .hero__heading {
+    margin: 0;
+    font-family: var(--face-display);
+    font-size: var(--step-6);
+    font-weight: var(--weight-display);
+    line-height: var(--leading-display);
+    letter-spacing: var(--tracking-display);
+    color: var(--color-ink-strong);
+    text-wrap: balance;
+  }
+
+  .hero__accent {
+    color: var(--color-brand);
+    background-image: var(--grad-gold);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  @supports not ((background-clip: text) or (-webkit-background-clip: text)) {
+    .hero__accent {
+      -webkit-text-fill-color: currentColor;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .hero__accent {
+      -webkit-text-fill-color: currentColor;
+      background-image: none;
+    }
+  }
+
+  .hero__lead {
+    margin: var(--space-s) 0 0;
+    max-inline-size: 46ch;
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-block-start: var(--space-l);
+  }
+
+  /* The proof strip. Sits on a gradient rule rather than a border so it reads
+     as part of the hero rather than as a table bolted underneath it. */
+  .hero__facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-s);
+    margin: var(--space-l) 0 0;
+    padding-block-start: var(--space-m);
+    padding-inline: 0;
+    list-style: none;
+    border-block-start: 1px solid transparent;
+    border-image: var(--grad-rule) 1;
+  }
+
+  .fact__value {
+    display: block;
+    font-family: var(--face-display);
+    font-size: var(--step-2);
+    font-weight: var(--weight-display);
+    line-height: 1.1;
+    letter-spacing: var(--tracking-heading);
+    color: var(--color-brand);
+  }
+
+  .fact__label {
+    display: block;
+    margin-block-start: 0.15em;
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-muted);
+  }
+
+  .hero__media {
+    position: relative;
+  }
+
+  .hero__frame {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius-image);
+    border: var(--border-hair) solid var(--color-line);
+    box-shadow: var(--shadow-l);
+    background-image: var(--grad-ink-soft);
+  }
+
+  /* A gold edge along the bottom of the frame, echoing the card treatment
+     everywhere else, so the hero and the pillars below it are the same system. */
+  .hero__frame::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    block-size: 3px;
+    background-image: var(--grad-gold);
+  }
+
+  .hero__img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: center 22%;
+    filter: var(--image-filter-hero);
+  }
+
+  @media (max-width: 38em) {
+    .hero__facts {
+      grid-template-columns: 1fr;
+      gap: var(--space-xs);
+    }
+  }
+</style>
