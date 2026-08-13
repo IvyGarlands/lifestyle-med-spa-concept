@@ -38,6 +38,7 @@ export const TEAM_PHOTOS: Record<string, ImageMetadata> = {
   "10-raymond": jaimeRaymond,
 };
 
+export { default as imgHeroCutout } from "../assets/images/treatments/hero-cutout.png";
 export { default as imgWeightLoss } from "../assets/images/treatments/weight-loss.png";
 export { default as imgTreatments } from "../assets/images/treatments/treatments.png";
 export { default as imgWhyChoose } from "../assets/images/treatments/why-choose.png";

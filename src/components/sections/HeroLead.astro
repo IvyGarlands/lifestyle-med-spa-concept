@@ -76,19 +76,18 @@ const after = idx >= 0 ? heading.slice(idx + accent.length) : "";
     </div>
 
     <div class="hero__media">
-      <div class="hero__frame">
+      <div class="hero__figure">
         {/* Candidates up to 1300w. The slot is ~520 CSS px on a laptop, which a
-            2x display renders at ~1040 real pixels — the previous 980w ceiling
-            meant every retina visitor was served an upscale, which is the
-            softness that got flagged. `layout="none"` is load-bearing too:
+            2x display renders it well inside the cut-out's own 953px, so
+            nothing is ever upscaled now. `layout="none"` is load-bearing too:
             astro.config sets image.layout to "constrained" globally, and that
             makes Astro synthesise its own srcset and silently ignore the
             widths and sizes set here. */}
         <Picture
           src={image}
           alt={alt}
-          widths={[520, 780, 1040, 1300]}
-          sizes="(min-width: 60em) 42vw, 92vw"
+          widths={[420, 620, 840, 953]}
+          sizes="(min-width: 60em) 38vw, 70vw"
           formats={["avif", "webp"]}
           layout="none"
           loading="eager"
@@ -238,33 +237,80 @@ const after = idx >= 0 ? heading.slice(idx + accent.length) : "";
     position: relative;
   }
 
-  .hero__frame {
+  /* NO FRAME, and that is the fix rather than a style preference.
+     The framed 4/5 crop was fed by a 560x730 studio photograph — the largest
+     copy that exists anywhere on their site — so filling a ~520px slot at 2x
+     meant upscaling it past twice its real resolution, and sharpening that
+     back up amplified the WebP artefacts into the mush that got flagged.
+
+     This uses their 899x675 cut-out instead: the flat studio white is keyed to
+     alpha, so she stands directly on the hero's navy with no box, no crop and
+     no invented pixels. It is their largest and cleanest asset, it is already
+     the right subject, and a cut-out on a gradient reads as art direction
+     rather than as a photo that has been stretched. */
+  .hero__figure {
     position: relative;
-    overflow: hidden;
-    aspect-ratio: 4 / 5;
-    border-radius: var(--radius-image);
-    border: var(--border-hair) solid var(--color-line);
-    box-shadow: var(--shadow-l);
-    background-image: var(--grad-ink-soft);
+    display: flex;
+    justify-content: center;
   }
 
-  /* A gold edge along the bottom of the frame, echoing the card treatment
-     everywhere else, so the hero and the pillars below it are the same system. */
-  .hero__frame::after {
+  /* The bloom she stands in front of. Replaces the frame's job of separating
+     her from the ground. */
+  .hero__figure::before {
     content: "";
     position: absolute;
-    inset-inline: 0;
+    inset-block: 6% -6%;
+    inset-inline: -6%;
+    background-image: var(--grad-glow-strong);
+    pointer-events: none;
+  }
+
+  /* A soft elliptical shadow under her, so she is standing on the band rather
+     than floating over it. */
+  .hero__figure::after {
+    content: "";
+    position: absolute;
     inset-block-end: 0;
-    block-size: 3px;
-    background-image: var(--grad-gold);
+    inset-inline: 18%;
+    block-size: 8%;
+    border-radius: 50%;
+    background: radial-gradient(
+      closest-side,
+      rgb(16 30 48 / 0.55) 0%,
+      rgb(16 30 48 / 0) 100%
+    );
   }
 
   .hero__img {
-    inline-size: 100%;
-    block-size: 100%;
-    object-fit: cover;
-    object-position: center 22%;
-    filter: var(--image-filter-hero);
+    position: relative;
+    inline-size: auto;
+    max-inline-size: 100%;
+    block-size: auto;
+    max-block-size: 30rem;
+    object-fit: contain;
+    filter: var(--image-filter-hero) drop-shadow(0 18px 40px rgb(0 0 0 / 0.35));
+    /* The source photograph is itself cropped at mid-thigh, so the cut-out
+       ends on a hard horizontal edge. Dissolving the last few percent into the
+       band turns that from a chopped image into a deliberate fade — and it is
+       the reason this can sit frameless without looking unfinished. */
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 88%,
+      rgb(0 0 0 / 0) 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 88%,
+      rgb(0 0 0 / 0) 100%
+    );
+  }
+
+  @media (min-width: 60em) {
+    .hero__img {
+      max-block-size: 34rem;
+    }
   }
 
   @media (max-width: 38em) {

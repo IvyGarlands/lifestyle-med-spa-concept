@@ -44,6 +44,7 @@ import { NAV } from "../lib/nav";
 import { CONTACT_FIELDS, PHI_NOTICE } from "../lib/forms";
 import {
   TEAM_PHOTOS,
+  imgHeroCutout,
   imgWeightLoss,
   imgTreatments,
   imgWhyChoose,
@@ -70,10 +71,10 @@ const testimonials = (await getCollection("testimonials")).sort(
 >
   <HeroLead
     eyebrow="Agoura Hills · Physician-led"
-    heading="Medical weight loss, run by people you can name."
-    accent="run by people you can name."
+    heading="Medical weight loss, run by people who care."
+    accent="run by people who care."
     lead="We specialise in medical weight loss with a focus on GLP-1 medication, directed by a board-certified physician and prescribed by our nurse practitioner. There are no contracts, no hidden fees and no membership costs — and consultations are always free."
-    image={imgWeightLoss}
+    image={imgHeroCutout}
     alt="A patient of Lifestyle Med Spa"
     facts={[
       { value: "Free", label: "Every consultation, always" },
