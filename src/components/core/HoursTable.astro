@@ -196,6 +196,17 @@ const hoursData = ORDER.map((key) => {
     background-color: var(--color-ok);
   }
 
+  /* Centred, and capped. Sitting at full column width, the weekday and its
+     time were flung to opposite ends of a ~1300px row with a dead gap between
+     them — the eye has to travel the whole span to pair "Wednesday" with
+     "9:00 AM – 1:00 PM", which is exactly the job a hours table exists to make
+     easy. Capping the measure keeps the pair readable, and centring the block
+     keeps it deliberate rather than left-stranded in a wide column. */
+  .hours {
+    max-inline-size: 24rem;
+    margin-inline: auto;
+  }
+
   .hours__table {
     width: 100%;
     border-collapse: collapse;
@@ -205,10 +216,18 @@ const hoursData = ORDER.map((key) => {
     border-block-start: var(--border-hair) solid var(--color-line);
   }
 
+  /* `.hours__table :is(th, td)` is (0,1,1) and `.hours__time` is only (0,1,0),
+     so this rule was silently overriding the time column's `text-align: end`
+     and left-aligning every time against the middle of the row. Scoping the
+     default to the day column removes the fight rather than escalating it
+     with an !important. */
   .hours__table :is(th, td) {
     padding-block: var(--space-2xs);
-    text-align: start;
     font-weight: var(--weight-body);
+  }
+
+  .hours__table .hours__day {
+    text-align: start;
   }
 
   .hours__day {
