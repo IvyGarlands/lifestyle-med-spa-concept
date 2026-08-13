@@ -78,7 +78,20 @@ const after = idx >= 0 ? heading.slice(idx + accent.length) : "";
       <p class="hero__lead" data-hero-settle>{lead}</p>
 
       <div class="hero__actions" data-hero-settle>
-        <a class="btn btn--primary" href="/contact" data-magnetic>Book a free consultation</a>
+        {/* NOT data-magnetic. It was here, and it was the wrong call: the
+            engine's magnetic effect triggers within (--sig-magnet-radius +
+            half the element's own size) of the element's CENTER — for this
+            button, 90px + 179px ≈ 270px, a ~540px-wide zone almost ten times
+            the button's own footprint. The button doesn't drift on hover, it
+            drifts whenever the cursor is anywhere nearby, which reads as the
+            primary CTA randomly relocating itself rather than reacting to
+            you. On a medical practice's main conversion action that erodes
+            trust and click precision — a moving target is a worse click
+            target — so it is replaced with `.btn--glow` below: a stationary
+            hover that still carries the site's gold identity. */}
+        <a class="btn btn--primary btn--glow" href="/contact">
+          Book a free consultation
+        </a>
         <a class="btn btn--ghost" href={`tel:${SITE.phoneHref}`}>
           Call {SITE.phone}
         </a>
