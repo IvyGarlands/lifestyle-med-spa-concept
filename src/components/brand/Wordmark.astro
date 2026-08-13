@@ -29,6 +29,15 @@ interface Props {
   ring?: boolean;
   /** Render as an <h1>? Only the hero should. */
   as?: "div" | "h1";
+  /**
+   * Cross-axis alignment for the stacked layout. Centre reads right in
+   * isolation, but the footer's brand column is left-aligned, so a centred
+   * mark floats above left-aligned text beneath it. Exposed as a prop rather
+   * than overridden from the host: `.wordmark--stacked` is a two-class
+   * selector and beats any single-class override the host can write, so
+   * setting it from outside silently does nothing.
+   */
+  align?: "center" | "start";
   class?: string;
 }
 
@@ -36,11 +45,19 @@ const {
   layout = "inline",
   ring = false,
   as: Tag = "div",
+  align = "center",
   class: className,
 } = Astro.props;
 ---
 
-<Tag class:list={["wordmark", `wordmark--${layout}`, className]}>
+<Tag
+  class:list={[
+    "wordmark",
+    `wordmark--${layout}`,
+    align === "start" && "wordmark--align-start",
+    className,
+  ]}
+>
   <span class="wordmark__mark"><Lotus ring={ring} /></span>
   <span class="wordmark__text">
     <span class="wordmark__name">Lifestyle</span>
@@ -88,6 +105,16 @@ const {
 
   .wordmark--stacked .wordmark__text {
     align-items: center;
+  }
+
+  /* Two classes deep so it can actually beat `.wordmark--stacked`. */
+  .wordmark.wordmark--align-start {
+    align-items: flex-start;
+    text-align: start;
+  }
+
+  .wordmark.wordmark--align-start .wordmark__text {
+    align-items: flex-start;
   }
 
   .wordmark__name {

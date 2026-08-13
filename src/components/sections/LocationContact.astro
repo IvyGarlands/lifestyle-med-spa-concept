@@ -7,7 +7,7 @@
  * display size: small businesses convert on calls (CLAUDE.md §13).
  */
 import Section from "./Section.astro";
-import SectionHeader from "./SectionHeader.astro";
+import SectionIntro from "./SectionIntro.astro";
 import GoogleMap from "../core/GoogleMap.astro";
 import HoursTable from "../core/HoursTable.astro";
 import ContactForm, { type FormField } from "../core/ContactForm.astro";
@@ -27,6 +27,17 @@ interface Props extends SectionProps {
   formSubject?: string;
   /** Standing notice rendered inside the <form>. See ContactForm. */
   formNotice?: string;
+  /** The run inside `heading` that takes the gold gradient. */
+  accent?: string;
+  /**
+   * Heading alignment. Centre by default, because on this site every
+   * FULL-WIDTH band centres its heading and only the two-column MediaSplits
+   * run start-aligned (their heading sits in a column beside an image).
+   * This section previously used SectionHeader, whose default is `start`, so
+   * the contact band broke that rhythm at the very bottom of the page —
+   * immediately after the centred service-area band.
+   */
+  align?: "start" | "center";
   /** A second contact channel shown beside the phone, e.g. a texting line. */
   altContact?: { label: string; value: string; href: string; note?: string };
 }
@@ -42,6 +53,8 @@ const {
   formFields,
   formSubject,
   formNotice,
+  accent,
+  align = "center",
   altContact,
   id = "contact",
   tone,
@@ -53,10 +66,12 @@ const t = useTranslations(locale);
 ---
 
 <Section id={id} tone={tone} spacing={spacing} width="xl" labelledBy={`${id}-heading`} {...rest}>
-  <SectionHeader
+  <SectionIntro
     eyebrow={eyebrow}
     heading={heading ?? t("location.title")}
-    body={body}
+    accent={accent}
+    lead={body}
+    align={align}
     headingId={`${id}-heading`}
   />
 
