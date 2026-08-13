@@ -1,0 +1,110 @@
+---
+/**
+ * /wellness — IV therapy, NAD+, probiotics, vitamin injections.
+ *
+ * The IV menu is the centrepiece: it is the one part of the practice with a
+ * complete published price list, so it renders as a real menu with real
+ * figures rather than "contact us for pricing".
+ */
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHeader from "../components/sections/PageHeader.astro";
+import MediaSplit from "../components/sections/MediaSplit.astro";
+import PriceMenu from "../components/sections/PriceMenu.astro";
+import FAQ from "../components/sections/FAQ.astro";
+import CTABand from "../components/sections/CTABand.astro";
+import Divider from "../components/brand/Divider.astro";
+
+import { SITE } from "../config/site";
+import { localeFromUrl } from "../i18n/ui";
+import { NAV } from "../lib/nav";
+import { imgBannerB, imgWhyChoose, imgCollagen } from "../lib/media";
+
+const locale = localeFromUrl(Astro.url);
+
+const menu = await getCollection("menu");
+const ivPrices = menu.filter((m) => m.data.category === "IV Therapy");
+
+const faq = (await getCollection("faq"))
+  .filter((f) => f.id.startsWith("iv-"))
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout
+  title="IV therapy & wellness"
+  description="Vitamin IV drips, NAD+, probiotics and vitamin injections in Agoura Hills. Sessions run 45 to 60 minutes, administered by licensed medical professionals."
+  path="/wellness"
+  navLinks={NAV}
+  faq={faq.map((f) => ({ question: f.data.question, answer: f.data.answer }))}
+>
+  <PageHeader
+    eyebrow="Wellness & IV therapy"
+    heading="Nutrients straight to the bloodstream."
+    accent="straight to the bloodstream."
+    lead="IV therapy bypasses digestion and delivers fluids, electrolytes and vitamins directly — faster and more effective than anything you can drink. Every session is administered by our licensed medical team in a quiet, comfortable room, and runs about 45 to 60 minutes with a full liter of saline."
+    image={imgBannerB}
+    alt=""
+    crumbs={[
+      { label: "Home", href: "/" },
+      { label: "Wellness & IV", href: "/wellness" },
+    ]}
+  />
+
+  <PriceMenu
+    id="menu"
+    tone="default"
+    eyebrow="The drip menu"
+    heading="Seven drips, priced up front."
+    accent="priced up front."
+    lead="We carefully select the highest-quality injectables and customize each formulation for clinical results — not spa theatre."
+    items={ivPrices}
+    note="Every drip includes 1 liter of saline fluid and is administered by trained, certified medical professionals. CareCredit accepted on purchases of $200 or more."
+  />
+
+  <MediaSplit
+    id="nad"
+    tone="light"
+    eyebrow="Deeper wellness"
+    heading="NAD+, probiotics and vitamin shots."
+    accent="NAD+,"
+    body={[
+      "NAD+ IV therapy supports cellular energy and healthy aging at a level a multivitamin cannot reach — ask us about it at your consultation and we'll tell you honestly whether it fits your goals.",
+      "Alongside the drips we offer targeted vitamin injections for a quick lift between sessions, and pharmaceutical-grade probiotics to look after the gut side of the equation.",
+      "None of it is sold on a plan. You have what helps, when it helps, and nothing renews behind your back.",
+    ]}
+    points={[
+      "NAD+ IV infusions",
+      "B-12 and targeted vitamin injections",
+      "Pharmaceutical-grade probiotics",
+    ]}
+    image={imgWhyChoose}
+    alt="The IV lounge at Lifestyle Med Spa"
+    ratio="wide"
+    ctaLabel="Ask about NAD+"
+    ctaHref="/contact"
+  />
+
+  <Divider mark="lotus" space="tight" />
+
+  <FAQ
+    locale={locale}
+    id="faq"
+    tone="default"
+    eyebrow="Questions we hear"
+    heading="IV therapy, answered plainly."
+    items={faq}
+    openFirst={true}
+  />
+
+  <CTABand
+    tone="brand"
+    align="center"
+    eyebrow="45–60 minutes · Licensed medical team"
+    heading="Book a drip, or just come ask questions."
+    ctaLabel={`Call ${SITE.phone}`}
+    ctaHref={`tel:${SITE.phoneHref}`}
+    secondaryLabel={`Text ${SITE.textPhone}`}
+    secondaryHref={`sms:${SITE.textPhoneHref}`}
+    note="Consultations are always free."
+  />
+</BaseLayout>

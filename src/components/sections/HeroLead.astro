@@ -16,6 +16,7 @@
  * consultations are always free" is verbatim).
  */
 import { Picture } from "astro:assets";
+import Lotus from "../brand/Lotus.astro";
 import { SITE } from "../../config/site";
 import type { ImageMetadata } from "astro";
 
@@ -40,10 +41,30 @@ const mid = idx >= 0 ? accent : "";
 const after = idx >= 0 ? heading.slice(idx + accent.length) : "";
 ---
 
-<section class="hero" id={id}>
-  {/* Ambient gold bloom behind the copy column. Purely decorative and behind
-      everything, so it can never intercept a pointer. */}
-  <div class="hero__glow" aria-hidden="true"></div>
+<section class="hero" id={id} data-parallax-scene>
+  {/* THE SIGNATURE MOMENT (CLAUDE.md §4a): a layered-depth hero. Four planes
+      ride [data-depth] under motion.ts — glow deepest, the giant watermark
+      lotus behind the copy, a field of drifting petals mid-depth, and the
+      figure nearest the reader. Every layer is aria-hidden decoration except
+      the figure; all of it is transform-only and collapses to a composed
+      static under prefers-reduced-motion. */}
+  <div class="hero__glow" aria-hidden="true" data-depth="0.12"></div>
+
+  <div class="hero__watermark" aria-hidden="true" data-depth="0.28">
+    <Lotus ring={false} />
+  </div>
+
+  {/* Petals adrift. Two clusters at different depths so the parallax reads as
+      space between them, each on a slow CSS drift that reduced-motion zeroes. */}
+  <div class="hero__petals hero__petals--far" aria-hidden="true" data-depth="0.4">
+    <svg viewBox="0 0 24 24" class="petal petal--a"><path fill="currentColor" d="M12 2 C 17 8, 16 16, 12 22 C 8 16, 7 8, 12 2 Z"/></svg>
+    <svg viewBox="0 0 24 24" class="petal petal--b"><path fill="currentColor" d="M12 2 C 17 8, 16 16, 12 22 C 8 16, 7 8, 12 2 Z"/></svg>
+  </div>
+  <div class="hero__petals hero__petals--near" aria-hidden="true" data-depth="0.55">
+    <svg viewBox="0 0 24 24" class="petal petal--c"><path fill="currentColor" d="M12 2 C 17 8, 16 16, 12 22 C 8 16, 7 8, 12 2 Z"/></svg>
+    <svg viewBox="0 0 24 24" class="petal petal--d"><path fill="currentColor" d="M12 2 C 17 8, 16 16, 12 22 C 8 16, 7 8, 12 2 Z"/></svg>
+    <svg viewBox="0 0 24 24" class="petal petal--e"><path fill="currentColor" d="M12 2 C 17 8, 16 16, 12 22 C 8 16, 7 8, 12 2 Z"/></svg>
+  </div>
 
   <div class="hero__inner container container--xl">
     <div class="hero__copy">
@@ -57,7 +78,7 @@ const after = idx >= 0 ? heading.slice(idx + accent.length) : "";
       <p class="hero__lead" data-hero-settle>{lead}</p>
 
       <div class="hero__actions" data-hero-settle>
-        <a class="btn btn--primary" href="#contact">Book a free consultation</a>
+        <a class="btn btn--primary" href="/contact" data-magnetic>Book a free consultation</a>
         <a class="btn btn--ghost" href={`tel:${SITE.phoneHref}`}>
           Call {SITE.phone}
         </a>
@@ -75,7 +96,7 @@ const after = idx >= 0 ? heading.slice(idx + accent.length) : "";
       </ul>
     </div>
 
-    <div class="hero__media">
+    <div class="hero__media" data-depth="0.16">
       <div class="hero__figure">
         {/* Candidates up to 1300w. The slot is ~520 CSS px on a laptop, which a
             2x display renders it well inside the cut-out's own 953px, so
@@ -117,6 +138,61 @@ const after = idx >= 0 ? heading.slice(idx + accent.length) : "";
     background-image: var(--grad-glow);
     pointer-events: none;
     z-index: -1;
+  }
+
+  /* The watermark: the client's own mark at architectural scale, barely-there
+     gold, half-cropped by the band edge. It fills what used to be dead navy
+     behind the copy and gives the parallax a plane the eye can measure the
+     others against. */
+  .hero__watermark {
+    position: absolute;
+    inset-block-start: -8%;
+    inset-inline-start: -12%;
+    inline-size: clamp(24rem, 55vw, 46rem);
+    aspect-ratio: 1;
+    --lotus-size: 100%;
+    opacity: 0.07;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .hero__petals {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    color: var(--b-500);
+  }
+
+  .petal {
+    position: absolute;
+    inline-size: 1.1rem;
+    opacity: 0.5;
+    animation: petal-drift 14s var(--ease-in-out) infinite alternate;
+  }
+
+  .hero__petals--far .petal {
+    opacity: 0.3;
+    inline-size: 0.8rem;
+  }
+
+  .petal--a { inset-block-start: 18%; inset-inline-start: 44%; rotate: 18deg; }
+  .petal--b { inset-block-start: 64%; inset-inline-start: 38%; rotate: -24deg; animation-delay: -5s; }
+  .petal--c { inset-block-start: 12%; inset-inline-start: 58%; rotate: 40deg; animation-delay: -2s; }
+  .petal--d { inset-block-start: 46%; inset-inline-start: 30%; rotate: -8deg; animation-delay: -9s; }
+  .petal--e { inset-block-start: 78%; inset-inline-start: 55%; rotate: 60deg; animation-delay: -12s; }
+
+  /* Slow, small, transform-only. The drift must never be *watched* — it is
+     there so a still screenshot and a live page feel different, nothing more. */
+  @keyframes petal-drift {
+    from { transform: translate3d(0, 0, 0) rotate(0deg); }
+    to   { transform: translate3d(0.6rem, 1.1rem, 0) rotate(14deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .petal {
+      animation: none;
+    }
   }
 
   .hero__inner {

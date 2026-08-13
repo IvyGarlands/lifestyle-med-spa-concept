@@ -37,6 +37,8 @@ import SignedReviews from "../components/sections/SignedReviews.astro";
 import AreaStrip from "../components/sections/AreaStrip.astro";
 import LocationContact from "../components/sections/LocationContact.astro";
 import Divider from "../components/brand/Divider.astro";
+import QuoteBanner from "../components/sections/QuoteBanner.astro";
+import MarqueeBand from "../components/sections/MarqueeBand.astro";
 
 import { SITE } from "../config/site";
 import { localeFromUrl } from "../i18n/ui";
@@ -45,6 +47,7 @@ import { CONTACT_FIELDS, PHI_NOTICE } from "../lib/forms";
 import {
   TEAM_PHOTOS,
   imgHeroCutout,
+  imgFacialCleanse,
   imgWeightLoss,
   imgTreatments,
   imgWhyChoose,
@@ -179,6 +182,14 @@ const testimonials = (await getCollection("testimonials")).sort(
     note="We accept CareCredit, which offers promotional financing on purchases of $200 or more."
   />
 
+  <QuoteBanner
+    image={imgFacialCleanse}
+    alt=""
+    script="you're family"
+    line="When you step through our doors, you're not just a patient."
+    attribution="Lifestyle Med Spa"
+  />
+
   <MediaSplit
     id="why-us"
     tone="default"
@@ -200,6 +211,23 @@ const testimonials = (await getCollection("testimonials")).sort(
     image={imgWhyChoose}
     alt="Inside Lifestyle Med Spa in Agoura Hills"
     ratio="wide"
+  />
+
+  <MarqueeBand
+    items={[
+      "Weight Management",
+      "GLP-1 Therapy",
+      "Vitamin IV Drips",
+      "NAD+",
+      "HydraFacial",
+      "Botox",
+      "Xeomin",
+      "Plasma Fibroblast",
+      "ZO Skin Health",
+    ]}
+    style="outline"
+    size="l"
+    tone="dark"
   />
 
   <TeamRoster

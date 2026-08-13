@@ -2,7 +2,10 @@
   "lang": "en",
   "name": "Beth Barrus",
   "role": "Co-founder & Head Nurse",
-  "credentials": ["RN", "50+ years in nursing"],
-  "bio": "More than fifty years of nursing, in critical care and surgical recovery. She wrote the practice's clinical protocols.",
+  "credentials": [
+    "RN",
+    "50+ years in nursing"
+  ],
+  "bio": "Beth co-founded the practice and serves as Head of Nursing, with more than 50 years of nursing experience across critical care and surgical recovery.\n\nShe established the clinical foundations of Lifestyle Med Spa and wrote the protocols that still govern patient care, safety and follow-up. Patients know her for warmth, empathy and straight answers.",
   "order": 3
 }

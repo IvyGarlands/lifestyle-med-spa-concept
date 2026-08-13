@@ -1,0 +1,205 @@
+---
+/**
+ * TeamBios — the full team page: portrait, signed name, credentials, bio.
+ *
+ * The homepage roster introduces the ten faces; this is where each one gets
+ * their story. Layout alternates portrait left / portrait right so a long
+ * page of people keeps a rhythm, and every name is signed in the brand script
+ * — same device as the roster, so the two pages read as one document.
+ */
+import type { CollectionEntry } from "astro:content";
+import { Picture } from "astro:assets";
+import Section from "./Section.astro";
+import SectionIntro from "./SectionIntro.astro";
+import WaterRule from "../brand/WaterRule.astro";
+import type { SectionProps } from "./Section.astro";
+import type { ImageMetadata } from "astro";
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  accent?: string;
+  lead?: string;
+  people: CollectionEntry<"people">[];
+  photos: Record<string, ImageMetadata>;
+}
+
+const {
+  eyebrow,
+  heading,
+  accent,
+  lead,
+  people,
+  photos,
+  id = "bios",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+---
+
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width="l"
+  labelledBy={`${id}-heading`}
+  {...rest}
+>
+  <SectionIntro
+    eyebrow={eyebrow}
+    heading={heading}
+    accent={accent}
+    lead={lead}
+    align="center"
+    headingId={`${id}-heading`}
+  />
+
+  <ol class="bios">
+    {
+      people.map((p, i) => {
+        const photo = photos[p.id];
+        const paragraphs = (p.data.bio ?? "").split("\n\n").filter(Boolean);
+        return (
+          <li class:list={["bio", i % 2 === 1 && "bio--flip"]}>
+            <div class="bio__media" data-reveal={i % 2 === 1 ? "right" : "left"}>
+              {photo && (
+                <Picture
+                  src={photo}
+                  alt={`${p.data.name}, ${p.data.role}`}
+                  widths={[320, 480, 640]}
+                  sizes="(min-width: 48em) 30vw, 70vw"
+                  formats={["avif", "webp"]}
+                  layout="none"
+                  loading="lazy"
+                  class="bio__img"
+                />
+              )}
+            </div>
+
+            <div class="bio__body" data-reveal>
+              <span class="bio__name">{p.data.name}</span>
+              <span class="bio__rule"><WaterRule size="s" center={false} /></span>
+              <span class="bio__role">{p.data.role}</span>
+              {p.data.credentials.length > 0 && (
+                <span class="bio__creds">{p.data.credentials.join(" · ")}</span>
+              )}
+              <div class="bio__prose">
+                {paragraphs.map((par) => (
+                  <p>{par}</p>
+                ))}
+              </div>
+            </div>
+          </li>
+        );
+      })
+    }
+  </ol>
+</Section>
+
+<style>
+  .bios {
+    display: grid;
+    gap: var(--space-2xl);
+    margin: var(--space-2xl) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .bio {
+    display: grid;
+    gap: var(--space-m);
+    align-items: start;
+  }
+
+  @media (min-width: 48em) {
+    .bio {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+      gap: var(--space-xl);
+    }
+
+    .bio--flip .bio__media {
+      order: 2;
+    }
+  }
+
+  .bio__media {
+    position: relative;
+  }
+
+  .bio__img {
+    inline-size: 100%;
+    block-size: auto;
+    aspect-ratio: 1 / 1.05;
+    object-fit: cover;
+    object-position: center 15%;
+    border-radius: var(--radius-image);
+    border: var(--border-hair) solid var(--color-line);
+    box-shadow: var(--shadow-m);
+    filter: var(--image-filter);
+  }
+
+  /* The gold wash, same as the roster: ten portraits from different days
+     against different walls, unified into one shoot. */
+  .bio__media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-image);
+    background-image: linear-gradient(
+      to top,
+      rgb(238 204 122 / 0.18) 0%,
+      rgb(238 204 122 / 0) 40%
+    );
+    pointer-events: none;
+  }
+
+  .bio__name {
+    display: block;
+    font-family: var(--face-script);
+    font-size: var(--step-4);
+    line-height: 1.1;
+    letter-spacing: var(--tracking-script);
+    color: var(--color-brand);
+  }
+
+  .bio__rule {
+    display: block;
+    inline-size: min(10rem, 60%);
+    margin-block: var(--space-3xs) var(--space-2xs);
+  }
+
+  .bio__role {
+    display: block;
+    font-family: var(--face-display);
+    font-size: var(--step-1);
+    font-weight: 700;
+    letter-spacing: var(--tracking-heading);
+    color: var(--color-ink-strong);
+  }
+
+  .bio__creds {
+    display: block;
+    margin-block-start: 0.15em;
+    font-size: var(--step--1);
+    letter-spacing: 0.04em;
+    color: var(--color-ink-muted);
+  }
+
+  .bio__prose {
+    margin-block-start: var(--space-s);
+    max-inline-size: 58ch;
+  }
+
+  .bio__prose p {
+    margin: 0 0 var(--space-s);
+    font-size: var(--step-0);
+    line-height: var(--leading-body);
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .bio__prose p:last-child {
+    margin-block-end: 0;
+  }
+</style>

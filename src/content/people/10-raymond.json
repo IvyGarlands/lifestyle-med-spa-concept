@@ -2,7 +2,10 @@
   "lang": "en",
   "name": "Jaime Raymond",
   "role": "Plasma Fibroblast Pen Technician",
-  "credentials": ["Certified, Plasma Fibroblast", "16 years in the beauty industry"],
-  "bio": "Sixteen years as a makeup and hair artist before certifying on the fibroblast pen.",
+  "credentials": [
+    "Certified, Plasma Fibroblast",
+    "16 years in the beauty industry"
+  ],
+  "bio": "Jaime has been in the beauty industry for sixteen years as a makeup and hair artist and is certified as a Plasma Fibroblast pen technician.",
   "order": 10
 }

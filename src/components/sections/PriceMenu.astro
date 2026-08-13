@@ -1,0 +1,149 @@
+---
+/**
+ * PriceMenu — a treatment list with their real published prices.
+ *
+ * Every figure rendered here comes from the `menu` collection, which carries
+ * only prices the practice itself publishes (IV menu, HydraFacial tiers, the
+ * $550 weight program, the ZO product list). The component cannot originate a
+ * number — it renders what the collection holds, verbatim.
+ *
+ * The row is name — gradient leader — price. A leader that FADES (the same
+ * --grad-rule as the dividers) rather than a dot leader: dots at this density
+ * read as a diner menu, a fading hairline reads as a spa card.
+ */
+import type { CollectionEntry } from "astro:content";
+import Section from "./Section.astro";
+import SectionIntro from "./SectionIntro.astro";
+import type { SectionProps } from "./Section.astro";
+
+interface Props extends SectionProps {
+  eyebrow?: string;
+  heading: string;
+  accent?: string;
+  lead?: string;
+  items: CollectionEntry<"menu">[];
+  /** Two columns for long product lists (ZO); one for menus with blurbs. */
+  columns?: 1 | 2;
+  note?: string;
+}
+
+const {
+  eyebrow,
+  heading,
+  accent,
+  lead,
+  items,
+  columns = 1,
+  note,
+  id = "pricing",
+  tone,
+  spacing,
+  ...rest
+} = Astro.props;
+
+const ordered = [...items].sort((a, b) => a.data.order - b.data.order);
+---
+
+<Section
+  id={id}
+  tone={tone}
+  spacing={spacing}
+  width={columns === 2 ? "xl" : "m"}
+  labelledBy={`${id}-heading`}
+  {...rest}
+>
+  <SectionIntro
+    eyebrow={eyebrow}
+    heading={heading}
+    accent={accent}
+    lead={lead}
+    align="center"
+    headingId={`${id}-heading`}
+  />
+
+  <ul class:list={["pmenu", columns === 2 && "pmenu--cols"]} data-reveal-stagger>
+    {
+      ordered.map((item) => (
+        <li class="pmenu__row" data-reveal="fade">
+          <div class="pmenu__line">
+            <span class="pmenu__name">{item.data.name}</span>
+            <span class="pmenu__leader" aria-hidden="true" />
+            <span class="pmenu__price">{item.data.price}</span>
+          </div>
+          {item.data.description && (
+            <p class="pmenu__desc">{item.data.description}</p>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+
+  {note && <p class="pmenu__note">{note}</p>}
+</Section>
+
+<style>
+  .pmenu {
+    margin: var(--space-l) 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-s);
+  }
+
+  @media (min-width: 48em) {
+    .pmenu--cols {
+      grid-template-columns: 1fr 1fr;
+      column-gap: var(--space-2xl);
+    }
+  }
+
+  .pmenu__line {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-xs);
+  }
+
+  .pmenu__name {
+    font-family: var(--face-display);
+    font-size: var(--step-1);
+    font-weight: 700;
+    letter-spacing: var(--tracking-heading);
+    color: var(--color-ink-strong);
+  }
+
+  .pmenu__leader {
+    flex: 1;
+    block-size: 1px;
+    background-image: var(--grad-rule);
+    /* Baseline-align the hairline with the text it connects. */
+    transform: translateY(-0.3em);
+  }
+
+  .pmenu__price {
+    font-family: var(--face-display);
+    font-size: var(--step-1);
+    font-weight: var(--weight-display);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-brand);
+    white-space: nowrap;
+  }
+
+  .pmenu__desc {
+    margin: var(--space-3xs) 0 0;
+    max-inline-size: 52ch;
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-muted);
+    text-wrap: pretty;
+  }
+
+  .pmenu__note {
+    margin: var(--space-l) auto 0;
+    max-inline-size: var(--measure);
+    text-align: center;
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-muted);
+    text-wrap: pretty;
+  }
+</style>

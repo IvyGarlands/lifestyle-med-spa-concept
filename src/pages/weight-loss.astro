@@ -1,0 +1,169 @@
+---
+/**
+ * /weight-loss — the flagship page.
+ *
+ * Order: what the medicine is -> what surrounds it (nutrition, activity,
+ * sleep, natural support) -> what it costs (their published $550 program,
+ * verbatim inclusions) -> their FAQ -> how to start.
+ *
+ * COMPLIANCE. Their own page carries a testimonial with a pound figure and a
+ * timeframe; it is deliberately NOT reproduced here (FTC weight-loss
+ * advertising). The $550 pricing IS published by them and ships verbatim.
+ * Drug names appear only in a factual list with the trademark note.
+ */
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHeader from "../components/sections/PageHeader.astro";
+import MediaSplit from "../components/sections/MediaSplit.astro";
+import PriceMenu from "../components/sections/PriceMenu.astro";
+import StepsBand from "../components/sections/StepsBand.astro";
+import FAQ from "../components/sections/FAQ.astro";
+import CTABand from "../components/sections/CTABand.astro";
+import Divider from "../components/brand/Divider.astro";
+
+import { SITE } from "../config/site";
+import { localeFromUrl } from "../i18n/ui";
+import { NAV } from "../lib/nav";
+import {
+  imgTreatments,
+  imgWeightLoss,
+  imgCollagen,
+  imgYerbaMate,
+} from "../lib/media";
+
+const locale = localeFromUrl(Astro.url);
+
+const menu = await getCollection("menu");
+const weightPrices = menu.filter((m) => m.data.category === "Weight Management");
+
+const faq = (await getCollection("faq"))
+  .filter((f) => f.id.startsWith("wl-"))
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout
+  title="Medical weight loss"
+  description="Physician-directed GLP-1 weight loss in Agoura Hills and by telehealth across California, Utah and Texas. Free consultation, no contracts, no memberships."
+  path="/weight-loss"
+  navLinks={NAV}
+  faq={faq.map((f) => ({ question: f.data.question, answer: f.data.answer }))}
+>
+  <PageHeader
+    eyebrow="Weight management"
+    heading="Lose the weight with medicine, not willpower alone."
+    accent="not willpower alone."
+    lead="Losing weight safely takes more than the latest medication — especially when weight-related health problems or food addictions are part of the picture. We combine GLP-1 therapy with nutrition, activity and sleep work, under the direction of our physician."
+    image={imgTreatments}
+    alt=""
+    crumbs={[
+      { label: "Home", href: "/" },
+      { label: "Weight loss", href: "/weight-loss" },
+    ]}
+  />
+
+  <MediaSplit
+    id="medications"
+    tone="default"
+    eyebrow="The medication"
+    heading="GLP-1 and dual-agonist injections."
+    accent="dual-agonist"
+    body={[
+      "GLP-1 medications mimic a hormone your body already makes, reducing appetite and improving blood sugar control. Wegovy is FDA-approved for weight loss; Ozempic was originally developed for diabetes management.",
+      "Mounjaro and Zepbound are dual agonists — they activate both the GLP-1 and GIP receptors rather than just the first, which produces greater appetite reduction than GLP-1 medication alone. Zepbound is FDA-approved for weight management.",
+      "Every prescription starts with an evaluation by Michael Rankin, MD or Kristina Dino, NP. Consultations happen in clinic or remotely, and for qualified candidates we ship pre-filled syringes directly to your home.",
+    ]}
+    points={[
+      "Evaluated and prescribed by a licensed provider, where clinically appropriate",
+      "In-clinic or fully remote — no weekly office visits required",
+      "Telehealth across California, Utah and Texas",
+    ]}
+    image={imgWeightLoss}
+    alt="Medical weight loss at Lifestyle Med Spa"
+    ctaLabel="Book a free consultation"
+    ctaHref="/contact"
+    note="Mounjaro, Ozempic, Wegovy and Zepbound are registered trademarks of their respective owners. Listing a medication is not a claim of affiliation with or endorsement by its manufacturer."
+  />
+
+  <MediaSplit
+    id="beyond"
+    tone="light"
+    flip={true}
+    eyebrow="Beyond the injection"
+    heading="The habits that make it hold."
+    accent="make it hold."
+    body={[
+      "Medication opens the door; what you do next decides whether the results last. We build a nutrition plan around your actual life — managing calorie intake while keeping a healthy nutrient profile — and help you fold movement into your week, because exercise itself raises your natural GLP-1 response.",
+      "We also look at sleep. Weight and poor sleep feed each other in a loop, and breaking that cycle is often the quiet difference between a good month and a good year.",
+      "For patients who want natural support alongside or instead of medication, we work with evidence-backed options — yerba mate tea, collagen peptides, allulose as a sugar substitute, and apple cider vinegar.",
+    ]}
+    points={[
+      "Practical nutrition guidance, including keto plans where they fit",
+      "Activity and sleep coaching tailored to your habits",
+      "Natural GLP-1 support for patients who prefer it",
+    ]}
+    image={imgYerbaMate}
+    alt="Yerba mate tea, one of the natural weight loss options we offer"
+    ratio="square"
+  />
+
+  <PriceMenu
+    id="pricing"
+    tone="brand"
+    eyebrow="What it costs"
+    heading="One price, everything included."
+    accent="everything included."
+    lead="Our program is pay-as-you-go. No contracts, no commitment, no memberships — cancel any time."
+    items={weightPrices}
+    note="Your first month includes a free Evolt 360 body composition scan — more than 40 measurements in 60 seconds — so progress is measured, not guessed. We accept CareCredit on purchases of $200 or more."
+  />
+
+  <StepsBand
+    id="how"
+    tone="default"
+    eyebrow="How it starts"
+    heading="From first call to first injection."
+    accent="first injection."
+    steps={[
+      {
+        title: "Free consultation",
+        body: "In clinic or by video. We talk through your history, your goals and whether medication fits.",
+      },
+      {
+        title: "Evaluation",
+        body: "Our provider reviews your health picture and, where appropriate, writes the prescription.",
+      },
+      {
+        title: "Baseline scan",
+        body: "The Evolt 360 gives us forty-plus measurements to track your progress against.",
+      },
+      {
+        title: "Weekly rhythm",
+        body: "Injections weekly — in clinic or shipped to you — with our team a text away in between.",
+      },
+    ]}
+  />
+
+  <Divider mark="lotus" space="tight" />
+
+  <FAQ
+    locale={locale}
+    id="faq"
+    tone="default"
+    eyebrow="Questions we hear"
+    heading="Weight loss, answered plainly."
+    items={faq}
+    openFirst={true}
+  />
+
+  <CTABand
+    tone="brand"
+    align="center"
+    eyebrow="No contracts · No memberships"
+    heading="The consultation is free. Start there."
+    ctaLabel={`Call ${SITE.phone}`}
+    ctaHref={`tel:${SITE.phoneHref}`}
+    secondaryLabel={`Text ${SITE.textPhone}`}
+    secondaryHref={`sms:${SITE.textPhoneHref}`}
+    note="Open Monday to Thursday, and by telehealth across California, Utah and Texas."
+  />
+</BaseLayout>

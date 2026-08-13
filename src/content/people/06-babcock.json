@@ -2,7 +2,11 @@
   "lang": "en",
   "name": "Traci Babcock",
   "role": "Nurse Practitioner",
-  "credentials": ["RN", "NP", "Board-certified"],
-  "bio": "Works with Lifestyle Med Spa and Family Psychological Services.",
+  "credentials": [
+    "RN",
+    "NP",
+    "Board-certified"
+  ],
+  "bio": "Traci Babcock, RN, NP is an experienced board-certified nurse practitioner working with Lifestyle Med Spa and Family Psychological Services.",
   "order": 6
 }

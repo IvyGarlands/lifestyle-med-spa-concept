@@ -195,10 +195,20 @@ const home = localizePath("/", locale);
     }
   }
 
+  /* Six items + wordmark + phone is a full house. The cluster opens at the
+     60em breakpoint on the TIGHT gap and only relaxes at 75em — at the old
+     setting the last item wrapped onto a second line between roughly 960 and
+     1200px, which read as a broken header rather than a responsive one. */
   @media (min-width: 60em) {
     .site-header__nav {
       display: block;
     }
+    .site-header__nav ul {
+      --cluster-gap: var(--space-xs);
+    }
+  }
+
+  @media (min-width: 75em) {
     .site-header__nav ul {
       --cluster-gap: var(--space-m);
     }

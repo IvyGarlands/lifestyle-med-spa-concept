@@ -2,7 +2,10 @@
   "lang": "en",
   "name": "Jessica Salazar",
   "role": "Medical Assistant",
-  "credentials": ["B.S. Microbiology, UC Davis", "Minor in Public Health"],
-  "bio": "Focused on GLP-1 therapies, metabolic health and weight-management support. In practice since 2019.",
+  "credentials": [
+    "B.S. Microbiology, UC Davis",
+    "Minor in Public Health"
+  ],
+  "bio": "Jessica has worked as a medical assistant since 2019, with a strong focus on GLP-1 therapies, metabolic health and weight-management support. She holds a B.S. in Microbiology with a minor in Public Health from UC Davis.\n\nShe guides patients through treatment and the education around it — the questions between appointments are usually answered by Jessica.",
   "order": 7
 }

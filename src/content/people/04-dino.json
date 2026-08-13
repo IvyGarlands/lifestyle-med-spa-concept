@@ -2,7 +2,11 @@
   "lang": "en",
   "name": "Kristina Dino",
   "role": "Certified Family Nurse Practitioner",
-  "credentials": ["MSN", "FNP-C", "PMHNP-BC"],
-  "bio": "Dual board-certified. Master of Science in Nursing and a post-master's certification in psychiatric mental health, West Coast University.",
+  "credentials": [
+    "MSN",
+    "FNP-C",
+    "PMHNP-BC"
+  ],
+  "bio": "Kristina is a dual board-certified Nurse Practitioner specializing in medical weight loss, aesthetic medicine and wellness optimization. She earned her MSN and a post-master's certification in psychiatric mental health from West Coast University.\n\nShe leads our weight-management work — evidence-based fat loss, metabolic health and lifestyle change — and is a trained injector with an emphasis on natural-looking, refreshed results.",
   "order": 4
 }

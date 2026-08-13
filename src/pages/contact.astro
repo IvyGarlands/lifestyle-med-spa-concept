@@ -1,0 +1,87 @@
+---
+/**
+ * /contact — the destination every CTA on the site points at.
+ *
+ * Everything a visitor needs to start: both phone lines, the address, the
+ * hours, the four-field form (PHI-safe — see lib/forms.ts), and the financing
+ * facts. The page header carries their own aerial photograph of Agoura Hills,
+ * so even the contact page opens with a real place rather than a flat band.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHeader from "../components/sections/PageHeader.astro";
+import LocationContact from "../components/sections/LocationContact.astro";
+import MediaSplit from "../components/sections/MediaSplit.astro";
+
+import { SITE } from "../config/site";
+import { localeFromUrl } from "../i18n/ui";
+import { NAV } from "../lib/nav";
+import { CONTACT_FIELDS, PHI_NOTICE } from "../lib/forms";
+import { CITY_PHOTOS, imgBrochure } from "../lib/media";
+
+const locale = localeFromUrl(Astro.url);
+const agoura = CITY_PHOTOS["agoura-hills"];
+---
+
+<BaseLayout
+  title="Visit us"
+  description="Lifestyle Med Spa — 30497 Canwood St, Suite 200, Agoura Hills, CA 91301. Call (818) 206-3066 or text (805) 391-2314. Consultations are always free."
+  path="/contact"
+  navLinks={NAV}
+>
+  <PageHeader
+    eyebrow="Visit"
+    heading="Canwood Street, Suite 200."
+    accent="Suite 200."
+    lead="We're a small clinic in Agoura Hills, open Monday through Thursday, with telehealth for patients across California, Utah and Texas. Call, text, or send the form — a person answers, not a phone tree."
+    image={agoura}
+    alt=""
+    crumbs={[
+      { label: "Home", href: "/" },
+      { label: "Visit", href: "/contact" },
+    ]}
+    showActions={false}
+  />
+
+  <LocationContact
+    locale={locale}
+    id="contact"
+    tone="default"
+    eyebrow="Reach us"
+    heading="Call, text, or write."
+    showMap={false}
+    showHours={true}
+    formFields={CONTACT_FIELDS}
+    formSubject="Consultation request — Lifestyle Med Spa"
+    formNotice={PHI_NOTICE}
+    altContact={{
+      label: "Text us",
+      value: SITE.textPhone,
+      href: `sms:${SITE.textPhoneHref}`,
+      note: "A separate line we publish for texting — useful on the three days a week we are closed.",
+    }}
+  />
+
+  <MediaSplit
+    id="financing"
+    tone="light"
+    flip={true}
+    eyebrow="Paying for it"
+    heading="No memberships. Financing if you want it."
+    accent="Financing if you want it."
+    body={[
+      "There are no contracts, no hidden fees and no membership costs here — you pay for what you have, when you have it, and consultations are always free.",
+      "If spreading a larger treatment out helps, we accept CareCredit, which offers promotional financing on purchases of $200 or more with convenient monthly payments.",
+      "And if you're weighing up GLP-1 treatment, our free guide walks through how the medication works before you ever book anything.",
+    ]}
+    points={[
+      "Consultations always free",
+      "CareCredit accepted on $200+",
+      "Free GLP-1 weight loss guide",
+    ]}
+    image={imgBrochure}
+    alt="The Lifestyle Med Spa GLP-1 weight loss guide"
+    ratio="wide"
+    ctaLabel="Start with a free consultation"
+    ctaHref={`tel:${SITE.phoneHref}`}
+  />
+</BaseLayout>

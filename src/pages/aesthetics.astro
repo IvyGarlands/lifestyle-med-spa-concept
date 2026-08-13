@@ -1,0 +1,270 @@
+---
+/**
+ * /aesthetics — HydraFacial, neuromodulators, plasma fibroblast, facials.
+ *
+ * HydraFacial leads: it is the one aesthetic treatment with published tiered
+ * pricing AND a five-step photo set on their own site, so it carries both the
+ * price menu and the photo-heavy step band. Botox/Xeomin follow with the
+ * provider named — in this category, who injects matters more than what.
+ */
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHeader from "../components/sections/PageHeader.astro";
+import MediaSplit from "../components/sections/MediaSplit.astro";
+import PriceMenu from "../components/sections/PriceMenu.astro";
+import FAQ from "../components/sections/FAQ.astro";
+import CTABand from "../components/sections/CTABand.astro";
+import Divider from "../components/brand/Divider.astro";
+import Section from "../components/sections/Section.astro";
+import SectionIntro from "../components/sections/SectionIntro.astro";
+import { Picture } from "astro:assets";
+
+import { SITE } from "../config/site";
+import { localeFromUrl } from "../i18n/ui";
+import { NAV } from "../lib/nav";
+import {
+  imgHydrafacial,
+  imgHydrafacialWhy,
+  imgExfoliation,
+  imgAcidPeel,
+  imgExtraction,
+  imgHydration,
+  imgProtection,
+} from "../lib/media";
+
+const locale = localeFromUrl(Astro.url);
+
+const menu = await getCollection("menu");
+const hfPrices = menu.filter((m) => m.data.category === "HydraFacial");
+
+const faq = (await getCollection("faq"))
+  .filter((f) => f.id.startsWith("hf-"))
+  .sort((a, b) => a.data.order - b.data.order);
+
+/* The five HydraFacial steps, each with the practice's own photograph. */
+const steps = [
+  {
+    title: "Cleanse & exfoliate",
+    body: "Dead skin cells and surface impurities come off gently, first.",
+    image: imgExfoliation,
+  },
+  {
+    title: "Gentle acid peel",
+    body: "A mild peel loosens debris in the pores without irritation.",
+    image: imgAcidPeel,
+  },
+  {
+    title: "Extraction",
+    body: "Patented suction clears clogged pores of impurities and excess oil.",
+    image: imgExtraction,
+  },
+  {
+    title: "Hydration",
+    body: "Antioxidant and hyaluronic-acid serums are infused into the skin.",
+    image: imgHydration,
+  },
+  {
+    title: "Protection",
+    body: "Moisturizer and sunscreen lock the results in before you leave.",
+    image: imgProtection,
+  },
+];
+---
+
+<BaseLayout
+  title="Aesthetics"
+  description="HydraFacial, Botox, Xeomin, plasma fibroblast and professional facials in Agoura Hills, delivered by our clinical team."
+  path="/aesthetics"
+  navLinks={NAV}
+  faq={faq.map((f) => ({ question: f.data.question, answer: f.data.answer }))}
+>
+  <PageHeader
+    eyebrow="Aesthetics"
+    heading="Refreshed, not overdone."
+    accent="not overdone."
+    lead="Our aesthetic work is done by the same clinical team that runs the rest of the practice — a trained injector with a nurse practitioner's judgment, aiming for results people notice without being able to say why."
+    image={imgHydrafacial}
+    alt=""
+    crumbs={[
+      { label: "Home", href: "/" },
+      { label: "Aesthetics", href: "/aesthetics" },
+    ]}
+  />
+
+  <MediaSplit
+    id="hydrafacial"
+    tone="default"
+    eyebrow="The favourite"
+    heading="HydraFacial, in five unhurried steps."
+    accent="HydraFacial,"
+    body={[
+      "A HydraFacial is a medical-grade, non-invasive facial that combines cleansing, exfoliation, extraction and hydration using patented vortex technology — dead skin and impurities out, nourishing serums in.",
+      "It treats fine lines, uneven tone and texture, hyperpigmentation and sun damage, congested skin, and dryness — and it suits nearly every skin type, including sensitive skin. The whole treatment takes 30 to 60 minutes with no downtime at all.",
+      "Against microdermabrasion, the difference is comfort: controlled suction cleanses the pores while simultaneously delivering hydrating, antioxidant-rich serums.",
+    ]}
+    image={imgHydrafacialWhy}
+    alt="A HydraFacial treatment at Lifestyle Med Spa"
+    ctaLabel="See the three tiers"
+    ctaHref="#pricing"
+  />
+
+  {/* The five steps, photo-first. A horizontal filmstrip of their own
+      treatment photography — the photo-heavy answer to a numbered list. */}
+  <Section id="steps" tone="light" width="xl" aria-label="The five HydraFacial steps">
+    <SectionIntro
+      eyebrow="What happens on the bed"
+      heading="Five steps, thirty minutes, zero downtime."
+      accent="zero downtime."
+      align="center"
+    />
+    <ol class="film" data-reveal-stagger>
+      {
+        steps.map((s, i) => (
+          <li class="frame" data-reveal>
+            <div class="frame__media">
+              <Picture
+                src={s.image}
+                alt={`HydraFacial step ${i + 1}: ${s.title}`}
+                widths={[300, 460, 620]}
+                sizes="(min-width: 64em) 18vw, (min-width: 40em) 30vw, 70vw"
+                formats={["avif", "webp"]}
+                layout="none"
+                loading="lazy"
+                class="frame__img"
+              />
+              <span class="frame__num" aria-hidden="true">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+            </div>
+            <span class="frame__title">{s.title}</span>
+            <span class="frame__body">{s.body}</span>
+          </li>
+        ))
+      }
+    </ol>
+  </Section>
+
+  <PriceMenu
+    id="pricing"
+    tone="brand"
+    eyebrow="HydraFacial pricing"
+    heading="Three tiers, priced up front."
+    accent="priced up front."
+    items={hfPrices}
+    note="CareCredit accepted on purchases of $200 or more."
+  />
+
+  <MediaSplit
+    id="injectables"
+    tone="default"
+    flip={true}
+    eyebrow="Injectables"
+    heading="Botox and Xeomin, by a trained injector."
+    accent="by a trained injector."
+    body={[
+      "Neuromodulator treatments soften the lines that movement has written — forehead, frown, crow's feet — while leaving your face able to do everything it did before. That balance is a judgment call, and here it is made by Kristina Dino, NP, our dual board-certified nurse practitioner and trained injector.",
+      "We also offer plasma fibroblast skin tightening with our certified technician, cortisone injections, and professional facials for the weeks between bigger treatments.",
+      "Pricing is quoted at your free consultation, once we've seen your skin and heard what you want — a number before that would be a guess, and we don't guess.",
+    ]}
+    points={[
+      "Botox and Xeomin neuromodulator treatments",
+      "Plasma fibroblast skin tightening",
+      "Cortisone injections and professional facials",
+    ]}
+    image={imgHydrafacial}
+    alt="Aesthetic treatment at Lifestyle Med Spa"
+    ctaLabel="Book a free consultation"
+    ctaHref="/contact"
+  />
+
+  <Divider mark="lotus" space="tight" />
+
+  <FAQ
+    locale={locale}
+    id="faq"
+    tone="default"
+    eyebrow="Questions we hear"
+    heading="Aesthetics, answered plainly."
+    items={faq}
+    openFirst={true}
+  />
+
+  <CTABand
+    tone="brand"
+    align="center"
+    eyebrow="No downtime · No pressure"
+    heading="Come in for a skin consult. It's free."
+    ctaLabel={`Call ${SITE.phone}`}
+    ctaHref={`tel:${SITE.phoneHref}`}
+    secondaryLabel={`Text ${SITE.textPhone}`}
+    secondaryHref={`sms:${SITE.textPhoneHref}`}
+  />
+</BaseLayout>
+
+<style>
+  .film {
+    display: grid;
+    gap: var(--space-m);
+    margin: var(--space-xl) 0 0;
+    padding: 0;
+    list-style: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 64em) {
+    .film {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  .frame {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .frame__media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: var(--radius-m);
+    border: var(--border-hair) solid var(--color-line);
+  }
+
+  .frame__img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    filter: var(--image-filter);
+  }
+
+  /* The step number sits ON the photograph, over its own small scrim — the
+     filmstrip reads as one sequence rather than five captioned thumbnails. */
+  .frame__num {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-start: 0;
+    padding: 0.2em 0.65em;
+    font-family: var(--face-display);
+    font-size: var(--step-1);
+    font-weight: var(--weight-display);
+    color: var(--n-900);
+    background-image: var(--grad-gold-soft);
+    border-start-end-radius: var(--radius-m);
+  }
+
+  .frame__title {
+    margin-block-start: var(--space-xs);
+    font-family: var(--face-display);
+    font-size: var(--step-0);
+    font-weight: 700;
+    letter-spacing: var(--tracking-heading);
+    color: var(--color-ink-strong);
+  }
+
+  .frame__body {
+    margin-block-start: 0.2em;
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-muted);
+  }
+</style>

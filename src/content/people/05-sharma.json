@@ -2,7 +2,11 @@
   "lang": "en",
   "name": "Anjmun Sharma",
   "role": "Physician, Occupational Medicine",
-  "credentials": ["MD", "Aviation Medical Examiner", "Designated Civil Surgeon, USCIS"],
-  "bio": "Practises at Monument Occupational Medicine, PC, in Colorado Springs.",
+  "credentials": [
+    "MD",
+    "Aviation Medical Examiner",
+    "Designated Civil Surgeon, USCIS"
+  ],
+  "bio": "Dr. Sharma is a certified physician specializing in occupational medicine. He is an Aviation Medical Examiner, a Designated Civil Surgeon for USCIS, and Level II certified by the Division of Workers' Compensation in Colorado.\n\nHe practices at Monument Occupational Medicine in Colorado Springs and supports our clinical team remotely.",
   "order": 5
 }

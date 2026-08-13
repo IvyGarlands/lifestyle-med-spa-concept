@@ -2,7 +2,10 @@
   "lang": "en",
   "name": "Giselle Morales",
   "role": "Medical Assistant",
-  "credentials": ["4 years esthetic practice", "5 years as a medical assistant"],
-  "bio": "Skin health and treatment planning, from regimens through to injections and nutritional boosters.",
+  "credentials": [
+    "4 years esthetic practice",
+    "5 years as a medical assistant"
+  ],
+  "bio": "Giselle brings four years of dedicated esthetic practice and five as a medical assistant. Her range runs from personalized skin-care regimens to weight-loss injections and nutritional booster therapies.",
   "order": 8
 }

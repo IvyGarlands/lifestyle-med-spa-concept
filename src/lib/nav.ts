@@ -10,7 +10,7 @@ export const NAV = [
   { label: "Wellness & IV", href: "/wellness" },
   { label: "Aesthetics", href: "/aesthetics" },
   { label: "Skincare", href: "/skincare" },
-  { label: "Our team", href: "/team" },
+  { label: "Team", href: "/team" },
   { label: "Visit", href: "/contact" },
 ];
 

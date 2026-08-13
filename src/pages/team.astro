@@ -1,0 +1,73 @@
+---
+/**
+ * /team — every one of the ten, with a face, a signature and a story.
+ *
+ * The homepage roster is the introduction; this page is the full record.
+ * Bios are condensed from the practice's own published team page — facts and
+ * credentials only, nothing invented.
+ */
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHeader from "../components/sections/PageHeader.astro";
+import TeamBios from "../components/sections/TeamBios.astro";
+import QuoteBanner from "../components/sections/QuoteBanner.astro";
+import CTABand from "../components/sections/CTABand.astro";
+
+import { SITE } from "../config/site";
+import { NAV } from "../lib/nav";
+import { TEAM_PHOTOS, imgWhyChoose, imgFacialCleanse } from "../lib/media";
+
+const people = (await getCollection("people")).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<BaseLayout
+  title="Our team"
+  description="The ten people of Lifestyle Med Spa — founded by Kim B. Barrus, Ph.D., led by medical director Michael Rankin, MD, with Kristina Dino, NP as our certified family nurse practitioner."
+  path="/team"
+  navLinks={NAV}
+>
+  <PageHeader
+    eyebrow="Our team"
+    heading="Ten of us, and we'll tell you every name."
+    accent="every name."
+    lead="Our medical spa was founded by Kim B. Barrus, Ph.D., and is led by our medical director, Michael Rankin, MD. Kristina Dino, MSN, FNP-C, PMHNP-BC serves as our certified family nurse practitioner. Everyone else you'll meet is below — because knowing who is treating you shouldn't take detective work."
+    image={imgWhyChoose}
+    alt=""
+    crumbs={[
+      { label: "Home", href: "/" },
+      { label: "Our team", href: "/team" },
+    ]}
+  />
+
+  <TeamBios
+    id="bios"
+    tone="default"
+    eyebrow="In their own right"
+    heading="The people behind the signatures."
+    accent="behind the signatures."
+    people={people}
+    photos={TEAM_PHOTOS}
+  />
+
+  <QuoteBanner
+    image={imgFacialCleanse}
+    alt=""
+    script="you're family"
+    line="When you step through our doors, you're not just a patient."
+    attribution="Lifestyle Med Spa"
+  />
+
+  <CTABand
+    tone="brand"
+    align="center"
+    eyebrow="Meet us properly"
+    heading="The first conversation is free."
+    ctaLabel={`Call ${SITE.phone}`}
+    ctaHref={`tel:${SITE.phoneHref}`}
+    secondaryLabel={`Text ${SITE.textPhone}`}
+    secondaryHref={`sms:${SITE.textPhoneHref}`}
+    note="Open Monday to Thursday in Agoura Hills."
+  />
+</BaseLayout>

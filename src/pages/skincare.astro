@@ -1,0 +1,109 @@
+---
+/**
+ * /skincare — ZO Skin Health and Circadia, with their published product list.
+ *
+ * The whole argument of this page is the difference between skincare bought
+ * off a shelf and skincare matched to your skin by the clinician who just
+ * examined it. The price list is theirs, verbatim, in two columns.
+ */
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHeader from "../components/sections/PageHeader.astro";
+import MediaSplit from "../components/sections/MediaSplit.astro";
+import PriceMenu from "../components/sections/PriceMenu.astro";
+import FAQ from "../components/sections/FAQ.astro";
+import CTABand from "../components/sections/CTABand.astro";
+import Divider from "../components/brand/Divider.astro";
+
+import { SITE } from "../config/site";
+import { localeFromUrl } from "../i18n/ui";
+import { NAV } from "../lib/nav";
+import { imgZoBanner, imgZoSkin, imgFacialCleanse } from "../lib/media";
+
+const locale = localeFromUrl(Astro.url);
+
+const menu = await getCollection("menu");
+const zoPrices = menu.filter((m) => m.data.category === "ZO Skin Health");
+
+const faq = (await getCollection("faq"))
+  .filter((f) => f.id.startsWith("zo-"))
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout
+  title="Medical skincare"
+  description="ZO Skin Health and Circadia medical-grade skincare in Agoura Hills, prescribed to your skin by our clinical team."
+  path="/skincare"
+  navLinks={NAV}
+  faq={faq.map((f) => ({ question: f.data.question, answer: f.data.answer }))}
+>
+  <PageHeader
+    eyebrow="Medical skincare"
+    heading="Prescription-strength, matched to your skin."
+    accent="matched to your skin."
+    lead="ZO Skin Health builds on prescription-strength ingredients backed by clinical evidence — vitamins A, C and E, peptides and botanical extracts — for fine lines, uneven tone, blemish-prone skin, sun damage and sensitivity. We carry it because it works, and we match it to you because that's the part a shelf can't do."
+    image={imgZoBanner}
+    alt=""
+    crumbs={[
+      { label: "Home", href: "/" },
+      { label: "Skincare", href: "/skincare" },
+    ]}
+  />
+
+  <MediaSplit
+    id="how"
+    tone="default"
+    eyebrow="How we prescribe it"
+    heading="The person who treats your skin picks the regimen."
+    accent="picks the regimen."
+    body={[
+      "Most skincare is bought on a guess — a review, a friend's recommendation, a shelf label. Here the regimen is chosen after your consultation or treatment, by the clinician who has just looked at your skin under proper light.",
+      "That usually means fewer products, not more. A cleanser, a corrector and protection, matched to your actual concerns, beats a drawer of half-used jars.",
+      "Alongside ZO we carry Circadia — a professional line built around the skin's day-night cycle — and we'll tell you plainly which of the two fits you better.",
+    ]}
+    points={[
+      "Regimens matched at your free consultation",
+      "ZO Skin Health and Circadia professional lines",
+      "Honest advice — including when to buy less",
+    ]}
+    image={imgZoSkin}
+    alt="ZO Skin Health products at Lifestyle Med Spa"
+    ratio="wide"
+    ctaLabel="Ask about your skin"
+    ctaHref="/contact"
+  />
+
+  <PriceMenu
+    id="pricing"
+    tone="light"
+    eyebrow="The ZO shelf"
+    heading="Every product, priced up front."
+    accent="priced up front."
+    items={zoPrices}
+    columns={2}
+    note="Prices as published by the practice. Availability varies — call or text before making a special trip."
+  />
+
+  <Divider mark="lotus" space="tight" />
+
+  <FAQ
+    locale={locale}
+    id="faq"
+    tone="default"
+    eyebrow="Questions we hear"
+    heading="Medical skincare, answered plainly."
+    items={faq}
+    openFirst={true}
+  />
+
+  <CTABand
+    tone="brand"
+    align="center"
+    eyebrow="ZO Skin Health · Circadia"
+    heading="Bring us your skin, not your shopping list."
+    ctaLabel={`Call ${SITE.phone}`}
+    ctaHref={`tel:${SITE.phoneHref}`}
+    secondaryLabel={`Text ${SITE.textPhone}`}
+    secondaryHref={`sms:${SITE.textPhoneHref}`}
+  />
+</BaseLayout>

@@ -2,7 +2,9 @@
   "lang": "en",
   "name": "Samantha Nunley",
   "role": "Business Development & Patient Experience",
-  "credentials": ["B.A. Communication Studies, Florida State University"],
-  "bio": "The first person most patients speak to, and the one who keeps the visit joined up.",
+  "credentials": [
+    "B.A. Communication Studies, Florida State University"
+  ],
+  "bio": "Samantha is our Business Development & Patient Experience Manager and usually the first person you speak to. She holds a B.A. in Communication Studies from Florida State University and keeps the whole visit joined up, from first call to follow-up.",
   "order": 9
 }
