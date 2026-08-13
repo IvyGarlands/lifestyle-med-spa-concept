@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex,notranslate">
+<title>Lifestyle Med Spa — concept redesign</title>
+<!--
+  Deck for Lifestyle Med Spa, styled from the concept site's own tokens.css so
+  it reads as an extension of the site rather than a separate document.
+
+  Palette values below are copied from src/styles/tokens.css §1 and are the
+  practice's OWN colours, sampled from their live site and logo pixels:
+    #1a2a40  their navy      #eecc7a  their gold
+    #e8dccb  their champagne #c48f7f  their rose
+
+  CONTRAST: every ink/ground pair used here is one the site's own
+  npm run check:contrast gate already asserts, plus two deck-only pairs
+  measured by hand and noted inline.
+
+  PRINT: @page is 16:9 at 297x167mm so Chrome renders one slide per page with
+  no scaling. Rebuild the PDF with outreach/deck/build-pdf.sh
+-->
+<style>
+  /* ---- tokens, lifted from the site ---------------------------------- */
+  :root {
+    --n-000: #fdfbf6;
+    --n-050: #f4efe4;
+    --n-100: #e8dccb;
+    --n-200: #d9cdbf;
+    --n-400: #74829a;
+    --n-600: #33445c;
+    --n-700: #22344c;
+    --n-800: #1a2a40;
+    --n-900: #101e30;
+
+    --b-100: #fcf0b8;
+    --b-300: #f6dd8c;
+    --b-400: #fcd070;
+    --b-500: #eecc7a;
+    --b-600: #c9a350;
+    --b-800: #6e521a;
+
+    --a-500: #c48f7f;
+    --a-700: #8a4e3d;
+
+    --grad-gold: linear-gradient(100deg, var(--b-100) 0%, var(--b-500) 34%, var(--b-400) 58%, var(--b-600) 100%);
+    --grad-ink: linear-gradient(168deg, var(--n-700) 0%, var(--n-800) 42%, var(--n-900) 100%);
+    --grad-rule: linear-gradient(90deg, rgb(238 204 122 / 0) 0%, rgb(238 204 122 / .55) 22%, rgb(238 204 122 / .55) 78%, rgb(238 204 122 / 0) 100%);
+
+    --face: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --face-script: "Pinyon Script", "Snell Roundhand", "Apple Chancery", cursive;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #0b1420;
+    font-family: var(--face);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---- slide shell ---------------------------------------------------- */
+  .slide {
+    position: relative;
+    width: 100vw;
+    aspect-ratio: 16 / 9;
+    max-width: 1600px;
+    margin: 0 auto 1.5rem;
+    overflow: hidden;
+    background-image: var(--grad-ink);
+    color: var(--n-050);
+    display: grid;
+    /* Everything scales off cqi, so the deck is identical on a phone and a
+       projector without a single breakpoint. */
+    container-type: inline-size;
+  }
+
+  .pad { padding: 4.4cqi 5.4cqi; display: flex; flex-direction: column; height: 100%; }
+
+  .eyebrow {
+    display: flex; align-items: center; gap: .6em;
+    margin: 0 0 1.6cqi;
+    font-size: 1.35cqi; font-weight: 700;
+    letter-spacing: .18em; text-transform: uppercase;
+    color: var(--b-500);
+  }
+  .eyebrow::before {
+    content: ""; width: 3.2cqi; height: 2px; border-radius: 2px;
+    background-image: var(--grad-gold); flex: none;
+  }
+
+  h1, h2 {
+    margin: 0;
+    font-weight: 800;
+    line-height: 1.06;
+    letter-spacing: -.028em;
+    color: var(--n-000);
+    text-wrap: balance;
+  }
+  h1 { font-size: 5.6cqi; }
+  h2 { font-size: 4.4cqi; }
+
+  .gold {
+    background-image: var(--grad-gold);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: var(--b-500); /* fallback if background-clip is unsupported */
+  }
+  @media (forced-colors: active) {
+    .gold { -webkit-text-fill-color: currentColor; background-image: none; }
+  }
+
+  p { margin: 0; font-size: 1.85cqi; line-height: 1.55; color: var(--n-100); }
+  .lead { font-size: 2.1cqi; max-width: 46ch; }
+
+  .rule { height: 1px; background-image: var(--grad-rule); margin: 2.4cqi 0; }
+  .s1__copy .rule { margin: 1.8cqi 0; }
+
+  .foot {
+    margin-top: auto; padding-top: 1.4cqi;
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 2cqi;
+    font-size: 1.25cqi; color: var(--n-200);
+  }
+  .slide:last-of-type .foot { font-size: 1.08cqi; line-height: 1.45; }
+  .foot strong { color: var(--b-500); font-weight: 700; }
+
+  /* The wordmark, same lockup as the site */
+  .wm { display: flex; align-items: center; gap: .5em; }
+  .wm__name { font-family: var(--face-script); font-size: 2.9cqi; line-height: .9; color: var(--b-500); }
+  .wm__sub {
+    font-size: 1.1cqi; font-weight: 700; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--b-500); opacity: .9;
+    align-self: flex-end; padding-bottom: .35em;
+  }
+  .lotus { width: 3.1cqi; height: 3.1cqi; flex: none; }
+
+  /* ---- slide 1 -------------------------------------------------------- */
+  /* 54/46 rather than 50/50: the copy column carries a headline and two
+     paragraphs and was overflowing into the screenshot at an even split.
+     min-width:0 is required on a grid child or the text refuses to wrap. */
+  .s1 { grid-template-columns: 54% 46%; align-items: center; gap: 0; }
+  .s1__copy { padding: 4cqi 3cqi 4cqi 5.4cqi; min-width: 0; }
+  .s1__copy .lead { max-width: 100%; font-size: 1.75cqi; }
+  .s1__copy h1 { font-size: 4.2cqi; }
+  .s1__shot {
+    height: 100%; position: relative; overflow: hidden;
+    display: flex; align-items: center;
+  }
+  /* Fills its half and crops from the left, so the hero's own headline and
+     figure stay in frame instead of the wordmark being sliced. */
+  .s1__shot img {
+    width: 100%; height: 100%; max-width: none;
+    object-fit: cover; object-position: left center;
+    border-left: 1px solid rgb(238 204 122 / .28);
+    box-shadow: -2cqi 0 6cqi rgb(0 0 0 / .45);
+  }
+  /* Gold seam where the screenshot meets the copy, so the two halves read as
+     one object rather than a picture pasted beside text. */
+  .s1__shot::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background-image: var(--grad-gold); z-index: 2;
+  }
+
+  /* ---- slide 2 -------------------------------------------------------- */
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.4cqi; margin-top: 3cqi; }
+  .card {
+    background: rgb(34 52 76 / .72);
+    border: 1px solid rgb(238 204 122 / .22);
+    border-radius: 1.1cqi;
+    padding: 2.8cqi 2.4cqi;
+    display: flex; flex-direction: column; gap: .9cqi;
+  }
+  .card__n {
+    font-size: 1.2cqi; font-weight: 800; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--b-500);
+  }
+  .card h3 {
+    margin: 0; font-size: 2.35cqi; font-weight: 800;
+    line-height: 1.14; letter-spacing: -.018em; color: var(--n-000);
+  }
+  .card p { font-size: 1.6cqi; line-height: 1.5; color: var(--n-100); }
+
+  /* ---- slide 3 -------------------------------------------------------- */
+  .tiers { display: grid; grid-template-columns: 1.3fr 1fr 1.15fr; gap: 1.5cqi; margin-top: 1.5cqi; align-items: stretch; }
+  .tier {
+    background: rgb(34 52 76 / .72);
+    border: 1px solid rgb(238 204 122 / .22);
+    border-radius: 1.1cqi; padding: 1.9cqi 1.8cqi;
+    display: flex; flex-direction: column; gap: .5cqi;
+  }
+  .tier--hero { background: rgb(34 52 76 / .95); border-color: var(--b-500); border-width: 2px; }
+  .tier__label {
+    font-size: 1.15cqi; font-weight: 800; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--b-500);
+  }
+  .tier h3 { margin: 0; font-size: 2.2cqi; font-weight: 800; letter-spacing: -.018em; color: var(--n-000); line-height: 1.12; }
+  .tier p { font-size: 1.32cqi; line-height: 1.4; }
+  .tier ul { margin: .3cqi 0 0; padding-left: 1.5em; }
+  .tier li { font-size: 1.4cqi; line-height: 1.5; color: var(--n-100); margin-bottom: .25em; }
+
+  .price { display: flex; align-items: baseline; gap: 1cqi; flex-wrap: wrap; margin: .3cqi 0 .2cqi; }
+  /* The struck price must read as a real former price, not a mistake or a
+     fake sale badge. #d9cdbf on the card ground is 7.4:1 — comfortably above
+     AA — so it is unambiguously legible; the strike does the work, not
+     faintness. The rule is drawn thick and in the rose accent so it is
+     obvious at phone size. */
+  .price__was {
+    position: relative; font-size: 2.1cqi; font-weight: 700;
+    color: var(--n-200);
+  }
+  .price__was::after {
+    content: ""; position: absolute; left: -4%; right: -4%; top: 52%;
+    height: .28cqi; min-height: 2px; border-radius: 2px;
+    background: var(--a-500); transform: rotate(-6deg);
+  }
+  .price__now { font-size: 3.9cqi; font-weight: 800; letter-spacing: -.03em; color: var(--b-500); line-height: 1; }
+  .price__note { font-size: 1.25cqi; color: var(--n-200); }
+
+  .incl { display: grid; grid-template-columns: 1fr 1fr; gap: .1cqi 1.4cqi; margin-top: .3cqi; }
+  .incl div { font-size: 1.22cqi; line-height: 1.4; color: var(--n-100); }
+
+  .care__row { display: flex; align-items: baseline; gap: .8cqi; }
+  .care__price { font-size: 2.7cqi; font-weight: 800; color: var(--b-500); letter-spacing: -.03em; }
+  .care__alt { font-size: 1.2cqi; color: var(--n-200); }
+
+  .yes-no { display: grid; grid-template-columns: 1fr 1fr; gap: 1cqi; margin-top: .5cqi; }
+  .yes-no h4 {
+    margin: 0 0 .2cqi; font-size: 1.05cqi; font-weight: 800;
+    letter-spacing: .12em; text-transform: uppercase;
+  }
+  .yes h4 { color: var(--b-500); }
+  /* #dcae9f on the card ground measures 6.1:1 — AA at this size and above. */
+  .no h4 { color: #dcae9f; }
+  .yes-no p { font-size: 1.14cqi; line-height: 1.38; color: var(--n-100); }
+
+  .why {
+    margin-top: 1.2cqi; padding: 1.1cqi 1.6cqi;
+    border-left: 3px solid var(--b-500);
+    background: rgb(238 204 122 / .07);
+    border-radius: 0 .8cqi .8cqi 0;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.8cqi;
+  }
+  .why p { font-size: 1.16cqi; line-height: 1.4; color: var(--n-050); }
+
+  /* ---- print: one slide per page, 16:9 ------------------------------- */
+  @page { size: 297mm 167mm; margin: 0; }
+
+  @media print {
+    html, body { background: #fff; }
+    .slide {
+      width: 297mm; height: 167mm; max-width: none;
+      margin: 0; break-after: page; page-break-after: always;
+      aspect-ratio: auto;
+    }
+    .slide:last-child { break-after: auto; page-break-after: auto; }
+    .noprint { display: none !important; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  .noprint {
+    max-width: 1600px; margin: 0 auto 2rem; padding: 1rem 1.5rem;
+    color: #9daabc; font-size: .85rem; line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ SLIDE 1 ============================ -->
+<section class="slide s1">
+  <div class="s1__copy">
+    <div class="wm" style="margin-bottom:2.2cqi">
+      <svg class="lotus" viewBox="0 0 100 100" aria-hidden="true">
+        <defs>
+          <linearGradient id="lg1" x1="0" y1="0" x2=".85" y2="1">
+            <stop offset="0%" stop-color="#fcf0b8"/><stop offset="52%" stop-color="#fcd070"/><stop offset="100%" stop-color="#c9a350"/>
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="46.5" fill="none" stroke="#eecc7a" stroke-width="1.1" opacity=".85"/>
+        <g transform="translate(50 64)" fill="url(#lg1)">
+          <path d="M0 0 C 0.46 -0.34, 0.40 -0.76, 0 -1 C -0.40 -0.76, -0.46 -0.34, 0 0 Z" transform="rotate(-66) scale(12.5 27)"/>
+          <path d="M0 0 C 0.46 -0.34, 0.40 -0.76, 0 -1 C -0.40 -0.76, -0.46 -0.34, 0 0 Z" transform="rotate(66) scale(12.5 27)"/>
+          <path d="M0 0 C 0.46 -0.34, 0.40 -0.76, 0 -1 C -0.40 -0.76, -0.46 -0.34, 0 0 Z" transform="rotate(-34) scale(13.5 32)"/>
+          <path d="M0 0 C 0.46 -0.34, 0.40 -0.76, 0 -1 C -0.40 -0.76, -0.46 -0.34, 0 0 Z" transform="rotate(34) scale(13.5 32)"/>
+          <path d="M0 0 C 0.46 -0.34, 0.40 -0.76, 0 -1 C -0.40 -0.76, -0.46 -0.34, 0 0 Z" transform="scale(11 39)"/>
+        </g>
+        <circle cx="50" cy="17.5" r="3.4" fill="url(#lg1)"/>
+        <g fill="none" stroke="#eecc7a" stroke-width="2" stroke-linecap="round">
+          <path d="M17 68 C 32 75, 68 62, 83 69"/><path d="M17 69 C 32 62, 68 75, 83 68"/>
+        </g>
+      </svg>
+      <span class="wm__name">Lifestyle</span>
+      <span class="wm__sub">Med Spa</span>
+    </div>
+
+    <p class="eyebrow">A concept, built unprompted</p>
+    <h1>Your website, rebuilt around <span class="gold">your ten people</span>.</h1>
+    <div class="rule"></div>
+    <p class="lead">
+      Nobody hired me. I'm a designer in Thousand Oaks, eight miles from your
+      clinic. I built this because your reviews thank your staff by name and
+      your current site never introduces them.
+    </p>
+    <p class="lead" style="margin-top:1.4cqi">
+      So the page is built around that: your navy and gold, your lotus, and all
+      ten of your names signed in the script from your own logo.
+    </p>
+
+    <div class="foot">
+      <div>Concept redesign &middot; not affiliated with Lifestyle Med Spa</div>
+      <div><strong>Looking Glass Labs</strong></div>
+    </div>
+  </div>
+
+  <div class="s1__shot">
+    <img src="site-hero.png" alt="The concept homepage for Lifestyle Med Spa">
+  </div>
+</section>
+
+<!-- ============================ SLIDE 2 ============================ -->
+<section class="slide">
+  <div class="pad">
+    <p class="eyebrow">Why it matters</p>
+    <h2>Three things your site isn't doing yet.</h2>
+
+    <div class="cards">
+      <div class="card">
+        <span class="card__n">01 &middot; Your people</span>
+        <h3>Ten names, no faces.</h3>
+        <p>
+          Your team page lists ten people with real credentials, including a
+          head nurse with fifty years behind her. Your portraits exist, but
+          they sit two clicks down where nobody scrolling finds them. In a
+          category full of anonymous GLP&#8209;1 sellers, that roster is the
+          most persuasive thing you own.
+        </p>
+      </div>
+
+      <div class="card">
+        <span class="card__n">02 &middot; Your proof</span>
+        <h3>An empty reviews section.</h3>
+        <p>
+          Your homepage has a "Google Reviews" heading with nothing underneath
+          it. Someone deciding whether to trust you with a prescription scrolls
+          to exactly that spot, finds a blank, and leaves. Your actual reviews
+          are warm and specific and they are nowhere on the page.
+        </p>
+      </div>
+
+      <div class="card">
+        <span class="card__n">03 &middot; Your answers</span>
+        <h3>Prices people phone to ask.</h3>
+        <p>
+          Your IV menu, HydraFacial tiers and weight&#8209;management pricing
+          are all published, but buried on inner pages. Put them where people
+          look and the calls you get are from people ready to book, not people
+          asking what it costs.
+        </p>
+      </div>
+    </div>
+
+    <div class="foot">
+      <div>Every point above is drawn from your own site, reviews and listings.</div>
+      <div><strong>Looking Glass Labs</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ SLIDE 3 ============================ -->
+<section class="slide">
+  <div class="pad">
+    <p class="eyebrow">What it costs</p>
+    <h2 style="font-size:3.3cqi">Three ways to take this, and <span class="gold">why it's priced low</span>.</h2>
+
+    <div class="tiers">
+      <!-- Tier 1 -->
+      <div class="tier tier--hero">
+        <span class="tier__label">Option 1 &middot; Take it as is</span>
+        <div class="price">
+          <span class="price__was">$2,450</span>
+          <span class="price__now">$1,000</span>
+        </div>
+        <p class="price__note">One&#8209;off. You own all of it.</p>
+        <div class="incl">
+          <div>Your content and photos swapped in</div>
+          <div>Minor changes to fit how you work</div>
+          <div>SEO set up properly</div>
+          <div>Live on your own domain</div>
+          <div>Everything handed over to you</div>
+          <div>No lock&#8209;in of any kind</div>
+        </div>
+      </div>
+
+      <!-- Tier 2 -->
+      <div class="tier">
+        <span class="tier__label">Option 2 &middot; Take it further</span>
+        <div class="price"><span class="price__now" style="font-size:3.4cqi">from $2,500</span></div>
+        <p>
+          More pages, deeper customisation, built around how you actually run
+          the practice. Treatment pages, one real service&#8209;area page
+          instead of the ~190 near&#8209;duplicate city pages you have now, and
+          booking that matches your four&#8209;day week.
+        </p>
+      </div>
+
+      <!-- Tier 3 -->
+      <div class="tier">
+        <span class="tier__label">Option 3 &middot; I look after it</span>
+        <div class="care__row">
+          <span class="care__price">$99</span>
+          <span class="care__alt">/month, or $69/month paid annually</span>
+        </div>
+        <p class="price__note" style="margin-bottom:.4cqi">On top of the build.</p>
+        <div class="yes-no">
+          <div class="yes">
+            <h4>Included, within reason</h4>
+            <p>Hosting and all technical upkeep. Keeping the SEO healthy. Text and copy edits, swapping photos, updating hours, prices, menus and services. Seasonal changes.</p>
+          </div>
+          <div class="no">
+            <h4>Quoted separately</h4>
+            <p>New pages or sections. Branding or logo work. Photography. New long&#8209;form writing. New features or integrations. Anything that is a new project rather than an update.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="why">
+      <p>
+        <strong style="color:var(--b-500)">Option 4 &mdash; marketing support, scope TBD.</strong>
+        My day job is CMO in tech: 13+ years at that level, brands with billions
+        of earned impressions and communities in the millions. If you want that
+        pointed at the practice, we can talk.
+      </p>
+      <p>
+        <strong style="color:var(--b-500)">Why $1,000, not $2,450.</strong>
+        It's already built, so I'm not starting from a blank page and won't
+        price it as if I were. Nobody hired me. I'd rather start a relationship
+        than win a bidding war.
+      </p>
+    </div>
+
+    <div class="foot">
+      <div>Anything beyond small updates is quoted before work starts, so you always know the cost up front. That boundary is what keeps the monthly this low. &nbsp;&middot;&nbsp; Prices hold 30 days from the date I send this, and that is the only deadline.</div>
+      <div><strong>Looking Glass Labs</strong></div>
+    </div>
+  </div>
+</section>
+
+<p class="noprint">
+  Three slides, 16:9. To regenerate the PDF: <code>./build-pdf.sh</code> from
+  this folder, or just print this page to PDF with backgrounds enabled.
+</p>
+
+</body>
+</html>

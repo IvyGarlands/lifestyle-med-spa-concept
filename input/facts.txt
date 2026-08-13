@@ -196,12 +196,47 @@ PRODUCTS
   ZO Skin Health · Circadia Skincare
   SOURCE: https://lifestylehealthservices.com/ — main nav and "Our Treatments"
 
-PRICES: NONE PUBLISHED ANYWHERE.
-  Checked: their own site (no prices on any page), Fresha (listing carries no
-  services or prices and disclaims affiliation), Yelp, Zocdoc, Birdeye.
-  There is no scanned menu, price sheet or fee schedule in any public source.
-  DECISION: the page shows NO PRICE FOR ANY SERVICE. The only monetary facts
-  published are the two below, which are theirs verbatim.
+PRICES: **CORRECTED 2026-08-13.** The original entry here said "none published
+  anywhere". THAT WAS WRONG, and it was wrong because I had only read the
+  homepage and the four nav hub pages. The prices live on the inner treatment
+  pages. Corrected and now published on the concept:
+
+  IV THERAPY — SOURCE: https://lifestylehealthservices.com/vitamin-iv-drips/
+    Immunity Booster            $149
+    Energize and Recharge       $149
+    Athlete's Fuel and Recovery $149
+    Relaxation and Revive       $155
+    Hangover Recovery           $170
+    Vital Glow                  $199
+    Glutathione Push            $98 / $175 (1000mg / 2000mg)
+    Every drip includes 1 litre of saline; sessions run 45-60 minutes.
+
+  HYDRAFACIAL — SOURCE:
+  https://lifestylehealthservices.com/the-hydrafacial-in-agoura-hills/
+    Signature (30 min)  $150
+    Deluxe (45 min)     $175
+    Platinum (60 min)   $210
+
+  WEIGHT MANAGEMENT — SOURCE:
+  https://lifestylehealthservices.com/weight-management/
+    First month  $550 (their page shows $650 struck through)
+      Includes: free initial consultation, free first injection, free Evolt 360
+      body scan, free B-12 injection, four follow-up weekly injections.
+    Ongoing      $550/month, four weekly injections
+    Verbatim: "Cancel any time. No contracts. No commitment. No memberships."
+
+  ZO SKIN HEALTH — SOURCE: https://lifestylehealthservices.com/zo-skin-health/
+    16 products, $21 to $248. Full list in src/content/menu/.
+
+  DATED: all prices read 2026-08-12. They must be re-confirmed with the
+  practice before the concept is shown to anyone, because a stale price on a
+  page I built is the single most damaging error available here.
+
+  ALSO ON THAT PAGE, NOT USED: a named compounding pharmacy (Strive Pharmacy,
+  Gilbert AZ) and a patient testimonial carrying a pound figure and a
+  timeframe. The pharmacy is omitted because naming a compounding source
+  invites regulatory questions I am not equipped to answer for them; the
+  testimonial is omitted under the FTC constraint in §7b.
 
 THE COMMERCIAL MODEL — verbatim, and this is a differentiator:
   "There are no contracts, no hidden fees, no membership costs — and
@@ -294,20 +329,38 @@ e. Reviews naming staff members are quoted verbatim and un-edited except for
 8. PHOTOGRAPHY — the honest position
 ================================================================================
 
-NO AUTHENTIC PHOTOGRAPHY OF THIS BUSINESS EXISTS IN ANY SOURCE I COULD REACH.
+**CORRECTED 2026-08-13.** The original entry said no authentic photography of
+this business existed anywhere. THAT WAS WRONG. The staff portraits are on
+their /team/ page; my first DOM read ran before they lazy-loaded and filtered
+on naturalWidth, so it returned zero and I wrote the wrong conclusion down.
 
-  · Their /team/ page: ten named people, zero portraits.
-  · Their homepage: four large images, all downloaded and inspected. All four
-    are commercial stock — a studio beauty portrait on a pink seamless, a
-    cropped torso in navy activewear on a black seamless, a beach scene. None
-    depicts their clinic, their staff, their equipment or their room.
-  · No interior, exterior, signage or equipment photograph appears on any page
-    of their site.
-  · Instagram (@lifestylemedspa) and Facebook are login-walled.
+WHAT ACTUALLY EXISTS AND IS NOW USED ON THE CONCEPT:
 
-DECISION: no photograph appears on the concept. Their stock is licensed to
-them and not to us, and re-hosting a stock beauty portrait would reproduce the
-exact failure the redesign is arguing against. The page's imagery is drawn
-instead — a redrawn version of their own lotus mark and hand-drawn signatures
-— which is both defensible and on-brief, since the idea is the people.
-The concept badge already discloses that imagery and branding are recreated.
+  · TEN staff portraits, one per named person, shot in their own clinic — the
+    gold wall art visible behind Michael Rankin matches their brand.
+    SOURCE: /wp-content/uploads/2025/10/ and /2026/07/
+    Largest available: 364x400. Small, but real and theirs.
+  · Treatment photography: a five-step HydraFacial sequence (cleanse, peel,
+    extraction, hydration, protection), ZO product shots, IV/clinic banners.
+  · Aerial/neighbourhood photographs of ~28 service-area towns, which they use
+    on their own city pages.
+  · One 899x675 cut-out of a model on flat studio white, and a 1440x675 version
+    of the same shot on navy. This is the largest clean asset they own and it
+    is now the homepage hero (white keyed to alpha, standing on the navy).
+
+STILL TRUE, AND STILL A PROBLEM:
+  · Everything above is SMALL. Nothing exceeds 1440px on its long edge and most
+    portraits are 300-400px. At 2x pixel density the larger slots interpolate.
+  · The four big homepage images on their current site ARE commercial stock — a
+    beauty portrait on pink seamless, a cropped torso, a beach scene. Those are
+    licensed to them, not to us, and none are used except the cut-out described
+    above, which is disclosed by the concept badge.
+  · No photograph of the room itself, the exterior, the signage or the IV
+    lounge exists in any reachable source.
+  · Instagram (@lifestylemedspa) has real content including Before & After and
+    Testimonials highlights, but is login-walled to a scraper.
+
+DECISION: their own photography is used throughout, upscaled with a
+denoise-then-lanczos-then-mild-sharpen pass. The concept badge discloses that
+imagery and branding may be recreated. A real photo shoot is the single
+highest-value thing they could add, and it is the first ask if they engage.
