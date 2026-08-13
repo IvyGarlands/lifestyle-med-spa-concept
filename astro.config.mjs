@@ -65,25 +65,43 @@ export default defineConfig({
     inlineStylesheets: "always",
   },
 
-  /**
-   * Dev-server only. Astro's dev router runs a Fetch-Metadata check
-   * (secFetchMiddleware): any request whose `Sec-Fetch-Site` is `cross-site`
-   * is 403'd with "Cross-origin request blocked" UNLESS its `Origin` host
-   * matches `security.allowedDomains`. The v0 preview serves this app inside
-   * an iframe on a proxied host (a different origin than localhost:4321), so
-   * every request looks cross-site and gets blocked.
-   *
-   * An empty pattern `{}` matches any host, so this trusts all origins for the
-   * dev router. `security.allowedDomains` is only consulted by the dev server;
-   * it has no effect on the static production build (`output: "static"`).
-   */
-  security: {
-    allowedDomains: [{}],
-  },
-
   vite: {
     build: {
       cssMinify: "lightningcss",
     },
+    /**
+     * Dev-server only. Astro's dev router runs a Fetch-Metadata check
+     * (secFetchMiddleware) that 403s "Cross-origin request blocked" for any
+     * request with `Sec-Fetch-Site: cross-site` unless its `Origin` host
+     * matches `security.allowedDomains`. The v0 preview runs this app in a
+     * sandboxed iframe on a proxied host, so its subresource requests are
+     * cross-site AND carry `Origin: null` (or no Origin at all) — a case the
+     * check blocks unconditionally, so no `allowedDomains` value can satisfy
+     * it.
+     *
+     * This plugin runs a middleware ahead of Astro's (enforce: "post" makes
+     * its stack.unshift land in front of Astro's) that clears the
+     * `Sec-Fetch-*` headers. Astro's check then short-circuits on its
+     * `if (!secFetchSite) return next()` path. `configureServer` only runs in
+     * dev, so this has zero effect on the static production build.
+     */
+    plugins: [
+      {
+        name: "v0-preview-allow-cross-origin-dev",
+        enforce: "post",
+        configureServer(server) {
+          return () => {
+            server.middlewares.stack.unshift({
+              route: "",
+              handle: (req, _res, next) => {
+                delete req.headers["sec-fetch-site"];
+                delete req.headers["sec-fetch-mode"];
+                next();
+              },
+            });
+          };
+        },
+      },
+    ],
   },
 });
