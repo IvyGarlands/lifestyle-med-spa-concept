@@ -126,6 +126,20 @@ const headingId = id ? `${id}-heading` : undefined;
     display: grid;
     gap: var(--space-xl);
     align-items: center;
+    /* THE FIX for a page-wide horizontal scrollbar. `.split__media::before`
+       (the soft gold bloom behind the photo, below) extends 8% past its own
+       box on purpose, and nothing was clipping it — a pseudo-element never
+       shows up in a querySelectorAll scan, which is why it stayed invisible
+       to a normal overflow audit. On the flipped variant the media column
+       sits flush with the right edge of the container, so that 8% bleed
+       pushed roughly 40px past the viewport and widened
+       `document.documentElement.scrollWidth` on every page that uses this
+       component — the "doesn't snap to the browser" symptom.
+       `HeroLead` and `QuoteBanner` already clip their own bloom at the
+       section root; this brings MediaSplit in line with that pattern rather
+       than shrinking the bloom itself, which would blunt the effect it
+       exists for. */
+    overflow: hidden;
   }
 
   @media (min-width: 60em) {
