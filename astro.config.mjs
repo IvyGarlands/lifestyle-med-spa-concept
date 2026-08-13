@@ -69,5 +69,16 @@ export default defineConfig({
     build: {
       cssMinify: "lightningcss",
     },
+    /**
+     * Dev-server only. The v0 preview serves this app through a proxied
+     * origin (iframe on a different host than localhost:4321), so Astro/Vite
+     * flags every request as cross-site via Sec-Fetch-Site and logs
+     * "Blocked cross-origin request". Allowing all hosts + CORS in dev quiets
+     * that. None of this affects the static production build.
+     */
+    server: {
+      cors: true,
+      allowedHosts: true,
+    },
   },
 });
