@@ -65,20 +65,25 @@ export default defineConfig({
     inlineStylesheets: "always",
   },
 
+  /**
+   * Dev-server only. Astro's dev router runs a Fetch-Metadata check
+   * (secFetchMiddleware): any request whose `Sec-Fetch-Site` is `cross-site`
+   * is 403'd with "Cross-origin request blocked" UNLESS its `Origin` host
+   * matches `security.allowedDomains`. The v0 preview serves this app inside
+   * an iframe on a proxied host (a different origin than localhost:4321), so
+   * every request looks cross-site and gets blocked.
+   *
+   * An empty pattern `{}` matches any host, so this trusts all origins for the
+   * dev router. `security.allowedDomains` is only consulted by the dev server;
+   * it has no effect on the static production build (`output: "static"`).
+   */
+  security: {
+    allowedDomains: [{}],
+  },
+
   vite: {
     build: {
       cssMinify: "lightningcss",
-    },
-    /**
-     * Dev-server only. The v0 preview serves this app through a proxied
-     * origin (iframe on a different host than localhost:4321), so Astro/Vite
-     * flags every request as cross-site via Sec-Fetch-Site and logs
-     * "Blocked cross-origin request". Allowing all hosts + CORS in dev quiets
-     * that. None of this affects the static production build.
-     */
-    server: {
-      cors: true,
-      allowedHosts: true,
     },
   },
 });
